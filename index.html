@@ -175,6 +175,16 @@ h1.pg{font-size:22px;margin:4px 0 0}
 .ob .pts i{width:7px;height:7px;border-radius:50%;background:var(--line)}
 .ob .pts i.on{background:var(--brown);width:18px;border-radius:4px}
 .steps{text-align:left;background:var(--soft);border-radius:14px;padding:12px 14px;font-size:14px;line-height:1.9;margin:8px 0}
+.ok{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#E8DED4;color:#fff;font-size:13px;font-weight:700;margin-left:6px;vertical-align:2px;transition:background .2s,transform .2s;flex:none}
+.ok.on{background:#4CB27F}
+.ok.pop{transform:scale(1.25)}
+.meal-h .ok{width:20px;height:20px;font-size:12px;margin-left:2px}
+.prog{display:flex;align-items:center;gap:10px;background:var(--card);border-radius:16px;padding:10px 12px;box-shadow:var(--shadow);margin-top:12px}
+.prog b{font-size:13px;white-space:nowrap}
+.prog .its{display:flex;flex:1;justify-content:space-between;gap:2px}
+.prog .its button{border:0;background:none;padding:2px 0;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;color:var(--sub);min-width:38px}
+.prog .its .ok{margin:0}
+.toast .ck{color:#8FE3B4;font-weight:700;margin-right:4px}
 .tip{font-size:12px;color:var(--sub);line-height:1.7;margin:8px 0 0}
 .stk{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
 .stk button{border:0;background:var(--soft);border-radius:14px;padding:10px 4px 8px;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;color:#6E5442;position:relative}
@@ -209,9 +219,10 @@ h1.pg{font-size:22px;margin:4px 0 0}
       <div class="d"><b id="dateMain"></b><span id="dateSub"></span><input type="date" id="datePick" aria-label="選擇日期"></div>
       <button class="round" id="nextDay" aria-label="後一天">›</button>
     </div>
+    <div class="prog" id="prog"><b id="progText">今天 0/6</b><div class="its" id="progIts"></div></div>
 
-    <div class="card">
-      <div class="card-h"><h2>嗯嗯形態</h2><small>一天可記錄多次</small></div>
+    <div class="card" id="c-stool">
+      <div class="card-h"><h2>嗯嗯形態<span class="ok" data-ok="stool" aria-hidden="true">✓</span></h2><small>一天可記錄多次</small></div>
       <div class="bristol" id="bristol"></div>
       <p class="desc" id="btdesc">點選最像的那一個</p>
       <div class="chips" id="stoolTags"></div>
@@ -223,40 +234,40 @@ h1.pg{font-size:22px;margin:4px 0 0}
       <label class="check"><input type="checkbox" id="noPoop"> 今天沒有嗯嗯</label>
     </div>
 
-    <div class="card">
-      <div class="card-h"><h2>今天的肚子感覺</h2><small>一天記一次</small></div>
+    <div class="card" id="c-belly">
+      <div class="card-h"><h2>今天的肚子感覺<span class="ok" data-ok="belly" aria-hidden="true">✓</span></h2><small>一天記一次</small></div>
       <div class="lvrow"><span>肚子痛</span><div class="lv" id="painLv" data-f="pain"></div></div>
       <div class="lvrow"><span>脹氣</span><div class="lv" id="bloatLv" data-f="bloat"></div></div>
       <p class="tip">記整天下來的感覺，以<b>最不舒服</b>的時候為準；晚一點變嚴重了，回來改就好。整天都沒事請點 0。</p>
     </div>
 
-    <div class="card">
-      <div class="card-h"><h2>今天吃了什麼</h2><small>點標籤，分析更準</small></div>
+    <div class="card" id="c-meals">
+      <div class="card-h"><h2>今天吃了什麼<span class="ok" data-ok="meals" aria-hidden="true">✓</span></h2><small id="mealsText">點標籤，分析更準</small></div>
       <div id="meals"></div>
     </div>
 
     <div class="two">
-      <div class="card">
-        <div class="card-h" style="margin-bottom:6px"><h2>昨晚睡眠</h2></div>
+      <div class="card" id="c-sleep">
+        <div class="card-h" style="margin-bottom:6px"><h2>昨晚睡眠<span class="ok" data-ok="sleep" aria-hidden="true">✓</span></h2></div>
         <div class="big num" id="sleepVal">– <small>小時</small></div>
         <input type="range" class="slider" id="sleepHours" min="0" max="12" step="0.5" value="7" aria-label="睡眠時數">
         <div style="font-size:12px;color:var(--sub)" id="sleepQText">睡得好嗎？</div>
         <div class="dots" id="sleepQ"></div>
       </div>
-      <div class="card">
-        <div class="card-h" style="margin-bottom:6px"><h2>今天心情</h2></div>
+      <div class="card" id="c-mood">
+        <div class="card-h" style="margin-bottom:6px"><h2>今天心情<span class="ok" data-ok="mood" aria-hidden="true">✓</span></h2></div>
         <div class="faces" id="moodQ"></div>
         <div style="font-size:12px;color:var(--sub);margin-top:8px" id="moodText">點一個表情</div>
         <button class="link" id="moodMore">＋ 加一些細節</button>
       </div>
     </div>
     <div class="card" id="moodTagsCard" style="display:none">
-      <div class="card-h"><h2>心情細節</h2><button class="link" id="moodLess">收起</button></div>
+      <div class="card-h"><h2>心情細節</h2><button class="btn sm" id="moodLess">✓ 完成</button></div>
       <div id="moodTags"></div>
     </div>
 
-    <div class="card">
-      <div class="card-h"><h2>喝水</h2><small id="waterText">一杯約 250 ml</small></div>
+    <div class="card" id="c-water">
+      <div class="card-h"><h2>喝水<span class="ok" data-ok="water" aria-hidden="true">✓</span></h2><small id="waterText">一杯約 250 ml</small></div>
       <div class="cups" id="water"></div>
     </div>
 
@@ -512,7 +523,9 @@ function esc(s){ return String(s).replace(/[&<>"']/g,function(c){ return {"&":"&
 function icon(k){ return stk[k] || DEFAULT_ICONS[k]; }
 function pct(a,b){ return b? Math.round(a*100/b) : 0; }
 var tT;
-function toast(m){ var t=$("toast"); t.textContent=m; t.classList.add("show"); clearTimeout(tT); tT=setTimeout(function(){ t.classList.remove("show"); },2200); }
+function okToast(m){ toast(m, true); }
+function pop(el){ if(!el) return; el.classList.add("pop"); setTimeout(function(){ el.classList.remove("pop"); },220); }
+function toast(m, ok){ var t=$("toast"); t.innerHTML=(ok?'<span class="ck">✓</span>':'')+esc(m); t.classList.add("show"); clearTimeout(tT); tT=setTimeout(function(){ t.classList.remove("show"); },2200); }
 function openSheet(html){ $("sheet").innerHTML=html; $("modal").classList.add("on"); }
 function closeSheet(){ $("modal").classList.remove("on"); $("sheet").innerHTML=""; }
 $("modal").addEventListener("click",function(e){ if(e.target.id==="modal"){ if($("sheet").querySelector(".ob")) lsSet("poodiary.onboarded","1"); closeSheet(); } });
@@ -543,16 +556,16 @@ function buildLog(){
     d.stools.sort(function(a,b){ return (a.time||"99").localeCompare(b.time||"99"); });
     d.noPoop=false; save(); selType=null; selTags=[];
     renderBristol(); renderStools();
-    toast(t===4?"完美的香蕉！":t<=2?"辛苦了，記得多喝水":t>=6?"記下來了，肚子要保重":"記下來了");
+    okToast("已記錄第 "+t+" 型"+(t===4?"，完美的香蕉！":t<=2?"，記得多喝水":t>=6?"，肚子要保重":""));
   };
   $("stoolList").onclick=function(e){ var b=e.target.closest("[data-del]"); if(!b) return; var d=getDay(cur); d.stools.splice(+b.dataset.del,1); save(); tidy(cur); renderStools(); };
-  $("noPoop").onchange=function(){ var d=getDay(cur,true); d.noPoop=this.checked; save(); tidy(cur); };
+  $("noPoop").onchange=function(){ var d=getDay(cur,true); d.noPoop=this.checked; save(); tidy(cur); renderProgress(); if(this.checked) okToast("已記錄：今天沒有嗯嗯"); };
 
   // 餐點
   var ms=$("meals");
   ms.innerHTML=MEALS.map(function(m){
     return '<div class="meal" data-k="'+m.k+'">'+
-      '<button class="meal-h" data-act="toggle"><span class="dot" style="background:'+m.c+'"></span><b>'+m.t+'</b><span class="sum"></span></button>'+
+      '<button class="meal-h" data-act="toggle"><span class="dot" style="background:'+m.c+'"></span><b>'+m.t+'</b><span class="ok" data-okm="1" aria-hidden="true">✓</span><span class="sum"></span></button>'+
       '<div class="meal-b">'+
         '<div class="chips sel-items"></div>'+
         '<div class="search" style="margin-top:8px"><input type="text" placeholder="搜尋食物，例如「牛」…" enterkeyhint="done" aria-label="搜尋'+m.t+'"><div class="sugg"></div></div>'+
@@ -560,6 +573,7 @@ function buildLog(){
         '<div class="chips" style="margin-top:8px"><button class="chip dash" data-act="more">更多食物 ›</button><button class="chip dash" data-act="copy">跟昨天一樣</button></div>'+
         '<div class="lbl">吃飯狀況</div><div class="chips habits"></div>'+
         '<input type="text" class="meal-note" placeholder="備註（選填）" aria-label="'+m.t+'備註">'+
+        '<div class="row" style="justify-content:flex-end;margin-top:12px"><button class="btn sm" data-act="done">✓ '+m.t+'記好了</button></div>'+
       '</div></div>';
   }).join("");
   ms.addEventListener("click", onMealClick);
@@ -579,31 +593,34 @@ function buildLog(){
 
   // 睡眠
   $("sleepQ").innerHTML=SLEEP_Q.map(function(t,i){ return '<button data-v="'+(i+1)+'" aria-label="'+t+'"></button>'; }).join("");
-  $("sleepQ").onclick=function(e){ var b=e.target.closest("button"); if(!b) return; var d=getDay(cur,true), v=+b.dataset.v; d.sleep.q = d.sleep.q===v?null:v; save(); tidy(cur); renderSleep(); };
+  $("sleepQ").onclick=function(e){ var b=e.target.closest("button"); if(!b) return; var d=getDay(cur,true), v=+b.dataset.v; d.sleep.q = d.sleep.q===v?null:v; save(); tidy(cur); renderSleep(); if(d.sleep.q) okToast("已記錄：睡得"+SLEEP_Q[v-1]); };
   $("sleepHours").oninput=function(){ var d=getDay(cur,true); d.sleep.hours=+this.value; save(); renderSleep(); };
+  $("sleepHours").onchange=function(){ okToast("已記錄：睡 "+this.value+" 小時"); };
 
   // 心情
   $("moodQ").innerHTML=MOOD_Q.map(function(t,i){ return '<button data-v="'+(i+1)+'" aria-label="'+t+'"><img data-stk="m'+(i+1)+'" alt=""></button>'; }).join("");
-  $("moodQ").onclick=function(e){ var b=e.target.closest("button"); if(!b) return; var d=getDay(cur,true), v=+b.dataset.v; d.mood.q = d.mood.q===v?null:v; save(); tidy(cur); renderMood(); };
+  $("moodQ").onclick=function(e){ var b=e.target.closest("button"); if(!b) return; var d=getDay(cur,true), v=+b.dataset.v; d.mood.q = d.mood.q===v?null:v; save(); tidy(cur); renderMood(); if(d.mood.q) okToast("已記錄：心情"+MOOD_Q[v-1]); };
   $("moodTags").innerHTML=MOOD_GROUPS.map(function(g){ return '<div class="grouph">'+g.t+'</div><div class="chips">'+g.items.map(function(t){ return '<button class="chip pk" data-t="'+t+'">'+t+'</button>'; }).join("")+'</div>'; }).join("");
   $("moodTags").onclick=function(e){ var c=e.target.closest(".chip"); if(!c) return; var d=getDay(cur,true), a=d.mood.tags, t=c.dataset.t, ix=a.indexOf(t); if(ix>=0) a.splice(ix,1); else a.push(t); save(); tidy(cur); renderMood(); };
   $("moodMore").onclick=function(){ $("moodTagsCard").style.display="block"; $("moodTagsCard").scrollIntoView({behavior:"smooth",block:"center"}); };
-  $("moodLess").onclick=function(){ $("moodTagsCard").style.display="none"; };
+  $("moodLess").onclick=function(){ var d=getDay(cur); $("moodTagsCard").style.display="none"; if(d&&d.mood.tags.length) okToast("心情細節記好了"); $("c-mood").scrollIntoView({block:"center",behavior:"smooth"}); };
 
   // 肚子感覺
   var LV=[["0","沒有"],["1","一點"],["2","明顯"],["3","很嚴重"]];
   ["painLv","bloatLv"].forEach(function(id){
     $(id).innerHTML=LV.map(function(x){ return '<button class="l'+x[0]+'" data-v="'+x[0]+'"><b class="num">'+x[0]+'</b>'+x[1]+'</button>'; }).join("");
     $(id).onclick=function(e){ var b=e.target.closest("button"); if(!b) return; var d=getDay(cur,true), f=this.dataset.f, v=+b.dataset.v; d.belly[f] = d.belly[f]===v? null : v; save(); tidy(cur); renderBelly();
-      toast(d.belly[f]==null? "已清除" : "已記錄：今天"+(f==="pain"?"肚子痛":"脹氣")+"「"+LV[v][1]+"」"); };
+      if(d.belly[f]==null) toast("已清除"); else { var other=f==="pain"?"bloat":"pain"; okToast("已記錄：今天"+(f==="pain"?"肚子痛":"脹氣")+"「"+LV[v][1]+"」"+(d.belly[other]==null?"，再點"+(other==="pain"?"肚子痛":"脹氣")+"就完成":"")); } };
   });
 
   // 喝水
   var w=""; for(var j=1;j<=10;j++) w+='<button data-v="'+j+'" aria-label="'+j+' 杯"></button>';
   $("water").innerHTML=w;
-  $("water").onclick=function(e){ var b=e.target.closest("button"); if(!b) return; var d=getDay(cur,true), v=+b.dataset.v; d.water = d.water===v? v-1 : v; save(); tidy(cur); renderWater(); };
+  $("water").onclick=function(e){ var b=e.target.closest("button"); if(!b) return; var d=getDay(cur,true), v=+b.dataset.v; d.water = d.water===v? v-1 : v; save(); tidy(cur); renderWater(); okToast(d.water? "已記錄：喝水 "+d.water+" 杯" : "已清除喝水紀錄"); };
 
   $("dayNote").oninput=function(){ var d=getDay(cur,true); d.note=this.value; save(); tidy(cur); };
+  $("dayNote").onchange=function(){ if(this.value.trim()) okToast("筆記已儲存"); };
+  $("progIts").onclick=function(e){ var b=e.target.closest("[data-go]"); if(b) $(b.dataset.go).scrollIntoView({block:"center",behavior:"smooth"}); };
   $("prevDay").onclick=function(){ setDate(addDays(cur,-1)); };
   $("nextDay").onclick=function(){ setDate(addDays(cur,1)); };
   $("datePick").onchange=function(){ if(this.value) setDate(this.value); };
@@ -615,6 +632,13 @@ function onMealClick(e){
   if(!el) return;
   if(el.dataset.act==="toggle"){ openMeals[k]=!openMeals[k]; box.classList.toggle("open",!!openMeals[k]); return; }
   if(el.dataset.act==="more"){ openFoodSheet(k); return; }
+  if(el.dataset.act==="done"){
+    var dd=getDay(cur), mx=dd&&dd.meals[k];
+    openMeals[k]=false; renderMeal(box);
+    if(mx && (mx.items.length||mx.habits.length||mx.note)){ okToast(mealName(k)+"記好了"); pop(box.querySelector(".ok")); }
+    else toast("這餐還沒有填東西喔");
+    box.scrollIntoView({block:"nearest",behavior:"smooth"}); return;
+  }
   if(el.dataset.act==="copy"){
     var prev=getDay(addDays(cur,-1)), pm=prev && prev.meals[k];
     if(!pm || !pm.items.length){ toast("昨天的"+mealName(k)+"沒有紀錄喔"); return; }
@@ -667,6 +691,8 @@ function renderMeal(box){
   box.querySelector(".habits").innerHTML = HABITS.map(function(h){ return '<button class="chip'+(x.habits.indexOf(h)>=0?" on":"")+'" data-habit="'+h+'">'+h+'</button>'; }).join("");
   var nt=box.querySelector(".meal-note"); if(document.activeElement!==nt) nt.value=x.note||"";
   renderMealSum(box);
+  box.querySelector(".ok").classList.toggle("on", !!(x.items.length||x.habits.length||x.note));
+  renderProgress();
 }
 function renderMeals(){ Array.prototype.forEach.call($("meals").children, renderMeal); }
 
@@ -726,6 +752,7 @@ function renderStools(){
       '<button data-del="'+i+'" aria-label="刪除">✕</button></div>';
   }).join("");
   $("noPoop").checked=!!(d&&d.noPoop);
+  renderProgress();
 }
 function renderSleep(){
   var d=getDay(cur), h=d?d.sleep.hours:null, q=d?d.sleep.q:null;
@@ -733,6 +760,7 @@ function renderSleep(){
   $("sleepHours").value = h==null?7:h;
   Array.prototype.forEach.call($("sleepQ").children,function(b){ b.classList.toggle("on", q!=null && +b.dataset.v<=q); });
   $("sleepQText").textContent = q? "睡得："+SLEEP_Q[q-1] : "睡得好嗎？";
+  renderProgress();
 }
 function renderMood(){
   var d=getDay(cur), q=d?d.mood.q:null, tg=d?d.mood.tags:[];
@@ -741,15 +769,39 @@ function renderMood(){
   var txt = q? MOOD_Q[q-1] : "點一個表情"; if(tg.length) txt += "・"+tg.slice(0,3).join("、")+(tg.length>3?"…":"");
   $("moodText").textContent=txt;
   if(tg.length) $("moodTagsCard").style.display="block";
+  renderProgress();
+}
+var PROG=[["stool","嗯嗯","c-stool"],["belly","肚子","c-belly"],["meals","飲食","c-meals"],["sleep","睡眠","c-sleep"],["mood","心情","c-mood"],["water","喝水","c-water"]];
+function progState(d){
+  if(!d) return {};
+  var meals=MEALS.filter(function(m){ var x=d.meals[m.k]; return x.items.length||x.habits.length||x.note; }).length;
+  return { stool: d.stools.length>0||d.noPoop, belly: d.belly.pain!=null&&d.belly.bloat!=null, meals: meals>0, mealsN: meals,
+    sleep: d.sleep.hours!=null||d.sleep.q!=null, mood: d.mood.q!=null||d.mood.tags.length>0, water: d.water>0 };
+}
+var lastProg={};
+function renderProgress(){
+  var st=progState(getDay(cur)), n=0;
+  PROG.forEach(function(p){ if(st[p[0]]) n++; });
+  $("progText").textContent=(cur===todayK()?"今天":"這天")+" "+n+"/6";
+  $("progIts").innerHTML=PROG.map(function(p){ return '<button data-go="'+p[2]+'"><span class="ok'+(st[p[0]]?" on":"")+'">✓</span>'+p[1]+'</button>'; }).join("");
+  PROG.forEach(function(p){
+    var el=document.querySelector('[data-ok="'+p[0]+'"]'); if(!el) return;
+    el.classList.toggle("on", !!st[p[0]]);
+    if(st[p[0]] && lastProg.day===cur && !lastProg[p[0]]) pop(el);
+  });
+  $("mealsText").textContent = st.mealsN? "記了 "+st.mealsN+" 餐" : "點標籤，分析更準";
+  st.day=cur; lastProg=st;
 }
 function renderBelly(){
   var d=getDay(cur);
   ["painLv","bloatLv"].forEach(function(id){ var v=d?d.belly[$(id).dataset.f]:null; Array.prototype.forEach.call($(id).children,function(b){ b.classList.toggle("on", +b.dataset.v===v); }); });
+  renderProgress();
 }
 function renderWater(){
   var d=getDay(cur), n=d?d.water:0;
   Array.prototype.forEach.call($("water").children,function(b){ b.classList.toggle("on", +b.dataset.v<=n); });
   $("waterText").textContent = n? n+" 杯・約 "+(n*250)+" ml" : "一杯約 250 ml";
+  renderProgress();
 }
 function renderLog(){
   var dt=parseK(cur), diff=Math.round((parseK(todayK())-dt)/864e5);
@@ -1026,8 +1078,9 @@ function makeDemo(){
 }
 
 /* ================= 版本 ================= */
-var APP_VERSION="1.2.1";
+var APP_VERSION="1.3.0";
 var CHANGELOG=[
+  ["1.3.0","每個項目填好會出現綠色勾勾；頂部顯示今天記了幾項；每餐有「記好了」按鈕；記錄後都會跳出確認提示"],
   ["1.2.1","肚子感覺改成清楚標示「一天記一次、以最不舒服的時候為準」，點選後會提示已記錄"],
   ["1.2.0","新增「肚子痛／脹氣」紀錄與分析、安裝 App 按鈕、第一次使用說明、版本資訊"],
   ["1.1.0","分析改用 Fisher 精確檢定；第 5 型依 Rome 標準算正常；固定淺色顯示"],
