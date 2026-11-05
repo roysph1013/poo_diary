@@ -40,10 +40,11 @@ header p{margin:0;font-size:12px;color:var(--sub)}
 .datebar{display:flex;align-items:center;justify-content:space-between;background:var(--card);border-radius:999px;padding:6px;box-shadow:var(--shadow);margin-top:14px}
 .round{border:0;background:var(--pink-l);width:44px;height:44px;border-radius:50%;font-size:20px;color:var(--ink);flex:none}
 .round.g{background:var(--chip)}
-.datebar .d{text-align:center;position:relative;flex:1}
+.datebar .d{text-align:center;position:relative;flex:1;border:0;background:none;padding:2px 0;color:inherit}
+.datebar .d b::after{content:"";display:inline-block;width:6px;height:6px;border-right:2px solid var(--sub);border-bottom:2px solid var(--sub);transform:rotate(45deg);margin:0 0 4px 8px}
+.round:disabled{opacity:.3}
 .datebar .d b{display:block;font-size:17px}
 .datebar .d span{font-size:12px;color:var(--sub)}
-.datebar input[type=date]{position:absolute;inset:0;opacity:0;width:100%;cursor:pointer}
 .bristol{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
 .bt{border:2px solid transparent;background:var(--soft);border-radius:14px;padding:8px 0 6px;display:flex;flex-direction:column;align-items:center;gap:3px;transition:transform .15s}
 .bt img{width:30px;height:30px;object-fit:contain}
@@ -177,7 +178,33 @@ h1.pg{font-size:22px;margin:4px 0 0}
 .steps{text-align:left;background:var(--soft);border-radius:14px;padding:12px 14px;font-size:14px;line-height:1.9;margin:8px 0}
 .ok{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#E8DED4;color:#fff;font-size:13px;font-weight:700;margin-left:6px;vertical-align:2px;transition:background .2s,transform .2s;flex:none}
 .ok.on{background:#4CB27F}
-.ok.pop{transform:scale(1.25)}
+.ok.pop{animation:okpop .45s cubic-bezier(.3,1.6,.5,1)}
+@keyframes okpop{0%{transform:scale(.6)}50%{transform:scale(1.45)}100%{transform:scale(1)}}
+.card.bump{animation:bump .5s cubic-bezier(.3,1.5,.5,1)}
+@keyframes bump{0%{transform:scale(1)}25%{transform:scale(1.03) rotate(-.6deg)}50%{transform:scale(.99) rotate(.4deg)}75%{transform:scale(1.008)}100%{transform:none}}
+.dp-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
+.dp-grid .w{text-align:center;font-size:12px;color:var(--sub);padding-bottom:2px}
+.dp-grid button{aspect-ratio:1;border:0;border-radius:12px;background:var(--soft);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:13px;color:var(--ink);padding:0}
+.dp-grid button i{width:8px;height:8px;border-radius:50%}
+.dp-grid button.today{outline:2px solid #F0839A}
+.dp-grid button.sel{background:var(--brown);color:#fff}
+.dp-grid button:disabled{opacity:.3}
+.dp-grid .blank{visibility:hidden}
+.switch{display:flex;align-items:center;justify-content:space-between;padding:8px 0;font-size:14px}
+.switch input{appearance:none;-webkit-appearance:none;width:44px;height:26px;border-radius:99px;background:#E2D6CA;position:relative;transition:.2s;flex:none}
+.switch input::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.switch input:checked{background:#4CB27F}
+.switch input:checked::after{left:21px}
+.celebrate{position:fixed;inset:0;z-index:45;display:flex;align-items:center;justify-content:center;background:rgba(255,246,236,.72);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);animation:fadein .25s}
+@keyframes fadein{from{opacity:0}}
+.cel-box{background:#fff;border-radius:28px;padding:26px 26px 22px;width:min(320px,86vw);text-align:center;box-shadow:0 24px 60px -12px rgba(140,94,60,.4);animation:celin .6s cubic-bezier(.3,1.6,.5,1)}
+@keyframes celin{0%{transform:scale(.5) translateY(40px);opacity:0}100%{transform:none;opacity:1}}
+.cel-box img{width:110px;height:110px;animation:jump 1s ease-in-out infinite}
+@keyframes jump{0%,100%{transform:translateY(0) scale(1,1)}30%{transform:translateY(-16px) scale(.96,1.05)}55%{transform:translateY(0) scale(1.06,.94)}70%{transform:translateY(-4px)}}
+.cel-box h3{font-size:21px;margin:10px 0 6px}
+.cel-box p{font-size:14px;line-height:1.7;color:var(--sub);margin:0 0 16px}
+.cel-box .streak{display:inline-block;background:#FFF0E0;color:var(--brown-d);font-weight:700;border-radius:99px;padding:4px 12px;font-size:13px;margin-bottom:12px}
+.rain{position:fixed;top:-20px;left:0;pointer-events:none;z-index:46;border-radius:2px}
 .meal-h .ok{width:20px;height:20px;font-size:12px;margin-left:2px}
 .prog{display:flex;align-items:center;gap:10px;background:var(--card);border-radius:16px;padding:10px 12px;box-shadow:var(--shadow);margin-top:12px}
 .prog b{font-size:13px;white-space:nowrap}
@@ -253,7 +280,7 @@ h1.pg{font-size:22px;margin:4px 0 0}
 
     <div class="datebar">
       <button class="round" id="prevDay" aria-label="前一天">‹</button>
-      <div class="d"><b id="dateMain"></b><span id="dateSub"></span><input type="date" id="datePick" aria-label="選擇日期"></div>
+      <button class="d" id="datePick" aria-label="選擇日期"><b id="dateMain"></b><span id="dateSub"></span></button>
       <button class="round" id="nextDay" aria-label="後一天">›</button>
     </div>
     <div class="prog" id="prog"><b id="progText">今天 0/6</b><div class="its" id="progIts"></div></div>
@@ -343,6 +370,12 @@ h1.pg{font-size:22px;margin:4px 0 0}
   <!-- ============ 設定 ============ -->
   <section class="view" id="v-set">
     <h1 class="pg">設定</h1>
+    <div class="card">
+      <div class="card-h"><h2>互動效果</h2></div>
+      <label class="switch">打勾時的音效<input type="checkbox" id="fxSound"></label>
+      <label class="switch">打勾時的震動<input type="checkbox" id="fxVibe"></label>
+      <p class="tip" style="margin:4px 0 0">震動只支援 Android 手機；iPhone 的瀏覽器不開放震動功能。</p>
+    </div>
     <div class="card" id="installCard">
       <div class="card-h"><h2>安裝到手機</h2><small id="installState"></small></div>
       <p class="tip" style="margin:0 0 12px">安裝後會出現在手機主畫面，點開就像一般 App，沒有網路也能用。</p>
@@ -596,7 +629,64 @@ function burst(el){
     an.onfinish=(function(n){ return function(){ n.remove(); }; })(c);
   }
 }
-function pop(el){ if(!el) return; el.classList.add("pop"); setTimeout(function(){ el.classList.remove("pop"); },220); burst(el); }
+var FX_KEY="poodiary.fx", fx={sound:true, vibe:true};
+try{ var _f=JSON.parse(localStorage.getItem(FX_KEY)||"null"); if(_f) fx=_f; }catch(e){}
+var actx=null;
+function audio(){ if(!fx.sound) return null; try{ if(!actx){ var A=window.AudioContext||window.webkitAudioContext; if(!A) return null; actx=new A(); } if(actx.state==="suspended") actx.resume(); return actx; }catch(e){ return null; } }
+function note(ac, f, t0, dur, vol, type){
+  var o=ac.createOscillator(), g=ac.createGain();
+  o.type=type||"sine"; o.frequency.setValueAtTime(f, t0);
+  g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(vol, t0+0.012); g.gain.exponentialRampToValueAtTime(0.0001, t0+dur);
+  o.connect(g); g.connect(ac.destination); o.start(t0); o.stop(t0+dur+0.02);
+}
+function sndCheck(){ var ac=audio(); if(!ac) return; var t=ac.currentTime;
+  note(ac, 880, t, 0.12, 0.12, "triangle"); note(ac, 1318.5, t+0.07, 0.28, 0.12, "sine"); note(ac, 1760, t+0.07, 0.2, 0.04, "sine"); }
+function sndFanfare(){ var ac=audio(); if(!ac) return; var t=ac.currentTime;
+  [523.25,659.25,783.99,1046.5].forEach(function(f,i){ note(ac, f, t+i*0.11, 0.35, 0.13, "triangle"); });
+  [523.25,659.25,783.99,1046.5,1318.5].forEach(function(f){ note(ac, f, t+0.5, 1.1, 0.06, "sine"); }); }
+function vibe(p){ if(!fx.vibe || REDUCE) return; try{ if(navigator.vibrate) navigator.vibrate(p); }catch(e){} }
+function pop(el){
+  if(!el) return;
+  el.classList.remove("pop"); void el.offsetWidth; el.classList.add("pop"); setTimeout(function(){ el.classList.remove("pop"); },460);
+  var card=el.closest(".card"); if(card && !REDUCE){ card.classList.remove("bump"); void card.offsetWidth; card.classList.add("bump"); setTimeout(function(){ card.classList.remove("bump"); },520); }
+  burst(el); sndCheck(); vibe([14,40,22]);
+}
+/* 全部完成的慶祝 */
+function streak(){ var n=0, k=cur; while(true){ var st=progState(getDay(k)); if(!(st.stool&&st.belly&&st.meals&&st.sleep&&st.mood&&st.water)) break; n++; k=addDays(k,-1); } return n; }
+function rain(){
+  if(REDUCE || !document.body.animate) return;
+  var W=window.innerWidth, H=window.innerHeight;
+  for(var i=0;i<90;i++){
+    var c=document.createElement("i"); c.className="rain";
+    var sz=5+Math.random()*7, round=Math.random()<.3;
+    c.style.cssText+="background:"+CONF_COL[i%CONF_COL.length]+";width:"+sz+"px;height:"+(round?sz:sz*0.45)+"px;border-radius:"+(round?"50%":"2px");
+    document.body.appendChild(c);
+    var x=Math.random()*W, sway=(Math.random()*120-60), rot=Math.random()*720-360, delay=Math.random()*600;
+    var an=c.animate([
+      {transform:"translate("+x+"px,-20px) rotate(0deg)",opacity:1},
+      {transform:"translate("+(x+sway)+"px,"+(H*0.55)+"px) rotate("+(rot/2)+"deg)",opacity:1,offset:.6},
+      {transform:"translate("+(x-sway/2)+"px,"+(H+30)+"px) rotate("+rot+"deg)",opacity:.8}
+    ],{duration:2200+Math.random()*1400,delay:delay,easing:"cubic-bezier(.25,.6,.4,1)",fill:"backwards"});
+    an.onfinish=(function(n){ return function(){ n.remove(); }; })(c);
+  }
+}
+var CHEERS=["肚子會謝謝你的！","持續記錄，就能找到肚子的小規律","今天也照顧好自己了","超棒！明天也一起加油"];
+function celebrate(){
+  if(document.querySelector(".celebrate")) return;
+  var n=streak(), ov=document.createElement("div"); ov.className="celebrate";
+  ov.innerHTML='<div class="cel-box" role="dialog" aria-label="全部記好了"><img src="'+icon("mascot")+'" alt="">'+
+    '<h3>'+(cur===todayK()?"今天":"這天")+'全部記好了！</h3>'+(n>=2?'<div class="streak">連續 '+n+' 天全部完成</div>':'')+
+    '<p>'+CHEERS[Math.floor(Math.random()*CHEERS.length)]+'</p><button class="btn" style="width:100%">好耶！</button></div>';
+  document.body.appendChild(ov);
+  var close=function(){ ov.remove(); };
+  ov.querySelector("button").onclick=close; ov.onclick=function(e){ if(e.target===ov) close(); };
+  rain(); sndFanfare(); vibe([30,60,30,60,80]);
+}
+function initFx(){
+  $("fxSound").checked=fx.sound; $("fxVibe").checked=fx.vibe;
+  $("fxSound").onchange=function(){ fx.sound=this.checked; lsSet(FX_KEY,JSON.stringify(fx)); if(fx.sound) sndCheck(); };
+  $("fxVibe").onchange=function(){ fx.vibe=this.checked; lsSet(FX_KEY,JSON.stringify(fx)); vibe(30); };
+}
 function toast(m, ok){ var t=$("toast"); t.innerHTML=(ok?'<span class="ck">✓</span>':'')+esc(m); t.classList.add("show"); clearTimeout(tT); tT=setTimeout(function(){ t.classList.remove("show"); },2200); }
 function openSheet(html){ $("sheet").innerHTML=html; $("modal").classList.add("on"); }
 function closeSheet(){ $("modal").classList.remove("on"); $("sheet").innerHTML=""; }
@@ -694,8 +784,8 @@ function buildLog(){
   $("dayNote").onchange=function(){ if(this.value.trim()) okToast("筆記已儲存"); };
   $("progIts").onclick=function(e){ var b=e.target.closest("[data-go]"); if(b) $(b.dataset.go).scrollIntoView({block:"center",behavior:"smooth"}); };
   $("prevDay").onclick=function(){ setDate(addDays(cur,-1)); };
-  $("nextDay").onclick=function(){ setDate(addDays(cur,1)); };
-  $("datePick").onchange=function(){ if(this.value) setDate(this.value); };
+  $("nextDay").onclick=function(){ if(cur<todayK()) setDate(addDays(cur,1)); };
+  $("datePick").onclick=openDatePicker;
 }
 
 function onMealClick(e){
@@ -813,6 +903,33 @@ function openCustomFood(k, name){
   };
 }
 
+function openDatePicker(){
+  var d0=parseK(cur), y=d0.getFullYear(), m=d0.getMonth();
+  function draw(){
+    var tk=todayK(), first=new Date(y,m,1).getDay(), n=new Date(y,m+1,0).getDate();
+    var g=WEEK.map(function(w){ return '<div class="w">'+w+'</div>'; }).join("");
+    for(var i=0;i<first;i++) g+='<button class="blank" tabindex="-1" aria-hidden="true"></button>';
+    for(var dd=1;dd<=n;dd++){
+      var k=y+"-"+pad(m+1)+"-"+pad(dd), day=getDay(k), st=dayStatus(day), fut=k>tk;
+      g+='<button data-k="'+k+'" class="'+(k===tk?"today ":"")+(k===cur?"sel":"")+'"'+(fut?" disabled":"")+' aria-label="'+(m+1)+'月'+dd+'日"><span class="num">'+dd+'</span><i style="background:'+(st?STATUS[st].c:(day&&!isEmptyDay(day)?"#D9C8B7":"transparent"))+'"></i></button>';
+    }
+    var atMax = (y*12+m) >= (new Date().getFullYear()*12+new Date().getMonth());
+    $("sheet").innerHTML='<div class="cal-h"><button class="round g" data-a="pm" aria-label="上個月">‹</button><b>'+y+' 年 '+(m+1)+' 月</b><button class="round g" data-a="nm" aria-label="下個月"'+(atMax?" disabled":"")+'>›</button></div>'+
+      '<div class="dp-grid">'+g+'</div>'+
+      '<p class="tip">有顏色圓點的是已經記錄嗯嗯的日子。</p>'+
+      '<div class="sheet-f"><button class="btn ghost sm" data-a="x">關閉</button><button class="btn sm" data-a="today">回到今天</button></div>';
+  }
+  openSheet(""); draw();
+  $("sheet").onclick=function(e){
+    var b=e.target.closest("[data-k],[data-a]"); if(!b || b.disabled) return;
+    if(b.dataset.k){ $("sheet").onclick=null; closeSheet(); setDate(b.dataset.k); return; }
+    var a=b.dataset.a;
+    if(a==="pm"){ m--; if(m<0){m=11;y--;} draw(); }
+    else if(a==="nm"){ m++; if(m>11){m=0;y++;} draw(); }
+    else if(a==="today"){ $("sheet").onclick=null; closeSheet(); setDate(todayK()); }
+    else { $("sheet").onclick=null; closeSheet(); }
+  };
+}
 function setDate(k){ cur=k; selType=null; selTags=[]; renderLog(); window.scrollTo(0,0); }
 function renderBristol(){
   Array.prototype.forEach.call($("bristol").children,function(b){ b.classList.toggle("on", +b.dataset.t===selType); });
@@ -886,7 +1003,8 @@ function renderProgress(){
     if(st[p[0]] && lastProg.day===cur && !lastProg[p[0]]) pop(el);
   });
   $("mealsText").textContent = st.mealsN? "記了 "+st.mealsN+" 餐" : "點標籤，分析更準";
-  st.day=cur; lastProg=st;
+  if(n===6 && lastProg.day===cur && lastProg.n<6) setTimeout(celebrate, 650);
+  st.n=n; st.day=cur; lastProg=st;
 }
 function renderBelly(){
   var d=getDay(cur);
@@ -903,7 +1021,7 @@ function renderLog(){
   var dt=parseK(cur), diff=Math.round((parseK(todayK())-dt)/864e5);
   $("dateMain").textContent=(dt.getMonth()+1)+" 月 "+dt.getDate()+" 日";
   $("dateSub").textContent="週"+WEEK[dt.getDay()]+(diff===0?"・今天":diff===1?"・昨天":diff===-1?"・明天":"");
-  $("datePick").value=cur;
+  $("nextDay").disabled = cur>=todayK();
   var now=new Date(); $("stoolTime").value = cur===todayK()? pad(now.getHours())+":"+pad(now.getMinutes()) : "";
   var d=getDay(cur); $("dayNote").value=d?d.note:"";
   $("moodTagsCard").style.display="none";
@@ -1174,8 +1292,9 @@ function makeDemo(){
 }
 
 /* ================= 版本 ================= */
-var APP_VERSION="1.4.0";
+var APP_VERSION="1.5.0";
 var CHANGELOG=[
+  ["1.5.0","點日期會跳出月曆快速選日；打勾時加上音效、震動和卡片彈跳；六項全部填完會跳出慶祝動畫；設定可開關音效與震動"],
   ["1.4.0","睡眠與心情改回精簡雙欄（方案 A），心情卡片也會隨心情變色；卡片加上懸浮陰影；填好打勾時會噴出彩帶"],
   ["1.3.1","食物分類改成分頁標籤，和食物選項明顯區分；睡眠品質與心情直接顯示文字；睡眠顏色隨時數變化（睡少灰紫、睡飽橘黃）"],
   ["1.3.0","每個項目填好會出現綠色勾勾；頂部顯示今天記了幾項；每餐有「記好了」按鈕；記錄後都會跳出確認提示"],
@@ -1268,7 +1387,7 @@ function go(v){
 $("nav").onclick=function(e){ var b=e.target.closest("button"); if(b) go(b.dataset.v); };
 
 /* ================= 啟動 ================= */
-load(); buildLog(); applyStickers(); renderLog();
+load(); buildLog(); initFx(); applyStickers(); renderLog();
 updateInstallUI();
 if(!lsGet(OB_KEY)) setTimeout(guide, 400);
 if(!storageOK) toast("這個瀏覽器無法自動儲存，請記得匯出備份");
