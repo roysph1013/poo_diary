@@ -18,7 +18,7 @@ html{color-scheme:only light}
   --bg:#FFF6EC; --card:#FFFFFF; --ink:#5B4636; --sub:#866A55; --line:#F1E3D3; --soft:#FBF4EC; --chip:#F6EEE6;
   --brown:#A86F45; --brown-d:#7A4D2D; --pink:#D9607C; --pink-l:#FFE4EA; --sel:#FFF0E0;
   --hard:#C98B5A; --normal:#5DBB8A; --softc:#F2C14E; --loose:#6FA8E0; --none:#CDBFB2;
-  --r:20px; --shadow:0 6px 18px rgba(140,94,60,.10);
+  --r:20px; --shadow:0 1px 2px rgba(91,70,54,.06),0 6px 14px rgba(140,94,60,.10),0 16px 32px -12px rgba(140,94,60,.22);
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;background:var(--bg);color:var(--ink);
@@ -208,16 +208,36 @@ h1.pg{font-size:22px;margin:4px 0 0}
 .chip.food{background:#fff;border:1.5px solid #E6D6C6;padding:7px 13px}
 .chip.food.on{background:var(--pink);border-color:var(--pink);color:#fff}
 .chip.food.on::before{content:"✓ "}
-.opts{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
-.opts button{border:2px solid transparent;background:var(--soft);border-radius:14px;padding:8px 0 7px;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px;color:var(--ink);transition:.15s}
-.opts button img{width:36px;height:36px;object-fit:contain;opacity:.55;transition:.15s}
-.opts.has button:not(.on){opacity:.55}
-.opts button.on{border-color:var(--brown);background:#fff;transform:translateY(-2px)}
-.opts button.on img{opacity:1}
-.opts:not(.has) button img{opacity:.9}
-.sleep-top{display:flex;align-items:center;gap:10px}
-.sleep-word{border-radius:999px;padding:3px 10px;font-size:12px;font-weight:700;color:#fff}
-#c-sleep{transition:background .3s}
+.two .card{padding:14px}
+.two .card-h{margin-bottom:8px}
+.two .card-h h2{font-size:15px}
+#c-sleep,#c-mood{transition:background .35s}
+.sl-num{display:flex;align-items:baseline;gap:5px}
+.sl-num b{font-size:30px;font-weight:600;line-height:1;transition:color .3s}
+.sl-num small{font-size:12px;color:var(--sub)}
+.sl-num .word{margin-left:auto;font-size:11px;font-weight:700;color:#fff;border-radius:99px;padding:2px 8px;transition:background .3s}
+.rng{-webkit-appearance:none;appearance:none;width:100%;height:18px;background:none;margin:8px 0 10px;--p:58%;--c:#C9B8A6}
+.rng::-webkit-slider-runnable-track{height:6px;border-radius:99px;background:linear-gradient(90deg,var(--c) var(--p),#EFE6DD var(--p))}
+.rng::-moz-range-track{height:6px;border-radius:99px;background:linear-gradient(90deg,var(--c) var(--p),#EFE6DD var(--p))}
+.rng::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;margin-top:-6px;border-radius:50%;background:#fff;border:3.5px solid var(--c);box-shadow:0 1px 4px rgba(91,70,54,.25)}
+.rng::-moz-range-thumb{width:12px;height:12px;border-radius:50%;background:#fff;border:3.5px solid var(--c)}
+.qrow{display:flex;justify-content:space-between;align-items:baseline;font-size:11px;color:var(--sub)}
+.qrow b{font-size:12px;color:var(--ink)}
+.qdots{display:flex;justify-content:space-between;align-items:center;margin-top:6px;height:30px}
+.qdots button{border:0;background:none;padding:5px;margin:-5px;display:flex}
+.qdots i{display:block;width:16px;height:16px;border-radius:50%;opacity:.35;transition:.18s;box-sizing:border-box}
+.qdots button.on i{width:21px;height:21px;opacity:1;border:2.5px solid #fff}
+.qdots.none i{opacity:.7}
+.ends{display:flex;justify-content:space-between;font-size:10px;color:#A8927F;margin-top:2px}
+.mfaces{display:flex;justify-content:space-between;align-items:center;margin-top:10px;height:34px}
+.mfaces button{border:0;background:none;padding:3px;margin:-3px;display:flex}
+.mfaces img{width:25px;height:25px;opacity:.4;transition:.18s}
+.mfaces.none img{opacity:.85}
+.mfaces button.on img{width:31px;height:31px;opacity:1}
+.mword{font-size:14px;font-weight:700;margin-top:8px;min-height:20px}
+.mword.none{font-weight:400;font-size:12px;color:var(--sub)}
+/* 彩帶 */
+.confetti{position:fixed;left:0;top:0;width:7px;height:7px;pointer-events:none;z-index:50;border-radius:2px}
 .sheet-f{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;position:sticky;bottom:0;background:#fff;padding-top:8px}
 </style>
 </head>
@@ -263,17 +283,22 @@ h1.pg{font-size:22px;margin:4px 0 0}
       <div id="meals"></div>
     </div>
 
-    <div class="card" id="c-sleep">
-      <div class="card-h"><h2>昨晚睡眠<span class="ok" data-ok="sleep" aria-hidden="true">✓</span></h2><small>拖拉設定睡了幾小時</small></div>
-      <div class="sleep-top"><div class="big num" id="sleepVal">–</div><span class="sleep-word" id="sleepWord"></span></div>
-      <input type="range" class="slider" id="sleepHours" min="0" max="12" step="0.5" value="7" aria-label="睡眠時數">
-      <div class="lbl">睡得好不好？</div>
-      <div class="opts" id="sleepQ"></div>
-    </div>
-    <div class="card" id="c-mood">
-      <div class="card-h"><h2>今天心情<span class="ok" data-ok="mood" aria-hidden="true">✓</span></h2><small id="moodText"></small></div>
-      <div class="opts" id="moodQ"></div>
-      <button class="link" id="moodMore" style="margin-top:8px">＋ 加一些細節（壓力、疲累、生理期…）</button>
+    <div class="two">
+      <div class="card" id="c-sleep">
+        <div class="card-h"><h2>昨晚睡眠<span class="ok" data-ok="sleep" aria-hidden="true">✓</span></h2></div>
+        <div class="sl-num"><b class="num" id="sleepVal">–</b><small>小時</small><span class="word" id="sleepWord"></span></div>
+        <input type="range" class="rng" id="sleepHours" min="0" max="12" step="0.5" value="7" aria-label="睡眠時數（拖拉設定）">
+        <div class="qrow"><span>睡得</span><b id="sleepQWord">點一下</b></div>
+        <div class="qdots none" id="sleepQ"></div>
+        <div class="ends"><span>差</span><span>好</span></div>
+      </div>
+      <div class="card" id="c-mood">
+        <div class="card-h"><h2>今天心情<span class="ok" data-ok="mood" aria-hidden="true">✓</span></h2></div>
+        <div class="mfaces none" id="moodQ"></div>
+        <div class="ends"><span>很糟</span><span>超棒</span></div>
+        <div class="mword none" id="moodText">點一個最接近的</div>
+        <button class="link" id="moodMore">＋ 加細節</button>
+      </div>
     </div>
     <div class="card" id="moodTagsCard" style="display:none">
       <div class="card-h"><h2>心情細節</h2><button class="btn sm" id="moodLess">✓ 完成</button></div>
@@ -391,17 +416,17 @@ var DEFAULT_ICONS = {
   b7: svgUri("0 0 40 40",'<path d="M20 6c6 9 10 14 10 19a10 10 0 0 1-20 0c0-5 4-10 10-19z" fill="#9CC8EE"/>')
 };
 (function(){
-  var cols = ["#CFE3F7","#E3D9F5","#FFF1BF","#FFE0E7","#D7F0E1"];
-  var E = '<circle cx="19" cy="23" r="3" fill="#5B4636"/><circle cx="35" cy="23" r="3" fill="#5B4636"/>';
-  var S = ' stroke="#5B4636" stroke-width="3" fill="none" stroke-linecap="round"';
-  var mouths = [
-    E+'<path d="M18 37q9-8 18 0"'+S+'/><path d="M13 28q-3 5 0 7q3-2 0-7z" fill="#8EC1EE"/>',
-    '<path d="M14 19l7 3M40 19l-7 3"'+S+'/>'+E+'<path d="M21 35q6-4 12 0"'+S+'/>',
-    E+'<path d="M20 34h14"'+S+'/>',
-    E+'<path d="M17 32q10 9 20 0"'+S+'/><ellipse cx="12" cy="31" rx="3.5" ry="2.2" fill="#FFB8C6"/><ellipse cx="42" cy="31" rx="3.5" ry="2.2" fill="#FFB8C6"/>',
-    '<path d="M14 24q5-6 10 0M30 24q5-6 10 0"'+S+'/><path d="M17 31q10 11 20 0z" fill="#E9877E" stroke="#5B4636" stroke-width="2.6" stroke-linejoin="round"/><ellipse cx="11" cy="31" rx="3.5" ry="2.2" fill="#FFB8C6"/><ellipse cx="43" cy="31" rx="3.5" ry="2.2" fill="#FFB8C6"/>'
+  var L="#5B4636", st=' stroke="'+L+'" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"';
+  var bg=["#DCE8F5","#E6E0F3","#F1EEDF","#FCE3E8","#DDF1E5"];
+  var dot=function(x,y,r){ return '<circle cx="'+x+'" cy="'+y+'" r="'+(r||1.3)+'" fill="'+L+'"/>'; };
+  var inner=[
+    dot(11.5,13)+dot(20.5,13)+'<path d="M11.5 21.5q4.5-3.5 9 0"'+st+'/>',
+    '<path d="M9.5 11.5l3.5 1.2M22.5 11.5l-3.5 1.2"'+st+'/>'+dot(11.8,14.2,1.2)+dot(20.2,14.2,1.2)+'<path d="M12.5 21q3.5-2 7 0"'+st+'/>',
+    dot(11.5,13.5)+dot(20.5,13.5)+'<path d="M12 20.5h8"'+st+'/>',
+    dot(11.5,13)+dot(20.5,13)+'<path d="M11 18.5q5 4.5 10 0"'+st+'/>',
+    '<path d="M9.5 14q2-2.6 4 0M18.5 14q2-2.6 4 0"'+st+'/><path d="M10.5 18q5.5 5.5 11 0"'+st+'/>'
   ];
-  for (var i=0;i<5;i++) DEFAULT_ICONS["m"+(i+1)] = svgUri("0 0 54 54",'<circle cx="27" cy="27" r="25" fill="'+cols[i]+'"/>'+mouths[i]);
+  for (var i=0;i<5;i++) DEFAULT_ICONS["m"+(i+1)] = svgUri("0 0 32 32",'<circle cx="16" cy="16" r="14" fill="'+bg[i]+'"/>'+inner[i]);
 })();
 (function(){
   var S=' stroke="#5B4636" stroke-width="3" fill="none" stroke-linecap="round"';
@@ -551,7 +576,27 @@ function icon(k){ return stk[k] || DEFAULT_ICONS[k]; }
 function pct(a,b){ return b? Math.round(a*100/b) : 0; }
 var tT;
 function okToast(m){ toast(m, true); }
-function pop(el){ if(!el) return; el.classList.add("pop"); setTimeout(function(){ el.classList.remove("pop"); },220); }
+var REDUCE=false; try{ REDUCE=window.matchMedia("(prefers-reduced-motion: reduce)").matches; }catch(e){}
+var CONF_COL=["#F0839A","#F2C14E","#5DBB8A","#6FA8E0","#C7A6F0","#FFB38A"];
+function burst(el){
+  if(REDUCE || !el || !el.animate) return;
+  var r=el.getBoundingClientRect(); if(!r.width) return;
+  var cx=r.left+r.width/2, cy=r.top+r.height/2;
+  for(var i=0;i<18;i++){
+    var c=document.createElement("i"); c.className="confetti";
+    var col=CONF_COL[i%CONF_COL.length], sz=4+Math.random()*5, round=Math.random()<.4;
+    c.style.cssText+="background:"+col+";width:"+sz+"px;height:"+(round?sz:sz*0.45)+"px;border-radius:"+(round?"50%":"1px");
+    document.body.appendChild(c);
+    var ang=Math.random()*Math.PI*2, dist=26+Math.random()*34, dx=Math.cos(ang)*dist, dy=Math.sin(ang)*dist-10, rot=(Math.random()*540-270);
+    var an=c.animate([
+      {transform:"translate("+cx+"px,"+cy+"px) rotate(0deg) scale(1)",opacity:1},
+      {transform:"translate("+(cx+dx)+"px,"+(cy+dy)+"px) rotate("+(rot/2)+"deg) scale(1)",opacity:1,offset:.55},
+      {transform:"translate("+(cx+dx*1.15)+"px,"+(cy+dy+22)+"px) rotate("+rot+"deg) scale(.6)",opacity:0}
+    ],{duration:700+Math.random()*350,easing:"cubic-bezier(.2,.7,.3,1)"});
+    an.onfinish=(function(n){ return function(){ n.remove(); }; })(c);
+  }
+}
+function pop(el){ if(!el) return; el.classList.add("pop"); setTimeout(function(){ el.classList.remove("pop"); },220); burst(el); }
 function toast(m, ok){ var t=$("toast"); t.innerHTML=(ok?'<span class="ck">✓</span>':'')+esc(m); t.classList.add("show"); clearTimeout(tT); tT=setTimeout(function(){ t.classList.remove("show"); },2200); }
 function openSheet(html){ $("sheet").innerHTML=html; $("modal").classList.add("on"); }
 function closeSheet(){ $("modal").classList.remove("on"); $("sheet").innerHTML=""; }
@@ -619,13 +664,13 @@ function buildLog(){
   });
 
   // 睡眠
-  $("sleepQ").innerHTML=SLEEP_Q.map(function(t,i){ return '<button data-v="'+(i+1)+'"><img src="'+DEFAULT_ICONS["s"+(i+1)]+'" alt="">'+t+'</button>'; }).join("");
+  $("sleepQ").innerHTML=SLEEP_Q.map(function(t,i){ return '<button data-v="'+(i+1)+'" aria-label="睡得'+t+'"><i style="background:'+Q_COL[i]+'"></i></button>'; }).join("");
   $("sleepQ").onclick=function(e){ var b=e.target.closest("button"); if(!b) return; var d=getDay(cur,true), v=+b.dataset.v; d.sleep.q = d.sleep.q===v?null:v; save(); tidy(cur); renderSleep(); if(d.sleep.q) okToast("已記錄：睡得"+SLEEP_Q[v-1]); };
   $("sleepHours").oninput=function(){ var d=getDay(cur,true); d.sleep.hours=+this.value; save(); renderSleep(); };
   $("sleepHours").onchange=function(){ okToast("已記錄：睡 "+this.value+" 小時"); };
 
   // 心情
-  $("moodQ").innerHTML=MOOD_Q.map(function(t,i){ return '<button data-v="'+(i+1)+'"><img data-stk="m'+(i+1)+'" alt="">'+t+'</button>'; }).join("");
+  $("moodQ").innerHTML=MOOD_Q.map(function(t,i){ return '<button data-v="'+(i+1)+'" aria-label="心情'+t+'"><img data-stk="m'+(i+1)+'" alt=""></button>'; }).join("");
   $("moodQ").onclick=function(e){ var b=e.target.closest("button"); if(!b) return; var d=getDay(cur,true), v=+b.dataset.v; d.mood.q = d.mood.q===v?null:v; save(); tidy(cur); renderMood(); if(d.mood.q) okToast("已記錄：心情"+MOOD_Q[v-1]); };
   $("moodTags").innerHTML=MOOD_GROUPS.map(function(g){ return '<div class="grouph">'+g.t+'</div><div class="chips">'+g.items.map(function(t){ return '<button class="chip pk" data-t="'+t+'">'+t+'</button>'; }).join("")+'</div>'; }).join("");
   $("moodTags").onclick=function(e){ var c=e.target.closest(".chip"); if(!c) return; var d=getDay(cur,true), a=d.mood.tags, t=c.dataset.t, ix=a.indexOf(t); if(ix>=0) a.splice(ix,1); else a.push(t); save(); tidy(cur); renderMood(); };
@@ -662,7 +707,7 @@ function onMealClick(e){
   if(el.dataset.act==="done"){
     var dd=getDay(cur), mx=dd&&dd.meals[k];
     openMeals[k]=false; renderMeal(box);
-    if(mx && (mx.items.length||mx.habits.length||mx.note)){ okToast(mealName(k)+"記好了"); pop(box.querySelector(".ok")); }
+    if(mx && (mx.items.length||mx.habits.length||mx.note)){ okToast(mealName(k)+"記好了"); }
     else toast("這餐還沒有填東西喔");
     box.scrollIntoView({block:"nearest",behavior:"smooth"}); return;
   }
@@ -718,7 +763,9 @@ function renderMeal(box){
   box.querySelector(".habits").innerHTML = HABITS.map(function(h){ return '<button class="chip'+(x.habits.indexOf(h)>=0?" on":"")+'" data-habit="'+h+'">'+h+'</button>'; }).join("");
   var nt=box.querySelector(".meal-note"); if(document.activeElement!==nt) nt.value=x.note||"";
   renderMealSum(box);
-  box.querySelector(".ok").classList.toggle("on", !!(x.items.length||x.habits.length||x.note));
+  var mk=box.querySelector(".ok"), filled=!!(x.items.length||x.habits.length||x.note);
+  if(filled && !mk.classList.contains("on") && box.dataset.day===cur) pop(mk);
+  mk.classList.toggle("on", filled); box.dataset.day=cur;
   renderProgress();
 }
 function renderMeals(){ Array.prototype.forEach.call($("meals").children, renderMeal); }
@@ -782,6 +829,8 @@ function renderStools(){
   $("noPoop").checked=!!(d&&d.noPoop);
   renderProgress();
 }
+var Q_COL=["#B3ABD6","#A9BEDF","#D9CF9F","#F2C46B","#EE9F3A"];
+var MOOD_TONE=[{c:"#7FA6D6",bg:"#EFF4FB"},{c:"#9C8FD0",bg:"#F3F0FA"},{c:"#A99C62",bg:"#FAF8EF"},{c:"#E57B96",bg:"#FFF1F4"},{c:"#4FB383",bg:"#EEF9F2"}];
 // 睡眠時數 → 顏色：睡太少是疲累的灰紫，睡飽是陽光的橘黃
 function sleepTone(h){
   if(h==null) return {c:"#B8A493", w:"", bg:"#FFFFFF"};
@@ -793,23 +842,28 @@ function sleepTone(h){
 }
 function renderSleep(){
   var d=getDay(cur), h=d?d.sleep.hours:null, q=d?d.sleep.q:null, t=sleepTone(h);
-  $("sleepVal").innerHTML=(h==null?'– <small>小時</small>':h+' <small>小時</small>');
+  $("sleepVal").textContent = h==null? "–" : h;
   $("sleepVal").style.color = h==null? "" : t.c;
   $("sleepWord").textContent=t.w; $("sleepWord").style.background=t.c; $("sleepWord").style.display=t.w?"":"none";
-  $("sleepHours").value = h==null?7:h;
-  $("sleepHours").style.accentColor = h==null? "#C9B8A6" : t.c;
+  var hv = h==null?7:h; $("sleepHours").value = hv;
+  $("sleepHours").style.setProperty("--p", (hv/12*100)+"%");
+  $("sleepHours").style.setProperty("--c", h==null? "#C9B8A6" : t.c);
   $("c-sleep").style.background=t.bg;
-  $("sleepQ").classList.toggle("has", q!=null);
+  $("sleepQWord").textContent = q? SLEEP_Q[q-1] : "點一下";
+  $("sleepQ").classList.toggle("none", q==null);
+  Array.prototype.forEach.call($("sleepQ").querySelectorAll("button"),function(b,i){ b.querySelector("i").style.boxShadow = (+b.dataset.v===q)? "0 0 0 2px "+Q_COL[i] : ""; });
   Array.prototype.forEach.call($("sleepQ").children,function(b){ b.classList.toggle("on", +b.dataset.v===q); });
   renderProgress();
 }
 function renderMood(){
   var d=getDay(cur), q=d?d.mood.q:null, tg=d?d.mood.tags:[];
-  $("moodQ").classList.toggle("has", q!=null);
+  $("moodQ").classList.toggle("none", q==null);
+  $("c-mood").style.background = q? MOOD_TONE[q-1].bg : "";
   Array.prototype.forEach.call($("moodQ").children,function(b){ b.classList.toggle("on", +b.dataset.v===q); });
   Array.prototype.forEach.call($("moodTags").querySelectorAll(".chip"),function(c){ c.classList.toggle("on", tg.indexOf(c.dataset.t)>=0); });
-  var txt = q? "" : "點一個最接近的"; if(tg.length) txt += "・"+tg.slice(0,3).join("、")+(tg.length>3?"…":"");
-  $("moodText").textContent=txt.replace(/^・/,"");
+  var txt = q? MOOD_Q[q-1] : "點一個最接近的"; if(tg.length) txt += "・"+tg.slice(0,2).join("、")+(tg.length>2?"…":"");
+  $("moodText").textContent=txt; $("moodText").classList.toggle("none", !q && !tg.length);
+  $("moodText").style.color = q? MOOD_TONE[q-1].c : "";
   if(tg.length) $("moodTagsCard").style.display="block";
   renderProgress();
 }
@@ -1120,8 +1174,9 @@ function makeDemo(){
 }
 
 /* ================= 版本 ================= */
-var APP_VERSION="1.3.1";
+var APP_VERSION="1.4.0";
 var CHANGELOG=[
+  ["1.4.0","睡眠與心情改回精簡雙欄（方案 A），心情卡片也會隨心情變色；卡片加上懸浮陰影；填好打勾時會噴出彩帶"],
   ["1.3.1","食物分類改成分頁標籤，和食物選項明顯區分；睡眠品質與心情直接顯示文字；睡眠顏色隨時數變化（睡少灰紫、睡飽橘黃）"],
   ["1.3.0","每個項目填好會出現綠色勾勾；頂部顯示今天記了幾項；每餐有「記好了」按鈕；記錄後都會跳出確認提示"],
   ["1.2.1","肚子感覺改成清楚標示「一天記一次、以最不舒服的時候為準」，點選後會提示已記錄"],
