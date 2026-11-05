@@ -8,9 +8,14 @@
 - **飲食**：早餐、午餐、晚餐、點心、宵夜；可搜尋 160 多種臺灣常見食物，會自動歸到「辣、油炸、乳製品、咖啡因…」等 15 個大類，也能自己新增食物
 - **睡眠、心情、喝水**：睡眠時數與品質、5 種心情表情加細節標籤、喝水杯數
 - **日曆**：每天用顏色標出嗯嗯狀況，點日期看當天紀錄
-- **分析**：比較「有某個因素的日子」和平均的差別，列出可能的關聯（例如吃辣隔天容易拉肚子）
+- **分析**：比較「有某個因素的日子」和「其他日子」的不舒服比例，用 Fisher 精確檢定過濾掉比較像巧合的結果，列出可能的關聯（例如吃辣隔天容易拉肚子）。嗯嗯分類採 Rome 標準：第 1–2 型偏便祕、第 3–5 型正常、第 6–7 型偏腹瀉
 - **自訂貼圖**：圖示可以換成手機裡的圖片，只存在自己的瀏覽器
 - **備份**：匯出／匯入 JSON 備份檔
+
+## 參考資料
+
+- Lewis SJ, Heaton KW. Stool form scale as a useful guide to intestinal transit time. *Scand J Gastroenterol*. 1997;32(9):920–924.
+- Clevers E, et al. Coffee, alcohol and artificial sweeteners have temporal associations with gastrointestinal symptoms. 2024.（大規模飲食症狀日記研究）
 
 ## 隱私
 
