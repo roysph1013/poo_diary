@@ -197,10 +197,27 @@ h1.pg{font-size:22px;margin:4px 0 0}
 .sheet h3{margin:0 0 12px;font-size:17px}
 .sheet textarea{width:100%;min-height:140px;border:2px solid var(--line);border-radius:12px;padding:8px;font-family:monospace;font-size:12px}
 .sheet input[type=text]{width:100%;border:2px solid var(--line);border-radius:12px;padding:9px 12px;font-size:15px;background:#FFFCF8}
-.tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin:0 -2px 6px;scrollbar-width:none}
+.tabs{display:flex;gap:2px;overflow-x:auto;margin:0 -18px 12px;padding:0 12px;border-bottom:2px solid var(--line);scrollbar-width:none}
 .tabs::-webkit-scrollbar{display:none}
-.tabs button{flex:none;border:0;background:var(--chip);border-radius:999px;padding:7px 12px;font-size:13px}
-.tabs button.on{background:var(--ink);color:#fff}
+.tabs button{flex:none;border:0;background:none;padding:10px 10px 11px;font-size:14px;font-weight:700;color:#A8927F;position:relative}
+.tabs button.on{color:var(--ink)}
+.tabs button.on::after{content:"";position:absolute;left:8px;right:8px;bottom:-2px;height:3px;border-radius:3px;background:var(--brown)}
+.grp-h{display:flex;align-items:baseline;gap:8px;margin:0 0 10px}
+.grp-h b{font-size:15px}
+.grp-h small{font-size:12px;color:var(--sub)}
+.chip.food{background:#fff;border:1.5px solid #E6D6C6;padding:7px 13px}
+.chip.food.on{background:var(--pink);border-color:var(--pink);color:#fff}
+.chip.food.on::before{content:"✓ "}
+.opts{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.opts button{border:2px solid transparent;background:var(--soft);border-radius:14px;padding:8px 0 7px;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px;color:var(--ink);transition:.15s}
+.opts button img{width:36px;height:36px;object-fit:contain;opacity:.55;transition:.15s}
+.opts.has button:not(.on){opacity:.55}
+.opts button.on{border-color:var(--brown);background:#fff;transform:translateY(-2px)}
+.opts button.on img{opacity:1}
+.opts:not(.has) button img{opacity:.9}
+.sleep-top{display:flex;align-items:center;gap:10px}
+.sleep-word{border-radius:999px;padding:3px 10px;font-size:12px;font-weight:700;color:#fff}
+#c-sleep{transition:background .3s}
 .sheet-f{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;position:sticky;bottom:0;background:#fff;padding-top:8px}
 </style>
 </head>
@@ -246,20 +263,17 @@ h1.pg{font-size:22px;margin:4px 0 0}
       <div id="meals"></div>
     </div>
 
-    <div class="two">
-      <div class="card" id="c-sleep">
-        <div class="card-h" style="margin-bottom:6px"><h2>昨晚睡眠<span class="ok" data-ok="sleep" aria-hidden="true">✓</span></h2></div>
-        <div class="big num" id="sleepVal">– <small>小時</small></div>
-        <input type="range" class="slider" id="sleepHours" min="0" max="12" step="0.5" value="7" aria-label="睡眠時數">
-        <div style="font-size:12px;color:var(--sub)" id="sleepQText">睡得好嗎？</div>
-        <div class="dots" id="sleepQ"></div>
-      </div>
-      <div class="card" id="c-mood">
-        <div class="card-h" style="margin-bottom:6px"><h2>今天心情<span class="ok" data-ok="mood" aria-hidden="true">✓</span></h2></div>
-        <div class="faces" id="moodQ"></div>
-        <div style="font-size:12px;color:var(--sub);margin-top:8px" id="moodText">點一個表情</div>
-        <button class="link" id="moodMore">＋ 加一些細節</button>
-      </div>
+    <div class="card" id="c-sleep">
+      <div class="card-h"><h2>昨晚睡眠<span class="ok" data-ok="sleep" aria-hidden="true">✓</span></h2><small>拖拉設定睡了幾小時</small></div>
+      <div class="sleep-top"><div class="big num" id="sleepVal">–</div><span class="sleep-word" id="sleepWord"></span></div>
+      <input type="range" class="slider" id="sleepHours" min="0" max="12" step="0.5" value="7" aria-label="睡眠時數">
+      <div class="lbl">睡得好不好？</div>
+      <div class="opts" id="sleepQ"></div>
+    </div>
+    <div class="card" id="c-mood">
+      <div class="card-h"><h2>今天心情<span class="ok" data-ok="mood" aria-hidden="true">✓</span></h2><small id="moodText"></small></div>
+      <div class="opts" id="moodQ"></div>
+      <button class="link" id="moodMore" style="margin-top:8px">＋ 加一些細節（壓力、疲累、生理期…）</button>
     </div>
     <div class="card" id="moodTagsCard" style="display:none">
       <div class="card-h"><h2>心情細節</h2><button class="btn sm" id="moodLess">✓ 完成</button></div>
@@ -388,6 +402,19 @@ var DEFAULT_ICONS = {
     '<path d="M14 24q5-6 10 0M30 24q5-6 10 0"'+S+'/><path d="M17 31q10 11 20 0z" fill="#E9877E" stroke="#5B4636" stroke-width="2.6" stroke-linejoin="round"/><ellipse cx="11" cy="31" rx="3.5" ry="2.2" fill="#FFB8C6"/><ellipse cx="43" cy="31" rx="3.5" ry="2.2" fill="#FFB8C6"/>'
   ];
   for (var i=0;i<5;i++) DEFAULT_ICONS["m"+(i+1)] = svgUri("0 0 54 54",'<circle cx="27" cy="27" r="25" fill="'+cols[i]+'"/>'+mouths[i]);
+})();
+(function(){
+  var S=' stroke="#5B4636" stroke-width="3" fill="none" stroke-linecap="round"';
+  var B='<ellipse cx="12" cy="32" rx="3.5" ry="2.2" fill="#FFB8C6"/><ellipse cx="42" cy="32" rx="3.5" ry="2.2" fill="#FFB8C6"/>';
+  var rays=''; for(var a=0;a<8;a++){ var t=a*Math.PI/4, x1=27+Math.cos(t)*24, y1=27+Math.sin(t)*24, x2=27+Math.cos(t)*27, y2=27+Math.sin(t)*27; rays+='<path d="M'+x1.toFixed(1)+' '+y1.toFixed(1)+'L'+x2.toFixed(1)+' '+y2.toFixed(1)+'" stroke="#F2A93B" stroke-width="3" stroke-linecap="round"/>'; }
+  var F=[
+    ['#D9D3EC','<path d="M14 24q5 3 10 0M30 24q5 3 10 0"'+S+'/><path d="M15 28q4 2 8 0M31 28q4 2 8 0" stroke="#A99FCF" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M20 38q3.5-3 7 0t7 0"'+S+'/><path d="M44 12q3 4 0 7q-3-3 0-7z" fill="#9CB7E6"/>'],
+    ['#D6E3F3','<path d="M15 24h9M30 24h9"'+S+'/><path d="M21 37q6-3 12 0"'+S+'/>'],
+    ['#EEE9D2','<circle cx="19" cy="24" r="3" fill="#5B4636"/><circle cx="35" cy="24" r="3" fill="#5B4636"/><path d="M20 36h14"'+S+'/>'],
+    ['#FFE7A8','<circle cx="19" cy="23" r="3" fill="#5B4636"/><circle cx="35" cy="23" r="3" fill="#5B4636"/><path d="M18 33q9 8 18 0"'+S+'/>'+B],
+    ['#FFD27A', rays+'<path d="M14 25q5-6 10 0M30 25q5-6 10 0"'+S+'/><path d="M17 32q10 11 20 0z" fill="#E9877E" stroke="#5B4636" stroke-width="2.6" stroke-linejoin="round"/>'+B]
+  ];
+  F.forEach(function(f,i){ DEFAULT_ICONS["s"+(i+1)] = svgUri(i===4?"-3 -3 60 60":"0 0 54 54",'<circle cx="27" cy="27" r="'+(i===4?21:25)+'" fill="'+f[0]+'"/>'+f[1]); });
 })();
 var STK_SLOTS = [
   {k:"mascot", t:"吉祥物"},
@@ -592,13 +619,13 @@ function buildLog(){
   });
 
   // 睡眠
-  $("sleepQ").innerHTML=SLEEP_Q.map(function(t,i){ return '<button data-v="'+(i+1)+'" aria-label="'+t+'"></button>'; }).join("");
+  $("sleepQ").innerHTML=SLEEP_Q.map(function(t,i){ return '<button data-v="'+(i+1)+'"><img src="'+DEFAULT_ICONS["s"+(i+1)]+'" alt="">'+t+'</button>'; }).join("");
   $("sleepQ").onclick=function(e){ var b=e.target.closest("button"); if(!b) return; var d=getDay(cur,true), v=+b.dataset.v; d.sleep.q = d.sleep.q===v?null:v; save(); tidy(cur); renderSleep(); if(d.sleep.q) okToast("已記錄：睡得"+SLEEP_Q[v-1]); };
   $("sleepHours").oninput=function(){ var d=getDay(cur,true); d.sleep.hours=+this.value; save(); renderSleep(); };
   $("sleepHours").onchange=function(){ okToast("已記錄：睡 "+this.value+" 小時"); };
 
   // 心情
-  $("moodQ").innerHTML=MOOD_Q.map(function(t,i){ return '<button data-v="'+(i+1)+'" aria-label="'+t+'"><img data-stk="m'+(i+1)+'" alt=""></button>'; }).join("");
+  $("moodQ").innerHTML=MOOD_Q.map(function(t,i){ return '<button data-v="'+(i+1)+'"><img data-stk="m'+(i+1)+'" alt="">'+t+'</button>'; }).join("");
   $("moodQ").onclick=function(e){ var b=e.target.closest("button"); if(!b) return; var d=getDay(cur,true), v=+b.dataset.v; d.mood.q = d.mood.q===v?null:v; save(); tidy(cur); renderMood(); if(d.mood.q) okToast("已記錄：心情"+MOOD_Q[v-1]); };
   $("moodTags").innerHTML=MOOD_GROUPS.map(function(g){ return '<div class="grouph">'+g.t+'</div><div class="chips">'+g.items.map(function(t){ return '<button class="chip pk" data-t="'+t+'">'+t+'</button>'; }).join("")+'</div>'; }).join("");
   $("moodTags").onclick=function(e){ var c=e.target.closest(".chip"); if(!c) return; var d=getDay(cur,true), a=d.mood.tags, t=c.dataset.t, ix=a.indexOf(t); if(ix>=0) a.splice(ix,1); else a.push(t); save(); tidy(cur); renderMood(); };
@@ -703,8 +730,9 @@ function openFoodSheet(k){
     var groups=FOOD_GROUPS.concat(Object.keys(mem.customFoods).length?[{t:"我新增的", items:Object.keys(mem.customFoods)}]:[]);
     var g=groups[tab]||groups[0];
     $("sheet").innerHTML='<h3>'+mealName(k)+'吃了什麼？</h3>'+
-      '<div class="tabs">'+groups.map(function(x,i){ return '<button data-tab="'+i+'" class="'+(i===tab?"on":"")+'">'+x.t+'</button>'; }).join("")+'</div>'+
-      '<div class="chips">'+g.items.map(function(n){ return '<button class="chip pk'+(sel.indexOf(n)>=0?" on":"")+'" data-food="'+esc(n)+'">'+esc(n)+'</button>'; }).join("")+'</div>'+
+      '<div class="tabs" role="tablist" aria-label="食物分類">'+groups.map(function(x,i){ return '<button data-tab="'+i+'" class="'+(i===tab?"on":"")+'">'+x.t+'</button>'; }).join("")+'</div>'+
+      '<div class="grp-h"><b>'+g.t+'</b><small>'+g.items.length+' 樣・點選吃了的</small></div>'+
+      '<div class="chips">'+g.items.map(function(n){ return '<button class="chip food'+(sel.indexOf(n)>=0?" on":"")+'" data-food="'+esc(n)+'">'+esc(n)+'</button>'; }).join("")+'</div>'+
       '<p class="tip">已選 '+sel.length+' 樣。找不到的食物，可以在搜尋框直接打字新增。</p>'+
       '<div class="sheet-f"><button class="btn sm" data-done="1">完成</button></div>';
     var on=$("sheet").querySelector(".tabs .on"); if(on && on.scrollIntoView) on.scrollIntoView({block:"nearest",inline:"center"});
@@ -754,20 +782,34 @@ function renderStools(){
   $("noPoop").checked=!!(d&&d.noPoop);
   renderProgress();
 }
+// 睡眠時數 → 顏色：睡太少是疲累的灰紫，睡飽是陽光的橘黃
+function sleepTone(h){
+  if(h==null) return {c:"#B8A493", w:"", bg:"#FFFFFF"};
+  if(h<5)  return {c:"#8E84BF", w:"睡太少了", bg:"#F4F1FA"};
+  if(h<6)  return {c:"#7F9CCB", w:"有點不夠", bg:"#F1F5FB"};
+  if(h<7)  return {c:"#C9A43A", w:"還可以", bg:"#FFFAEC"};
+  if(h<=9) return {c:"#E88E1A", w:"睡飽飽", bg:"#FFF3DE"};
+  return {c:"#D98C2B", w:"睡很多", bg:"#FFF6E6"};
+}
 function renderSleep(){
-  var d=getDay(cur), h=d?d.sleep.hours:null, q=d?d.sleep.q:null;
-  $("sleepVal").innerHTML=(h==null?'– <small>小時・拖拉設定</small>':h+' <small>小時</small>');
+  var d=getDay(cur), h=d?d.sleep.hours:null, q=d?d.sleep.q:null, t=sleepTone(h);
+  $("sleepVal").innerHTML=(h==null?'– <small>小時</small>':h+' <small>小時</small>');
+  $("sleepVal").style.color = h==null? "" : t.c;
+  $("sleepWord").textContent=t.w; $("sleepWord").style.background=t.c; $("sleepWord").style.display=t.w?"":"none";
   $("sleepHours").value = h==null?7:h;
-  Array.prototype.forEach.call($("sleepQ").children,function(b){ b.classList.toggle("on", q!=null && +b.dataset.v<=q); });
-  $("sleepQText").textContent = q? "睡得："+SLEEP_Q[q-1] : "睡得好嗎？";
+  $("sleepHours").style.accentColor = h==null? "#C9B8A6" : t.c;
+  $("c-sleep").style.background=t.bg;
+  $("sleepQ").classList.toggle("has", q!=null);
+  Array.prototype.forEach.call($("sleepQ").children,function(b){ b.classList.toggle("on", +b.dataset.v===q); });
   renderProgress();
 }
 function renderMood(){
   var d=getDay(cur), q=d?d.mood.q:null, tg=d?d.mood.tags:[];
+  $("moodQ").classList.toggle("has", q!=null);
   Array.prototype.forEach.call($("moodQ").children,function(b){ b.classList.toggle("on", +b.dataset.v===q); });
   Array.prototype.forEach.call($("moodTags").querySelectorAll(".chip"),function(c){ c.classList.toggle("on", tg.indexOf(c.dataset.t)>=0); });
-  var txt = q? MOOD_Q[q-1] : "點一個表情"; if(tg.length) txt += "・"+tg.slice(0,3).join("、")+(tg.length>3?"…":"");
-  $("moodText").textContent=txt;
+  var txt = q? "" : "點一個最接近的"; if(tg.length) txt += "・"+tg.slice(0,3).join("、")+(tg.length>3?"…":"");
+  $("moodText").textContent=txt.replace(/^・/,"");
   if(tg.length) $("moodTagsCard").style.display="block";
   renderProgress();
 }
@@ -1078,8 +1120,9 @@ function makeDemo(){
 }
 
 /* ================= 版本 ================= */
-var APP_VERSION="1.3.0";
+var APP_VERSION="1.3.1";
 var CHANGELOG=[
+  ["1.3.1","食物分類改成分頁標籤，和食物選項明顯區分；睡眠品質與心情直接顯示文字；睡眠顏色隨時數變化（睡少灰紫、睡飽橘黃）"],
   ["1.3.0","每個項目填好會出現綠色勾勾；頂部顯示今天記了幾項；每餐有「記好了」按鈕；記錄後都會跳出確認提示"],
   ["1.2.1","肚子感覺改成清楚標示「一天記一次、以最不舒服的時候為準」，點選後會提示已記錄"],
   ["1.2.0","新增「肚子痛／脹氣」紀錄與分析、安裝 App 按鈕、第一次使用說明、版本資訊"],
