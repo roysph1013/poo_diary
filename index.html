@@ -224,9 +224,10 @@ h1.pg{font-size:22px;margin:4px 0 0}
     </div>
 
     <div class="card">
-      <div class="card-h"><h2>肚子感覺</h2><small>沒有不舒服就點 0</small></div>
+      <div class="card-h"><h2>今天的肚子感覺</h2><small>一天記一次</small></div>
       <div class="lvrow"><span>肚子痛</span><div class="lv" id="painLv" data-f="pain"></div></div>
       <div class="lvrow"><span>脹氣</span><div class="lv" id="bloatLv" data-f="bloat"></div></div>
+      <p class="tip">記整天下來的感覺，以<b>最不舒服</b>的時候為準；晚一點變嚴重了，回來改就好。整天都沒事請點 0。</p>
     </div>
 
     <div class="card">
@@ -593,7 +594,8 @@ function buildLog(){
   var LV=[["0","沒有"],["1","一點"],["2","明顯"],["3","很嚴重"]];
   ["painLv","bloatLv"].forEach(function(id){
     $(id).innerHTML=LV.map(function(x){ return '<button class="l'+x[0]+'" data-v="'+x[0]+'"><b class="num">'+x[0]+'</b>'+x[1]+'</button>'; }).join("");
-    $(id).onclick=function(e){ var b=e.target.closest("button"); if(!b) return; var d=getDay(cur,true), f=this.dataset.f, v=+b.dataset.v; d.belly[f] = d.belly[f]===v? null : v; save(); tidy(cur); renderBelly(); };
+    $(id).onclick=function(e){ var b=e.target.closest("button"); if(!b) return; var d=getDay(cur,true), f=this.dataset.f, v=+b.dataset.v; d.belly[f] = d.belly[f]===v? null : v; save(); tidy(cur); renderBelly();
+      toast(d.belly[f]==null? "已清除" : "已記錄：今天"+(f==="pain"?"肚子痛":"脹氣")+"「"+LV[v][1]+"」"); };
   });
 
   // 喝水
@@ -1024,8 +1026,9 @@ function makeDemo(){
 }
 
 /* ================= 版本 ================= */
-var APP_VERSION="1.2.0";
+var APP_VERSION="1.2.1";
 var CHANGELOG=[
+  ["1.2.1","肚子感覺改成清楚標示「一天記一次、以最不舒服的時候為準」，點選後會提示已記錄"],
   ["1.2.0","新增「肚子痛／脹氣」紀錄與分析、安裝 App 按鈕、第一次使用說明、版本資訊"],
   ["1.1.0","分析改用 Fisher 精確檢定；第 5 型依 Rome 標準算正常；固定淺色顯示"],
   ["1.0.0","第一版：記錄嗯嗯、飲食、睡眠、心情、喝水；日曆、分析、備份、自訂貼圖"]
@@ -1072,9 +1075,9 @@ function guide(){
   var icons=""; for(var i=1;i<=7;i++) icons+='<img src="'+icon("b"+i)+'" alt="">';
   var faces=""; for(var j=1;j<=5;j++) faces+='<img src="'+icon("m"+j)+'" alt="">';
   var P=[
-    {h:"歡迎來到嗯嗯日記！", b:'<img class="hero" src="'+icon("mascot")+'" alt=""><p>每天花 30 秒，記下嗯嗯、吃了什麼、肚子感覺、睡眠和心情。</p><p>記錄幾週後，就能看出哪些事情可能讓肚子不舒服。</p>'},
+    {h:"歡迎來到嗯嗯日記！", b:'<img class="hero" src="'+icon("mascot")+'" alt=""><p>每天花 30 秒，記下嗯嗯、吃了什麼、肚子感覺、睡眠和心情。</p><p>記錄幾週後，就能看出哪些事情可能讓肚子不舒服。</p><p class="tip">所有內容點了就會自動儲存，不用另外按儲存。</p>'},
     {h:"① 記錄嗯嗯", b:'<div class="icons">'+icons+'</div><p>每次上完廁所，點最像的形態，再按「<b>記下這次</b>」。</p><p>第 3～5 型是正常的，第 4 型最理想。一天可以記很多次；沒有嗯嗯的話，勾「今天沒有嗯嗯」。</p>'},
-    {h:"② 肚子感覺與飲食", b:'<p>肚子痛、脹氣用 <b>0～3 分</b>記錄，沒有不舒服就點 0，這樣分析才知道哪天是舒服的。</p><p>吃了什麼：打開一餐，點「你常吃的」或打字搜尋就好，不用每樣都記。</p>'},
+    {h:"② 肚子感覺與飲食", b:'<p>肚子痛、脹氣是<b>一天記一次</b>，用 0～3 分記整天的感覺，以最不舒服的時候為準。整天都沒事也請點 0，分析才知道哪天是舒服的。</p><p>吃了什麼：打開一餐，點「你常吃的」或打字搜尋就好，不用每樣都記。</p>'},
     {h:"③ 睡眠、心情、喝水", b:'<div class="icons">'+faces+'</div><p>拉一下睡眠時數、點一個心情表情。想多記一點，可以按「加一些細節」。</p><p>每一項都是選填，有空就記，越完整分析越準。</p>'},
     {h:"④ 看分析", b:'<p>持續記錄 <b>3～4 週</b>後，到「分析」看看哪些食物、作息或心情可能跟拉肚子、便祕、肚子痛有關。</p><p>這只是統計上的參考，不能取代醫生的診斷。有血便、黑便或劇烈腹痛請盡快就醫。</p>'},
     {h:"⑤ 最後兩件事", b:'<p>紀錄只存在<b>這支手機</b>，不會上傳到任何地方。換手機前，記得到「設定」匯出備份。</p>'+(isStandalone()?'':'<p>建議把嗯嗯日記<b>安裝到主畫面</b>，用起來就像一般 App。</p><button class="btn sm" data-a="install" style="margin-top:4px">安裝 App</button>')}
