@@ -157,6 +157,24 @@ h1.pg{font-size:22px;margin:4px 0 0}
 .tbl td,.tbl th{padding:8px 3px;border-bottom:1px dashed var(--line);text-align:center}
 .tbl th{color:var(--sub);font-weight:400;font-size:12px}
 .tbl td:first-child,.tbl th:first-child{text-align:left}
+.lvrow{display:flex;align-items:center;gap:10px;margin:8px 0}
+.lvrow>span{width:52px;flex:none;font-size:14px}
+.lv{flex:1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.lv button{border:2px solid transparent;background:var(--chip);border-radius:12px;padding:7px 0;font-size:12px;line-height:1.25}
+.lv button b{display:block;font-size:15px}
+.lv button.on{border-color:var(--brown)}
+.lv button.on.l0{background:#DFF3E8}.lv button.on.l1{background:#FFF1C9}.lv button.on.l2{background:#FFDCC8}.lv button.on.l3{background:#F9C3CE}
+.ver{text-align:center;font-size:11px;color:#B8A493;margin:18px 0 4px;background:none;border:0;width:100%;padding:6px}
+.ob{text-align:center}
+.ob img.hero{width:96px;height:96px;object-fit:contain;margin:6px 0 4px}
+.ob h3{font-size:19px;margin:6px 0 10px}
+.ob p{font-size:14px;line-height:1.8;margin:0 0 8px;color:var(--ink)}
+.ob .icons{display:flex;justify-content:center;gap:6px;margin:10px 0}
+.ob .icons img{width:34px;height:34px}
+.ob .pts{display:flex;justify-content:center;gap:6px;margin:14px 0 2px}
+.ob .pts i{width:7px;height:7px;border-radius:50%;background:var(--line)}
+.ob .pts i.on{background:var(--brown);width:18px;border-radius:4px}
+.steps{text-align:left;background:var(--soft);border-radius:14px;padding:12px 14px;font-size:14px;line-height:1.9;margin:8px 0}
 .tip{font-size:12px;color:var(--sub);line-height:1.7;margin:8px 0 0}
 .stk{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
 .stk button{border:0;background:var(--soft);border-radius:14px;padding:10px 4px 8px;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;color:#6E5442;position:relative}
@@ -203,6 +221,12 @@ h1.pg{font-size:22px;margin:4px 0 0}
       </div>
       <div class="list" id="stoolList"></div>
       <label class="check"><input type="checkbox" id="noPoop"> 今天沒有嗯嗯</label>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><h2>肚子感覺</h2><small>沒有不舒服就點 0</small></div>
+      <div class="lvrow"><span>肚子痛</span><div class="lv" id="painLv" data-f="pain"></div></div>
+      <div class="lvrow"><span>脹氣</span><div class="lv" id="bloatLv" data-f="bloat"></div></div>
     </div>
 
     <div class="card">
@@ -268,6 +292,11 @@ h1.pg{font-size:22px;margin:4px 0 0}
   <!-- ============ 設定 ============ -->
   <section class="view" id="v-set">
     <h1 class="pg">設定</h1>
+    <div class="card" id="installCard">
+      <div class="card-h"><h2>安裝到手機</h2><small id="installState"></small></div>
+      <p class="tip" style="margin:0 0 12px">安裝後會出現在手機主畫面，點開就像一般 App，沒有網路也能用。</p>
+      <div class="chips"><button class="btn sm" id="installBtn">安裝 App</button><button class="btn ghost sm" id="guideBtn">看使用說明</button></div>
+    </div>
     <div class="card">
       <div class="card-h"><h2>自訂貼圖</h2><small>只存在這支手機</small></div>
       <p class="tip" style="margin:0 0 12px">可以把圖示換成手機裡自己喜歡的圖片。圖片只存在這個瀏覽器，不會上傳到任何地方。點圖示更換，有粉紅點的是已自訂。</p>
@@ -298,6 +327,7 @@ h1.pg{font-size:22px;margin:4px 0 0}
       <p class="tip" style="margin:0">這個 App 是生活紀錄工具，不能取代醫療診斷。如果出現血便、黑色柏油便、腹瀉或便祕超過兩週、體重莫名下降、劇烈腹痛，請盡快就醫。</p>
       <p class="tip">嗯嗯形態依據「布里斯托大便分類法」（Lewis &amp; Heaton, 1997），分類方式採 Rome 標準：第 1–2 型偏便祕、第 3–5 型正常（第 4 型最理想）、第 6–7 型偏腹瀉。</p>
     </div>
+    <button class="ver" id="verText"></button>
   </section>
 </div>
 
@@ -428,7 +458,7 @@ var warned=false;
 function save(){ if(!lsSet(KEY, JSON.stringify(mem)) && !warned){ warned=true; toast("這個瀏覽器無法自動儲存，請記得匯出備份"); } }
 function blankDay(){
   var meals={}; MEALS.forEach(function(m){ meals[m.k]={items:[],habits:[],note:""}; });
-  return {stools:[], noPoop:false, meals:meals, sleep:{hours:null,q:null}, mood:{q:null,tags:[]}, water:0, note:""};
+  return {stools:[], noPoop:false, belly:{pain:null,bloat:null}, meals:meals, sleep:{hours:null,q:null}, mood:{q:null,tags:[]}, water:0, note:""};
 }
 function getDay(k, create){
   var d=mem.days[k];
@@ -443,6 +473,7 @@ function isEmptyDay(d){
   if(!d) return true;
   if(d.stools.length||d.noPoop||d.note||d.water) return false;
   if(d.sleep.hours!=null||d.sleep.q!=null||d.mood.q!=null||d.mood.tags.length) return false;
+  if(d.belly.pain!=null||d.belly.bloat!=null) return false;
   return !MEALS.some(function(m){ var x=d.meals[m.k]; return x.items.length||x.habits.length||x.note; });
 }
 function tidy(k){ if(isEmptyDay(mem.days[k])) delete mem.days[k]; }
@@ -457,6 +488,11 @@ var WEEK=["日","一","二","三","四","五","六"];
 function todayK(){ return keyOf(new Date()); }
 
 /* ================= 狀態 ================= */
+// 肚子明顯不舒服：肚子痛或脹氣 2 分以上
+function bellyStatus(d){
+  if(!d || (d.belly.pain==null && d.belly.bloat==null)) return null;
+  return Math.max(d.belly.pain||0, d.belly.bloat||0)>=2 ? "pain" : "ok";
+}
 function dayStatus(d){
   if(!d) return null;
   if(d.stools.length){
@@ -478,7 +514,7 @@ var tT;
 function toast(m){ var t=$("toast"); t.textContent=m; t.classList.add("show"); clearTimeout(tT); tT=setTimeout(function(){ t.classList.remove("show"); },2200); }
 function openSheet(html){ $("sheet").innerHTML=html; $("modal").classList.add("on"); }
 function closeSheet(){ $("modal").classList.remove("on"); $("sheet").innerHTML=""; }
-$("modal").addEventListener("click",function(e){ if(e.target.id==="modal") closeSheet(); });
+$("modal").addEventListener("click",function(e){ if(e.target.id==="modal"){ if($("sheet").querySelector(".ob")) lsSet("poodiary.onboarded","1"); closeSheet(); } });
 function confirmBox(msg, ok){
   openSheet('<h3>確定嗎？</h3><p style="line-height:1.7;margin:0">'+msg+'</p><div class="sheet-f"><button class="btn ghost sm" data-a="no">取消</button><button class="btn sm" data-a="yes">確定</button></div>');
   $("sheet").onclick=function(e){ var a=e.target.closest("[data-a]"); if(!a) return; $("sheet").onclick=null; closeSheet(); if(a.dataset.a==="yes") ok(); };
@@ -552,6 +588,13 @@ function buildLog(){
   $("moodTags").onclick=function(e){ var c=e.target.closest(".chip"); if(!c) return; var d=getDay(cur,true), a=d.mood.tags, t=c.dataset.t, ix=a.indexOf(t); if(ix>=0) a.splice(ix,1); else a.push(t); save(); tidy(cur); renderMood(); };
   $("moodMore").onclick=function(){ $("moodTagsCard").style.display="block"; $("moodTagsCard").scrollIntoView({behavior:"smooth",block:"center"}); };
   $("moodLess").onclick=function(){ $("moodTagsCard").style.display="none"; };
+
+  // 肚子感覺
+  var LV=[["0","沒有"],["1","一點"],["2","明顯"],["3","很嚴重"]];
+  ["painLv","bloatLv"].forEach(function(id){
+    $(id).innerHTML=LV.map(function(x){ return '<button class="l'+x[0]+'" data-v="'+x[0]+'"><b class="num">'+x[0]+'</b>'+x[1]+'</button>'; }).join("");
+    $(id).onclick=function(e){ var b=e.target.closest("button"); if(!b) return; var d=getDay(cur,true), f=this.dataset.f, v=+b.dataset.v; d.belly[f] = d.belly[f]===v? null : v; save(); tidy(cur); renderBelly(); };
+  });
 
   // 喝水
   var w=""; for(var j=1;j<=10;j++) w+='<button data-v="'+j+'" aria-label="'+j+' 杯"></button>';
@@ -697,6 +740,10 @@ function renderMood(){
   $("moodText").textContent=txt;
   if(tg.length) $("moodTagsCard").style.display="block";
 }
+function renderBelly(){
+  var d=getDay(cur);
+  ["painLv","bloatLv"].forEach(function(id){ var v=d?d.belly[$(id).dataset.f]:null; Array.prototype.forEach.call($(id).children,function(b){ b.classList.toggle("on", +b.dataset.v===v); }); });
+}
 function renderWater(){
   var d=getDay(cur), n=d?d.water:0;
   Array.prototype.forEach.call($("water").children,function(b){ b.classList.toggle("on", +b.dataset.v<=n); });
@@ -710,7 +757,7 @@ function renderLog(){
   var now=new Date(); $("stoolTime").value = cur===todayK()? pad(now.getHours())+":"+pad(now.getMinutes()) : "";
   var d=getDay(cur); $("dayNote").value=d?d.note:"";
   $("moodTagsCard").style.display="none";
-  renderBristol(); renderStools(); renderMeals(); renderSleep(); renderMood(); renderWater();
+  renderBristol(); renderStools(); renderMeals(); renderSleep(); renderMood(); renderWater(); renderBelly();
 }
 
 /* ================= 日曆 ================= */
@@ -740,6 +787,9 @@ function renderCalDetail(){
     if(st) p.push('<span class="pill" style="background:'+STATUS[st].c+';color:#fff">'+STATUS[st].t+(d.stools.length>1?" ×"+d.stools.length:"")+'</span>');
     var foods=[]; MEALS.forEach(function(m){ foods=foods.concat(d.meals[m.k].items); });
     foods.slice(0,6).forEach(function(f){ p.push('<span class="pill">'+esc(f)+'</span>'); });
+    var BL=["沒有","一點","明顯","很嚴重"];
+    if(d.belly.pain) p.push('<span class="pill" style="background:#F9C3CE">肚子痛：'+BL[d.belly.pain]+'</span>');
+    if(d.belly.bloat) p.push('<span class="pill" style="background:#FFDCC8">脹氣：'+BL[d.belly.bloat]+'</span>');
     if(d.sleep.hours!=null) p.push('<span class="pill">睡 '+d.sleep.hours+' 小時</span>');
     if(d.mood.q) p.push('<span class="pill">心情'+MOOD_Q[d.mood.q-1]+'</span>');
     d.mood.tags.slice(0,3).forEach(function(t){ p.push('<span class="pill">'+esc(t)+'</span>'); });
@@ -758,10 +808,10 @@ var range=30;
 $("rangeSeg").onclick=function(e){ var b=e.target.closest("button"); if(!b) return; range=+b.dataset.r; Array.prototype.forEach.call(this.children,function(x){ x.classList.toggle("on",x===b); }); renderAna(); };
 function outcome(list){
   var c={hard:0,normal:0,loose:0}, n=0;
-  list.forEach(function(s){ if(!s) return; n++; c[s==="none"?"hard":(s==="soft"?"normal":s)]++; });
+  list.forEach(function(s){ if(!s) return; n++; c[s==="none"||s==="pain"?"hard":(s==="soft"||s==="ok"?"normal":s)]++; });
   return {n:n, ab:n-c.normal, normal:pct(c.normal,n), hard:pct(c.hard,n), loose:pct(c.loose,n), abn:pct(n-c.normal,n)};
 }
-var RANK={loose:4,hard:3,none:3,soft:1,normal:1};
+var RANK={loose:4,hard:3,none:3,pain:3,soft:1,normal:1,ok:1};
 function worse(a,b){ if(!a) return b; if(!b) return a; return RANK[a]>=RANK[b]?a:b; }
 // Fisher 精確檢定（雙尾）：判斷「有因素 vs 沒因素」的不舒服比例差異，有多像巧合
 var LF=[0];
@@ -777,10 +827,10 @@ function fisherP(a,b,c,d){
 }
 function dayCats(d){ var s={}; MEALS.forEach(function(m){ d.meals[m.k].items.forEach(function(n){ foodCats(n).forEach(function(c){ s[c]=1; }); }); }); return s; }
 function dayHabits(d){ var s={}; MEALS.forEach(function(m){ d.meals[m.k].habits.forEach(function(h){ s[h]=1; }); }); return s; }
-function buildFactors(keys){
-  var F=[];
-  var same=function(k){ return dayStatus(getDay(k)); };
-  var food=function(k){ return worse(dayStatus(getDay(k)), dayStatus(getDay(addDays(k,1)))); };
+function buildFactors(keys, mode){
+  var F=[], ST = mode==="belly"? bellyStatus : dayStatus;
+  var same=function(k){ return ST(getDay(k)); };
+  var food=function(k){ return worse(ST(getDay(k)), ST(getDay(addDays(k,1)))); };
   // has：這天有沒有「填寫」這類資料；沒填的日子不拿來當對照組
   function add(label, when, has, test, out){
     var yes=[], no=[];
@@ -803,8 +853,8 @@ function buildFactors(keys){
   add("喝水 8 杯以上","當天",hasWater,function(d){ return d.water>=8; }, same);
   return F;
 }
-function cmpBar(o){ return '<div class="cmp"><i style="width:'+o.normal+'%;background:var(--normal)"></i><i style="width:'+o.loose+'%;background:var(--loose)"></i><i style="width:'+o.hard+'%;background:var(--hard)"></i></div>'; }
-var MIN_N=5;
+function cmpBar(o, mode){ if(mode==="belly") return '<div class="cmp"><i style="width:'+o.normal+'%;background:var(--normal)"></i><i style="width:'+o.abn+'%;background:#EE8FA5"></i></div>'; return '<div class="cmp"><i style="width:'+o.normal+'%;background:var(--normal)"></i><i style="width:'+o.loose+'%;background:var(--loose)"></i><i style="width:'+o.hard+'%;background:var(--hard)"></i></div>'; }
+var MIN_N=5, anaMode="stool";
 function renderAna(){
   var body=$("anaBody"), tk=todayK();
   var keys=Object.keys(mem.days).sort();
@@ -825,21 +875,27 @@ function renderAna(){
       '<div class="stat"><b class="num" style="color:#3F7DC0">'+pct(cnt.loose,rec.length)+'%</b><span>拉肚子</span></div>'+
     '</div><div style="font-size:13px;color:var(--sub);margin-top:14px">每日狀態</div><div class="strip">'+strip+'</div>'+
     '<div class="strip-l"><span class="num">'+addDays(tk,-(span-1)).slice(5).replace("-","/")+'</span><span>今天</span></div>'+
-    (sticky?'<p class="tip">其中有 '+sticky+' 天出現「黏馬桶」。</p>':'')+'</div>';
+    (sticky?'<p class="tip">其中有 '+sticky+' 天出現「黏馬桶」。</p>':'')+
+    (function(){ var bk=keys.filter(function(k){ return bellyStatus(getDay(k)); }), bad=bk.filter(function(k){ return bellyStatus(getDay(k))==="pain"; }).length;
+      return bk.length? '<p class="tip">有填肚子感覺的 '+bk.length+' 天中，'+bad+' 天肚子明顯不舒服（痛或脹氣 2 分以上）。</p>' : ''; })()+'</div>';
 
-  var F=buildFactors(keys);
+  var F=buildFactors(keys, anaMode), BELLY=anaMode==="belly";
   var ins=F.filter(function(f){ return f.w.n>=MIN_N && f.o.n>=MIN_N && f.p<0.1; }).sort(function(a,b){ return a.p-b.p; });
-  h+='<div class="card"><div class="card-h"><h2>可能的關聯</h2><small>初步觀察</small></div>';
+  h+='<div class="card"><div class="card-h"><h2>可能的關聯</h2><small>初步觀察</small></div>'+
+    '<div class="seg" id="modeSeg" style="margin:0 0 10px"><button data-m="stool" class="'+(BELLY?"":"on")+'">看嗯嗯形態</button><button data-m="belly" class="'+(BELLY?"on":"")+'">看肚子痛／脹氣</button></div>';
   if(!ins.length) h+='<div class="empty">目前還沒有夠明顯的關聯。<br>通常要記錄 3～4 週、多點食物和心情，才看得出來。</div>';
   ins.slice(0,6).forEach(function(f){
-    var w=f.w, o=f.o, bad=w.abn>o.abn, loose=w.loose>=w.hard;
-    var r = bad? (loose?"比較容易拉肚子":"比較容易便祕") : "狀況比較好";
-    var dsc = bad? (loose?"拉肚子 "+w.loose+"%，其他日子 "+o.loose+"%":"便祕或沒嗯嗯 "+w.hard+"%，其他日子 "+o.hard+"%") : "正常 "+w.normal+"%，其他日子 "+o.normal+"%";
+    var w=f.w, o=f.o, bad=w.abn>o.abn, loose=w.loose>=w.hard, r, dsc;
+    if(BELLY){ r = bad? "肚子比較容易不舒服" : "肚子比較舒服"; dsc = "肚子明顯不舒服 "+w.abn+"%，其他日子 "+o.abn+"%"; }
+    else{
+      r = bad? (loose?"比較容易拉肚子":"比較容易便祕") : "狀況比較好";
+      dsc = bad? (loose?"拉肚子 "+w.loose+"%，其他日子 "+o.loose+"%":"便祕或沒嗯嗯 "+w.hard+"%，其他日子 "+o.hard+"%") : "正常 "+w.normal+"%，其他日子 "+o.normal+"%";
+    }
     var lv = f.p<0.05? "差異較明顯" : "可能有關，再多記一陣子";
     h+='<div class="ins"><span class="badge" style="background:'+(bad?"#D9607C":"#3F9A6C")+'">'+(bad?"!":"✓")+'</span><div class="bd"><div><b>'+esc(f.label)+'</b> → '+r+'</div>'+
-      '<small>'+f.when+'：'+dsc+'</small><small>樣本 '+w.n+' 天 vs '+o.n+' 天・'+lv+'（p = '+f.p.toFixed(2)+'）</small>'+cmpBar(w)+'</div></div>';
+      '<small>'+f.when+'：'+dsc+'</small><small>樣本 '+w.n+' 天 vs '+o.n+' 天・'+lv+'（p '+(f.p<0.01?'< 0.01':'= '+f.p.toFixed(2))+'）</small>'+cmpBar(w, anaMode)+'</div></div>';
   });
-  h+='<p class="tip">比較「有這個因素的日子」和「其他日子」的不舒服比例，並用 Fisher 精確檢定排除比較像巧合的結果（只列出 p &lt; 0.1，且兩邊各至少 '+MIN_N+' 天）。飲食看吃完當天或隔天，睡眠看睡醒那天，心情看同一天。這只是統計上的關聯，不等於因果，也不能用來診斷。</p></div>';
+  h+='<p class="tip">'+(BELLY?'「肚子明顯不舒服」指肚子痛或脹氣 2 分以上。':'')+'比較「有這個因素的日子」和「其他日子」的不舒服比例，並用 Fisher 精確檢定排除比較像巧合的結果（只列出 p &lt; 0.1，且兩邊各至少 '+MIN_N+' 天）。飲食看吃完當天或隔天，睡眠看睡醒那天，心情看同一天。這只是統計上的關聯，不等於因果，也不能用來診斷。</p></div>';
 
   var mx=Math.max.apply(null,types)||1;
   h+='<div class="card"><div class="card-h"><h2>形態分佈</h2><small>共 '+total+' 次</small></div>';
@@ -847,11 +903,12 @@ function renderAna(){
   h+='<p class="tip">依 Rome 標準：第 1–2 型偏便祕、第 3–5 型正常、第 6–7 型偏腹瀉。</p></div>';
 
   var rows=F.filter(function(f){ return f.w.n>0; });
-  h+='<div class="card"><div class="card-h"><h2>各因素明細</h2><small>不舒服比例</small></div><table class="tbl"><tr><th>因素</th><th>有</th><th>其他日子</th><th>p 值</th></tr>'+
+  h+='<div class="card"><div class="card-h"><h2>各因素明細</h2><small>'+(BELLY?"肚子不舒服比例":"嗯嗯不正常比例")+'</small></div><table class="tbl"><tr><th>因素</th><th>有</th><th>其他日子</th><th>p 值</th></tr>'+
     rows.map(function(f){ var ok=f.w.n>=MIN_N && f.o.n>=MIN_N;
-      return '<tr><td>'+esc(f.label)+'</td><td class="num">'+f.w.abn+'%<br><small style="color:var(--sub)">'+f.w.n+' 天</small></td><td class="num">'+(f.o.n?f.o.abn+'%<br><small style="color:var(--sub)">'+f.o.n+' 天</small>':'—')+'</td><td class="num">'+(ok?f.p.toFixed(2):'<small style="color:var(--sub)">天數不夠</small>')+'</td></tr>'; }).join("")+
+      return '<tr><td>'+esc(f.label)+'</td><td class="num">'+f.w.abn+'%<br><small style="color:var(--sub)">'+f.w.n+' 天</small></td><td class="num">'+(f.o.n?f.o.abn+'%<br><small style="color:var(--sub)">'+f.o.n+' 天</small>':'—')+'</td><td class="num">'+(ok?(f.p<0.01?'<0.01':f.p.toFixed(2)):'<small style="color:var(--sub)">天數不夠</small>')+'</td></tr>'; }).join("")+
     '</table></div>';
   body.innerHTML=h;
+  $("modeSeg").onclick=function(e){ var b=e.target.closest("[data-m]"); if(!b || b.dataset.m===anaMode) return; anaMode=b.dataset.m; var y=window.scrollY; renderAna(); window.scrollTo(0,y); };
 }
 
 /* ================= 設定 ================= */
@@ -960,9 +1017,89 @@ function makeDemo(){
       d.stools.push({type:t, time:pad(7+Math.floor(Math.random()*4))+":"+pad(Math.floor(Math.random()*60)), tags: t===6?["黏馬桶"]: t<=2?["很費力"]: t===4?["很順暢"]:[]});
       if(t>=6 && P(.6)) d.stools.push({type:R([6,7]), time:"15:"+pad(Math.floor(Math.random()*60)), tags:["急著跑廁所"]});
     }
+    var bp = (t>=6||spicyY)? R([1,2,2,3]) : stress? R([0,1,2]) : R([0,0,0,1]);
+    if(P(.85)){ d.belly.pain=bp; d.belly.bloat = d.meals.dinner.items.some(function(n){ return foodCats(n).indexOf("gas")>=0; })? R([1,2,2]) : R([0,0,1]); }
     mem.days[k]=d; spicyY=spicy;
   }
 }
+
+/* ================= 版本 ================= */
+var APP_VERSION="1.2.0";
+var CHANGELOG=[
+  ["1.2.0","新增「肚子痛／脹氣」紀錄與分析、安裝 App 按鈕、第一次使用說明、版本資訊"],
+  ["1.1.0","分析改用 Fisher 精確檢定；第 5 型依 Rome 標準算正常；固定淺色顯示"],
+  ["1.0.0","第一版：記錄嗯嗯、飲食、睡眠、心情、喝水；日曆、分析、備份、自訂貼圖"]
+];
+$("verText").textContent="嗯嗯日記 v"+APP_VERSION;
+$("verText").onclick=function(){
+  openSheet('<h3>更新紀錄</h3>'+CHANGELOG.map(function(c){ return '<div style="margin:0 0 12px"><b class="num">v'+c[0]+'</b><p class="tip" style="margin:2px 0 0">'+c[1]+'</p></div>'; }).join("")+
+    '<div class="sheet-f"><button class="btn sm" data-a="x">關閉</button></div>');
+  $("sheet").onclick=function(e){ if(e.target.closest("[data-a]")) closeSheet(); };
+};
+
+/* ================= 安裝 App ================= */
+var installEvt=null;
+var UA=navigator.userAgent||"";
+var isIOS=/iphone|ipad|ipod/i.test(UA) || (/Macintosh/.test(UA) && navigator.maxTouchPoints>1);
+function isStandalone(){ try{ return window.matchMedia("(display-mode: standalone)").matches || navigator.standalone===true; }catch(e){ return false; } }
+function updateInstallUI(){
+  var ok=isStandalone();
+  $("installState").textContent = ok? "已安裝" : "";
+  $("installBtn").style.display = ok? "none" : "";
+}
+window.addEventListener("beforeinstallprompt",function(e){ e.preventDefault(); installEvt=e; updateInstallUI(); });
+window.addEventListener("appinstalled",function(){ installEvt=null; updateInstallUI(); toast("安裝好了！可以從主畫面打開"); });
+function installSteps(){
+  if(isIOS) return '<div class="steps">1. 用 <b>Safari</b> 打開這個網頁<br>2. 點下方的「分享」按鈕（方框加向上箭頭）<br>3. 往下滑，選「<b>加入主畫面</b>」<br>4. 按右上角「新增」</div>';
+  if(/SamsungBrowser/i.test(UA)) return '<div class="steps">1. 點右下角選單 ☰<br>2. 選「<b>新增頁面至</b>」→「<b>主螢幕</b>」<br>3. 按「新增」</div>';
+  return '<div class="steps">1. 點瀏覽器右上角選單 ⋮<br>2. 選「<b>安裝應用程式</b>」或「<b>加到主畫面</b>」<br>3. 按「安裝」</div>';
+}
+function installApp(){
+  if(isStandalone()){ toast("已經安裝好了"); return; }
+  if(installEvt){
+    installEvt.prompt();
+    installEvt.userChoice.then(function(){ installEvt=null; updateInstallUI(); }, function(){});
+    return;
+  }
+  openSheet('<h3>安裝到主畫面</h3><p class="tip" style="margin:0">照著下面步驟做，就會在手機主畫面出現嗯嗯日記。</p>'+installSteps()+'<div class="sheet-f"><button class="btn sm" data-a="x">知道了</button></div>');
+  $("sheet").onclick=function(e){ if(e.target.closest("[data-a]")) closeSheet(); };
+}
+$("installBtn").onclick=installApp;
+
+/* ================= 使用說明 ================= */
+var OB_KEY="poodiary.onboarded";
+function guide(){
+  var icons=""; for(var i=1;i<=7;i++) icons+='<img src="'+icon("b"+i)+'" alt="">';
+  var faces=""; for(var j=1;j<=5;j++) faces+='<img src="'+icon("m"+j)+'" alt="">';
+  var P=[
+    {h:"歡迎來到嗯嗯日記！", b:'<img class="hero" src="'+icon("mascot")+'" alt=""><p>每天花 30 秒，記下嗯嗯、吃了什麼、肚子感覺、睡眠和心情。</p><p>記錄幾週後，就能看出哪些事情可能讓肚子不舒服。</p>'},
+    {h:"① 記錄嗯嗯", b:'<div class="icons">'+icons+'</div><p>每次上完廁所，點最像的形態，再按「<b>記下這次</b>」。</p><p>第 3～5 型是正常的，第 4 型最理想。一天可以記很多次；沒有嗯嗯的話，勾「今天沒有嗯嗯」。</p>'},
+    {h:"② 肚子感覺與飲食", b:'<p>肚子痛、脹氣用 <b>0～3 分</b>記錄，沒有不舒服就點 0，這樣分析才知道哪天是舒服的。</p><p>吃了什麼：打開一餐，點「你常吃的」或打字搜尋就好，不用每樣都記。</p>'},
+    {h:"③ 睡眠、心情、喝水", b:'<div class="icons">'+faces+'</div><p>拉一下睡眠時數、點一個心情表情。想多記一點，可以按「加一些細節」。</p><p>每一項都是選填，有空就記，越完整分析越準。</p>'},
+    {h:"④ 看分析", b:'<p>持續記錄 <b>3～4 週</b>後，到「分析」看看哪些食物、作息或心情可能跟拉肚子、便祕、肚子痛有關。</p><p>這只是統計上的參考，不能取代醫生的診斷。有血便、黑便或劇烈腹痛請盡快就醫。</p>'},
+    {h:"⑤ 最後兩件事", b:'<p>紀錄只存在<b>這支手機</b>，不會上傳到任何地方。換手機前，記得到「設定」匯出備份。</p>'+(isStandalone()?'':'<p>建議把嗯嗯日記<b>安裝到主畫面</b>，用起來就像一般 App。</p><button class="btn sm" data-a="install" style="margin-top:4px">安裝 App</button>')}
+  ];
+  var i=0;
+  function draw(){
+    var pts=P.map(function(_,k){ return '<i class="'+(k===i?"on":"")+'"></i>'; }).join("");
+    $("sheet").innerHTML='<div class="ob"><h3>'+P[i].h+'</h3>'+P[i].b+'<div class="pts">'+pts+'</div></div>'+
+      '<div class="sheet-f" style="justify-content:space-between">'+
+        (i===0?'<button class="btn ghost sm" data-a="skip">略過</button>':'<button class="btn ghost sm" data-a="prev">上一步</button>')+
+        (i===P.length-1?'<button class="btn sm" data-a="done">開始使用</button>':'<button class="btn sm" data-a="next">下一步</button>')+
+      '</div>';
+  }
+  function finish(){ lsSet(OB_KEY,"1"); $("sheet").onclick=null; closeSheet(); }
+  openSheet(""); draw();
+  $("sheet").onclick=function(e){
+    var a=e.target.closest("[data-a]"); if(!a) return;
+    var t=a.dataset.a;
+    if(t==="next"){ i++; draw(); }
+    else if(t==="prev"){ i--; draw(); }
+    else if(t==="install"){ finish(); installApp(); }
+    else finish();
+  };
+}
+$("guideBtn").onclick=guide;
 
 /* ================= 導覽 ================= */
 function go(v){
@@ -978,6 +1115,8 @@ $("nav").onclick=function(e){ var b=e.target.closest("button"); if(b) go(b.datas
 
 /* ================= 啟動 ================= */
 load(); buildLog(); applyStickers(); renderLog();
+updateInstallUI();
+if(!lsGet(OB_KEY)) setTimeout(guide, 400);
 if(!storageOK) toast("這個瀏覽器無法自動儲存，請記得匯出備份");
 if("serviceWorker" in navigator && location.protocol==="https:"){ try{ navigator.serviceWorker.register("sw.js").catch(function(){}); }catch(e){} }
 })();
