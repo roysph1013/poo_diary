@@ -192,6 +192,23 @@ h1.pg{font-size:22px;margin:4px 0 0}
 .ins small{color:#6E5442;font-size:12px}
 .cmp{display:flex;height:10px;border-radius:999px;overflow:hidden;background:#eee}
 .cmp i{display:block;height:100%}
+.lash{display:none}
+.pet.girl svg.e-o .lash,.pet.girl svg.e-s .lash{display:inline}
+.rk{display:flex;gap:10px;background:var(--soft);border-radius:14px;padding:12px;margin:8px 0}
+.rk .no{flex:none;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff}
+.rk .bd{flex:1;min-width:0;font-size:14px}
+.rk .tt{font-weight:700;font-size:15px}
+.rk .tg{display:inline-block;font-size:11px;font-weight:700;border-radius:999px;padding:1px 8px;margin-left:6px;vertical-align:2px}
+.rk .sub{color:#6E5442;font-size:12.5px;margin:2px 0 6px}
+.rk .br{display:flex;align-items:center;gap:8px;font-size:12px;color:#6E5442;margin-top:4px}
+.rk .br span:first-child{flex:none;width:86px}
+.rk .br .tr{flex:1;height:9px;border-radius:999px;background:#EFE4D8;overflow:hidden}
+.rk .br .tr i{display:block;height:100%;border-radius:999px}
+.rk .br b{flex:none;width:38px;text-align:right}
+.gsel{display:flex;gap:12px;justify-content:center;margin:10px 0 4px}
+.gsel button{flex:1;max-width:150px;border:2px solid transparent;background:var(--soft);border-radius:18px;padding:10px 6px 8px;display:flex;flex-direction:column;align-items:center;gap:4px;font-weight:700;font-size:14px}
+.gsel button img{width:84px;height:84px;object-fit:contain}
+.gsel button.on{border-color:var(--brown);background:#fff;box-shadow:var(--shadow)}
 .empty{text-align:center;color:var(--sub);font-size:14px;padding:18px 6px;line-height:1.8}
 .empty img{width:72px;height:72px}
 .tbl{width:100%;border-collapse:collapse;font-size:13px}
@@ -320,7 +337,9 @@ h1.pg{font-size:22px;margin:4px 0 0}
           <g class="feet" stroke="#2E2018" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"><path class="ft f1" d="M24 56v7h-4"/><path class="ft f2" d="M40 56v7h4"/></g>
           <g class="arms" stroke="#2E2018" stroke-width="1.8" stroke-linecap="round" fill="none"><path d="M10 48Q2 46 3 37"/><path d="M56 48Q64 46 63 37"/></g>
           <path d="M10 50c-4-8 4-12 8-12-2-6 4-10 9-9 0-7 6-11 10-10 1 5 4 6 7 8 6 1 9 6 7 11 5 1 9 6 5 12 0 5-4 8-9 8H19c-5 0-9-3-9-8z" fill="#B9835A"/>
+          <g id="petAcc"></g>
           <g id="petFace">
+            <g class="lash" stroke="#4A3426" stroke-width="1.4" stroke-linecap="round"><path d="M21.6 44.4l-2.2-1M42.4 44.4l2.2-1M22 46.8l-2.6-.4M42 46.8l2.6-.4"/></g>
             <g class="eg eo"><circle cx="25" cy="46" r="2.6" fill="#4A3426"/><circle cx="39" cy="46" r="2.6" fill="#4A3426"/><circle cx="25.9" cy="45.1" r=".9" fill="#fff"/><circle cx="39.9" cy="45.1" r=".9" fill="#fff"/></g>
             <g class="eg eb" stroke="#4A3426" stroke-width="2" stroke-linecap="round" fill="none"><path d="M22.5 46h5"/><path d="M36.5 46h5"/></g>
             <g class="eg eh" stroke="#4A3426" stroke-width="2.2" stroke-linecap="round" fill="none"><path d="M22 47.5q3-5.5 6 0"/><path d="M36 47.5q3-5.5 6 0"/></g>
@@ -436,10 +455,19 @@ h1.pg{font-size:22px;margin:4px 0 0}
       <label class="switch">打勾時的震動<input type="checkbox" id="fxVibe"></label>
       <p class="tip" style="margin:4px 0 0">震動只支援 Android 手機；iPhone 的瀏覽器不開放震動功能。</p>
     </div>
+    <div class="card">
+      <div class="card-h"><h2>我的嗯嗯</h2><small>選一個造型</small></div>
+      <div class="gsel" id="genSel" style="margin-top:0"></div>
+    </div>
     <div class="card" id="installCard">
       <div class="card-h"><h2>安裝到手機</h2><small id="installState"></small></div>
       <p class="tip" style="margin:0 0 12px">安裝後會出現在手機主畫面，點開就像一般 App，沒有網路也能用。</p>
       <div class="chips"><button class="btn sm" id="installBtn">安裝 App</button><button class="btn ghost sm" id="guideBtn">看使用說明</button></div>
+    </div>
+    <div class="card">
+      <div class="card-h"><h2>分享給朋友</h2></div>
+      <p class="tip" style="margin:0 0 12px">把嗯嗯日記的連結傳給也想記錄的朋友。你的紀錄不會被分享出去，只有 App 的網址。</p>
+      <button class="btn sm" id="shareBtn">分享 App</button>
     </div>
     <div class="card">
       <div class="card-h"><h2>自訂貼圖</h2><small>只存在這支手機</small></div>
@@ -1182,7 +1210,7 @@ function buildFactors(keys, mode){
   return F;
 }
 function cmpBar(o, mode){ if(mode==="belly") return '<div class="cmp"><i style="width:'+o.normal+'%;background:var(--normal)"></i><i style="width:'+o.abn+'%;background:#EE8FA5"></i></div>'; return '<div class="cmp"><i style="width:'+o.normal+'%;background:var(--normal)"></i><i style="width:'+o.loose+'%;background:var(--loose)"></i><i style="width:'+o.hard+'%;background:var(--hard)"></i></div>'; }
-var MIN_N=5, anaMode="stool";
+var MIN_N=5, anaMode="stool", anaDetail=false;
 function renderAna(){
   var body=$("anaBody"), tk=todayK();
   var keys=Object.keys(mem.days).sort();
@@ -1209,33 +1237,44 @@ function renderAna(){
 
   var F=buildFactors(keys, anaMode), BELLY=anaMode==="belly";
   var ins=F.filter(function(f){ return f.w.n>=MIN_N && f.o.n>=MIN_N && f.p<0.1; }).sort(function(a,b){ return a.p-b.p; });
-  h+='<div class="card"><div class="card-h"><h2>可能的關聯</h2><small>初步觀察</small></div>'+
-    '<div class="seg" id="modeSeg" style="margin:0 0 10px"><button data-m="stool" class="'+(BELLY?"":"on")+'">看嗯嗯形態</button><button data-m="belly" class="'+(BELLY?"on":"")+'">看肚子痛／脹氣</button></div>';
-  if(!ins.length) h+='<div class="empty">目前還沒有夠明顯的關聯。<br>通常要記錄 3～4 週、多點食物和心情，才看得出來。</div>';
-  ins.slice(0,6).forEach(function(f){
-    var w=f.w, o=f.o, bad=w.abn>o.abn, loose=w.loose>=w.hard, r, dsc;
-    if(BELLY){ r = bad? "肚子比較容易不舒服" : "肚子比較舒服"; dsc = "肚子明顯不舒服 "+w.abn+"%，其他日子 "+o.abn+"%"; }
-    else{
-      r = bad? (loose?"比較容易拉肚子":"比較容易便祕") : "狀況比較好";
-      dsc = bad? (loose?"拉肚子 "+w.loose+"%，其他日子 "+o.loose+"%":"便祕或沒嗯嗯 "+w.hard+"%，其他日子 "+o.hard+"%") : "正常 "+w.normal+"%，其他日子 "+o.normal+"%";
-    }
-    var lv = f.p<0.05? "差異較明顯" : "可能有關，再多記一陣子";
-    h+='<div class="ins"><span class="badge" style="background:'+(bad?"#D9607C":"#3F9A6C")+'">'+(bad?"!":"✓")+'</span><div class="bd"><div><b>'+esc(f.label)+'</b> → '+r+'</div>'+
-      '<small>'+f.when+'：'+dsc+'</small><small>樣本 '+w.n+' 天 vs '+o.n+' 天・'+lv+'（p '+(f.p<0.01?'< 0.01':'= '+f.p.toFixed(2))+'）</small>'+cmpBar(w, anaMode)+'</div></div>';
-  });
-  h+='<p class="tip">'+(BELLY?'「肚子明顯不舒服」指肚子痛或脹氣 2 分以上。':'')+'比較「有這個因素的日子」和「其他日子」的不舒服比例，並用 Fisher 精確檢定排除比較像巧合的結果（只列出 p &lt; 0.1，且兩邊各至少 '+MIN_N+' 天）。飲食看吃完當天或隔天，睡眠看睡醒那天，心情看同一天。這只是統計上的關聯，不等於因果，也不能用來診斷。</p></div>';
+  var badL=ins.filter(function(f){ return f.w.abn>f.o.abn; }), goodL=ins.filter(function(f){ return f.w.abn<=f.o.abn; });
+  function rk(f,i,bad){
+    var w=f.w, o=f.o, strong=f.p<0.05, name=f.label.replace(/^吃了「(.*)」$/,"$1").replace(/^「(.*)」$/,"$1");
+    var sub = bad? (BELLY? "這些日子肚子比較容易不舒服" : (w.loose>=w.hard? "這些日子比較容易拉肚子":"這些日子比較容易便祕"))
+                 : (BELLY? "這些日子肚子比較舒服" : "這些日子狀況比較好");
+    var tag = strong? ["很有關",bad?"#D9607C":"#3F9A6C"] : ["可能有關","#C9A24A"];
+    return '<div class="rk"><span class="no" style="background:'+(bad?"#D9607C":"#3F9A6C")+'">'+(bad?(i+1):"✓")+'</span><div class="bd">'+
+      '<div><span class="tt">'+esc(name)+'</span><span class="tg" style="background:'+tag[1]+'22;color:'+tag[1]+'">'+tag[0]+'</span></div>'+
+      '<div class="sub">'+f.when+'，'+sub+'</div>'+
+      '<div class="br"><span>有這項的日子</span><span class="tr"><i style="width:'+w.abn+'%;background:'+(bad?"#E8869B":"#7CC7A0")+'"></i></span><b class="num">'+w.abn+'%</b></div>'+
+      '<div class="br"><span>其他日子</span><span class="tr"><i style="width:'+o.abn+'%;background:#C9B8A6"></i></span><b class="num">'+o.abn+'%</b></div></div></div>';
+  }
+  h+='<div class="card"><div class="card-h"><h2>可能影響你的因素</h2><small>初步觀察</small></div>'+
+    '<div class="seg" id="modeSeg" style="margin:0 0 10px"><button data-m="stool" class="'+(BELLY?"":"on")+'">看嗯嗯形態</button><button data-m="belly" class="'+(BELLY?"on":"")+'">看肚子痛／脹氣</button></div>'+
+    '<p class="tip" style="margin:0 0 6px">百分比是「'+(BELLY?"肚子明顯不舒服":"嗯嗯不正常")+'的日子佔幾 %」，越高代表越不舒服。名次越前面，關聯越大。</p>';
+  if(!ins.length) h+='<div class="empty">目前還沒有夠明顯的關聯。<br>通常要記錄 3～4 週、多記一點食物和心情，才看得出來。</div>';
+  if(badL.length){ h+='<div style="font-size:13px;font-weight:700;margin:10px 0 0">⚠️ 這些可能讓你不舒服</div>'; badL.slice(0,5).forEach(function(f,i){ h+=rk(f,i,true); }); }
+  if(goodL.length){ h+='<div style="font-size:13px;font-weight:700;margin:14px 0 0">👍 這些可能讓你比較舒服</div>'; goodL.slice(0,3).forEach(function(f,i){ h+=rk(f,i,false); }); }
+  h+='<p class="tip">這只是統計上的關聯，不等於因果，也不能用來診斷。有疑慮請諮詢醫師。</p>'+
+    '<button class="btn ghost sm" id="detBtn" style="margin-top:4px">'+(anaDetail?"收起詳細數據 ▲":"看詳細數據 ▼")+'</button></div>';
 
   var mx=Math.max.apply(null,types)||1;
   h+='<div class="card"><div class="card-h"><h2>形態分佈</h2><small>共 '+total+' 次</small></div>';
   for(var t=1;t<=7;t++) h+='<div class="bar-row"><span class="lb">第 '+t+' 型</span><span class="bar"><i style="width:'+(types[t]*100/mx)+'%;background:'+STATUS[BRISTOL[t].s].c+'"></i></span><span class="v num">'+types[t]+'</span></div>';
   h+='<p class="tip">依 Rome 標準：第 1–2 型偏便祕、第 3–5 型正常、第 6–7 型偏腹瀉。</p></div>';
 
-  var rows=F.filter(function(f){ return f.w.n>0; });
-  h+='<div class="card"><div class="card-h"><h2>各因素明細</h2><small>'+(BELLY?"肚子不舒服比例":"嗯嗯不正常比例")+'</small></div><table class="tbl"><tr><th>因素</th><th>有</th><th>其他日子</th><th>p 值</th></tr>'+
-    rows.map(function(f){ var ok=f.w.n>=MIN_N && f.o.n>=MIN_N;
-      return '<tr><td>'+esc(f.label)+'</td><td class="num">'+f.w.abn+'%<br><small style="color:var(--sub)">'+f.w.n+' 天</small></td><td class="num">'+(f.o.n?f.o.abn+'%<br><small style="color:var(--sub)">'+f.o.n+' 天</small>':'—')+'</td><td class="num">'+(ok?(f.p<0.01?'<0.01':f.p.toFixed(2)):'<small style="color:var(--sub)">天數不夠</small>')+'</td></tr>'; }).join("")+
-    '</table></div>';
+  if(anaDetail){
+    var rows=F.filter(function(f){ return f.w.n>0; });
+    h+='<div class="card"><div class="card-h"><h2>詳細數據</h2><small>'+(BELLY?"肚子不舒服比例":"嗯嗯不正常比例")+'</small></div>'+
+      '<p class="tip" style="margin:0 0 8px"><b>有</b>＝出現這項因素的日子，<b>其他日子</b>＝沒出現的日子，下面的小字是天數。<b>p 值</b>越小，越不像巧合（小於 0.05 差異較明顯）。<b>天數不夠</b>＝其中一邊少於 '+MIN_N+' 天，不做判斷。</p>'+
+      '<table class="tbl"><tr><th>因素</th><th>有</th><th>其他日子</th><th>p 值</th></tr>'+
+      rows.map(function(f){ var ok=f.w.n>=MIN_N && f.o.n>=MIN_N;
+        return '<tr><td>'+esc(f.label)+'</td><td class="num">'+f.w.abn+'%<br><small style="color:var(--sub)">'+f.w.n+' 天</small></td><td class="num">'+(f.o.n?f.o.abn+'%<br><small style="color:var(--sub)">'+f.o.n+' 天</small>':'—')+'</td><td class="num">'+(ok?(f.p<0.01?'<0.01':f.p.toFixed(2)):'<small style="color:var(--sub)">天數不夠</small>')+'</td></tr>'; }).join("")+
+      '</table>'+
+      '<p class="tip">方法：比較「有這個因素的日子」和「其他日子」的不舒服比例，用 Fisher 精確檢定排除比較像巧合的結果（只列出 p &lt; 0.1，且兩邊各至少 '+MIN_N+' 天）。'+(BELLY?'「肚子明顯不舒服」指肚子痛或脹氣 2 分以上。':'')+'飲食看吃完當天或隔天，睡眠看睡醒那天，心情看同一天。</p></div>';
+  }
   body.innerHTML=h;
+  $("detBtn").onclick=function(){ anaDetail=!anaDetail; var y=window.scrollY; renderAna(); window.scrollTo(0,y); };
   $("modeSeg").onclick=function(e){ var b=e.target.closest("[data-m]"); if(!b || b.dataset.m===anaMode) return; anaMode=b.dataset.m; var y=window.scrollY; renderAna(); window.scrollTo(0,y); };
 }
 
@@ -1352,8 +1391,9 @@ function makeDemo(){
 }
 
 /* ================= 版本 ================= */
-var APP_VERSION="1.8.1";
+var APP_VERSION="1.9.0";
 var CHANGELOG=[
+  ["1.9.0","分析改成一眼看懂：依關聯大小排名，用白話顯示「可能讓你不舒服／比較舒服」，詳細數據收進按鈕；設定新增「分享 App」；第一次開啟可選男生（藍帽子）或女生（粉蝴蝶結）造型，設定裡可更換"],
   ["1.8.1","圖示檔改名，避免手機沿用舊圖示快取"],
   ["1.8.0","新的 App 圖示：奶茶色底、便便放大置中"],
   ["1.7.1","吉祥物長出來的手腳改成細黑色線條"],
@@ -1404,6 +1444,14 @@ function installApp(){
   $("sheet").onclick=function(e){ if(e.target.closest("[data-a]")) closeSheet(); };
 }
 $("installBtn").onclick=installApp;
+var APP_URL="https://roysph1013.github.io/poo_diary/";
+$("shareBtn").onclick=function(){
+  var data={title:"嗯嗯日記",text:"我在用「嗯嗯日記」記錄嗯嗯、飲食和心情，一起來看看哪些事會影響肚子！",url:APP_URL};
+  if(navigator.share){ navigator.share(data).catch(function(){}); return; }
+  var done=function(){ toast("連結已複製，貼給朋友就可以了",true); };
+  if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(APP_URL).then(done,function(){ prompt("複製這個連結傳給朋友：",APP_URL); }); }
+  else prompt("複製這個連結傳給朋友：",APP_URL);
+};
 
 /* ================= 使用說明 ================= */
 var OB_KEY="poodiary.onboarded";
@@ -1411,7 +1459,7 @@ function guide(){
   var icons=""; for(var i=1;i<=7;i++) icons+='<img src="'+icon("b"+i)+'" alt="">';
   var faces=""; for(var j=1;j<=5;j++) faces+='<img src="'+icon("m"+j)+'" alt="">';
   var P=[
-    {h:"歡迎來到嗯嗯日記！", b:'<img class="hero" src="'+icon("mascot")+'" alt=""><p>每天花 30 秒，記下嗯嗯、吃了什麼、肚子感覺、睡眠和心情。</p><p>記錄幾週後，就能看出哪些事情可能讓肚子不舒服。</p><p class="tip">所有內容點了就會自動儲存，不用另外按儲存。</p>'},
+    {h:"歡迎來到嗯嗯日記！", gen:true, b:'<p>每天花 30 秒，記下嗯嗯、吃了什麼、肚子感覺、睡眠和心情，記幾週後就能看出哪些事情可能讓肚子不舒服。</p><p><b>先選一隻陪你的嗯嗯：</b></p><div class="gsel" id="obGen"></div><p class="tip">之後可以到「設定」更換。所有內容點了就會自動儲存。</p>'},
     {h:"① 記錄嗯嗯", b:'<div class="icons">'+icons+'</div><p>每次上完廁所，點最像的形態，再按「<b>記下這次</b>」。</p><p>第 3～5 型是正常的，第 4 型最理想。一天可以記很多次；沒有嗯嗯的話，勾「今天沒有嗯嗯」。</p>'},
     {h:"② 肚子感覺與飲食", b:'<p>肚子痛、脹氣是<b>一天記一次</b>，用 0～3 分記整天的感覺，以最不舒服的時候為準。整天都沒事也請點 0，分析才知道哪天是舒服的。</p><p>吃了什麼：打開一餐，點「你常吃的」或打字搜尋就好，不用每樣都記。</p>'},
     {h:"③ 睡眠、心情、喝水", b:'<div class="icons">'+faces+'</div><p>拉一下睡眠時數、點一個心情表情。想多記一點，可以按「加一些細節」。</p><p>每一項都是選填，有空就記，越完整分析越準。</p>'},
@@ -1426,10 +1474,12 @@ function guide(){
         (i===0?'<button class="btn ghost sm" data-a="skip">略過</button>':'<button class="btn ghost sm" data-a="prev">上一步</button>')+
         (i===P.length-1?'<button class="btn sm" data-a="done">開始使用</button>':'<button class="btn sm" data-a="next">下一步</button>')+
       '</div>';
+    if(P[i].gen) $("obGen").innerHTML=genBtns(gender);
   }
   function finish(){ lsSet(OB_KEY,"1"); $("sheet").onclick=null; closeSheet(); }
   openSheet(""); draw();
   $("sheet").onclick=function(e){
+    var g=e.target.closest("[data-g]"); if(g){ setGender(g.dataset.g); $("obGen").innerHTML=genBtns(gender); return; }
     var a=e.target.closest("[data-a]"); if(!a) return;
     var t=a.dataset.a;
     if(t==="next"){ i++; draw(); }
@@ -1451,6 +1501,40 @@ function go(v){
   window.scrollTo(0,0);
 }
 $("nav").onclick=function(e){ var b=e.target.closest("button"); if(b) go(b.dataset.v); };
+
+/* ================= 性別造型（男生戴藍色帽子、女生戴粉紅蝴蝶結） ================= */
+var GEN_KEY="poodiary.gender", gender=lsGet(GEN_KEY);
+if(gender!=="boy" && gender!=="girl") gender=null;
+var ACC={
+  girl:'<g transform="translate(23.5 31.5) rotate(-16)"><path d="M0 0C-4-7-11-3-8.5 3-6.5 6-2 4 0 0zM0 0C4-7 11-3 8.5 3 6.5 6 2 4 0 0z" fill="#FF8FB1"/><circle r="2.4" fill="#F0628D"/></g>',
+  boy:'<path d="M29 28.5C28 20 33 14.5 40 15.5c6 1 9 6 9 13z" fill="#5B9BE0"/><path d="M29 28.5h20" stroke="#3F7DC0" stroke-width="2.2" stroke-linecap="round"/><path d="M27.5 28.5C22 28.5 21 31.5 22 33c5-.5 14-1.5 27-1.5v-3z" fill="#3F7DC0"/><circle cx="39" cy="14.8" r="1.5" fill="#3F7DC0"/>'
+};
+var LASH='<g stroke="#4A3426" stroke-width="1.4" stroke-linecap="round"><path d="M21.6 44.4l-2.2-1M42.4 44.4l2.2-1M22 46.8l-2.6-.4M42 46.8l2.6-.4"/></g>';
+function mascotUri(g){
+  return svgUri("-4 0 72 66",
+    '<ellipse cx="32" cy="60" rx="22" ry="3.5" fill="#EAD9C6"/>'+
+    '<path d="M10 50c-4-8 4-12 8-12-2-6 4-10 9-9 0-7 6-11 10-10 1 5 4 6 7 8 6 1 9 6 7 11 5 1 9 6 5 12 0 5-4 8-9 8H19c-5 0-9-3-9-8z" fill="'+BROWN+'"/>'+(ACC[g]||"")+
+    '<circle cx="25" cy="46" r="2.6" fill="#4A3426"/><circle cx="39" cy="46" r="2.6" fill="#4A3426"/>'+
+    '<circle cx="25.9" cy="45.1" r=".9" fill="#fff"/><circle cx="39.9" cy="45.1" r=".9" fill="#fff"/>'+(g==="girl"?LASH:"")+
+    '<ellipse cx="20" cy="51" rx="3" ry="1.8" fill="#FFB8C6"/><ellipse cx="44" cy="51" rx="3" ry="1.8" fill="#FFB8C6"/>'+
+    '<path d="M29 50q3 3 6 0" stroke="#4A3426" stroke-width="2" fill="none" stroke-linecap="round"/>');
+}
+function applyGender(){
+  DEFAULT_ICONS.mascot=mascotUri(gender);
+  DEFAULT_ICONS.mascotBoy=mascotUri("boy"); DEFAULT_ICONS.mascotGirl=mascotUri("girl");
+  var acc=$("petAcc"); if(acc) acc.innerHTML=ACC[gender]||"";
+  var pt=$("pet"); if(pt){ pt.classList.toggle("girl",gender==="girl"); }
+}
+function setGender(g){
+  gender=g; lsSet(GEN_KEY,g); applyGender(); drawGenSel(); applyStickers();
+  drawGenSel();
+}
+function genBtns(cur){
+  return '<button data-g="boy" class="'+(cur==="boy"?"on":"")+'"><img src="'+DEFAULT_ICONS.mascotBoy+'" alt="">男生</button>'+
+         '<button data-g="girl" class="'+(cur==="girl"?"on":"")+'"><img src="'+DEFAULT_ICONS.mascotGirl+'" alt="">女生</button>';
+}
+function drawGenSel(){ $("genSel").innerHTML=genBtns(gender); }
+$("genSel").onclick=function(e){ var g=e.target.closest("[data-g]"); if(g){ setGender(g.dataset.g); toast("已換成"+(g.dataset.g==="boy"?"男生":"女生")+"造型",true); renderLog(); } };
 
 /* ================= 啟動 ================= */
 /* ================= 標題列的小吉祥物 ================= */
@@ -1658,7 +1742,7 @@ function initPet(){
   /*PETAPI*/
 }
 
-load(); buildLog(); initFx(); applyStickers(); renderLog(); initPet();
+load(); buildLog(); initFx(); applyGender(); applyStickers(); renderLog(); initPet();
 updateInstallUI();
 if(!lsGet(OB_KEY)) setTimeout(guide, 400);
 if(!storageOK) toast("這個瀏覽器無法自動儲存，請記得匯出備份");
