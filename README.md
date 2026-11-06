@@ -42,6 +42,7 @@ Settings → Pages → Build and deployment → Source 選 **Deploy from a branc
 
 版本號寫在 `index.html` 的 `APP_VERSION`，以及 `sw.js` 的 `CACHE`，改版時兩個要一起改。App 裡在「設定」最下方點版本號，可以看到更新紀錄。
 
+- **v1.25.1**：分享預覽圖改成新圖（og-image-v1.png）
 - **v1.25.0**：使用說明第 2 頁教安裝成 App
 - **v1.24.2**：修正喝水記錄後沒有馬上打勾
 - **v1.24.1**：日曆頁生理期卡片移到某天詳情下面

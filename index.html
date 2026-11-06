@@ -8,6 +8,15 @@
 <meta name="description" content="記錄每天的嗯嗯形態、飲食、睡眠與心情，找出影響腸道的原因。">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="嗯嗯日記">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="嗯嗯日記">
+<meta property="og:title" content="嗯嗯日記">
+<meta property="og:description" content="記錄每天的嗯嗯形態、飲食、睡眠與心情，找出影響腸道的原因。">
+<meta property="og:url" content="https://roysph1013.github.io/poo_diary/">
+<meta property="og:image" content="https://roysph1013.github.io/poo_diary/og-image-v1.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-v2.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icon-v2-180.png">
@@ -1691,8 +1700,9 @@ function makeDemo(){
 }
 
 /* ================= 版本 ================= */
-var APP_VERSION="1.25.0";
+var APP_VERSION="1.25.1";
 var CHANGELOG=[
+  ["1.25.1","修正分享連結的預覽圖還是舊圖示：加入專用分享圖與預覽資訊，分享網址加參數讓 LINE 重新抓圖"],
   ["1.25.0","第一次使用說明新增第 2 頁「先把它變成 App」，安裝步驟直接寫在那一頁（已安裝的人不會看到）"],
   ["1.24.2","修正喝水記錄後沒有馬上打勾、進度沒更新的問題"],
   ["1.24.1","日曆頁的生理期卡片移到「某天詳情」下面，點日期就能直接看到當天內容"],
@@ -1776,7 +1786,7 @@ function installApp(){
   $("sheet").onclick=function(e){ if(e.target.closest("[data-a]")) closeSheet(); };
 }
 $("installBtn").onclick=installApp;
-var APP_URL="https://roysph1013.github.io/poo_diary/";
+var APP_URL="https://roysph1013.github.io/poo_diary/?s=2";   /* 加參數：LINE 等會依網址快取預覽圖，換網址才會重新抓新圖；之後換分享圖請把 s 的數字加 1 */
 $("shareBtn").onclick=function(){
   var data={title:"嗯嗯日記",text:"我在用「嗯嗯日記」記錄嗯嗯、飲食和心情，一起來看看哪些事會影響肚子！",url:APP_URL};
   if(navigator.share){ navigator.share(data).catch(function(){}); return; }
