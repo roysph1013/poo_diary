@@ -420,7 +420,7 @@ h1.pg{font-size:22px;margin:4px 0 0}
     </div>
 
     <div class="card">
-      <div class="card-h"><h2>小筆記</h2><button class="mic" id="micBtn" type="button" aria-label="語音輸入">🎤 語音輸入</button></div>
+      <div class="card-h"><h2>小筆記</h2><button class="mic" id="micBtn" type="button" aria-label="語音輸入"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3"/></svg>語音輸入</button></div>
       <textarea class="note" id="dayNote" placeholder="例如：吃了新的藥、去旅行、生理期第二天…"></textarea>
       <p class="tip" id="micTip" style="margin:6px 0 0"></p>
     </div>
@@ -1267,8 +1267,8 @@ function renderAna(){
     '<div class="seg" id="modeSeg" style="margin:0 0 10px"><button data-m="stool" class="'+(BELLY?"":"on")+'">看嗯嗯形態</button><button data-m="belly" class="'+(BELLY?"on":"")+'">看肚子痛／脹氣</button></div>'+
     '<p class="tip" style="margin:0 0 6px">百分比是「'+(BELLY?"肚子明顯不舒服":"嗯嗯不正常")+'的日子佔幾 %」，越高代表越不舒服。名次越前面，關聯越大。</p>';
   if(!ins.length) h+='<div class="empty">目前還沒有夠明顯的關聯。<br>通常要記錄 3～4 週、多記一點食物和心情，才看得出來。</div>';
-  if(badL.length){ h+='<div style="font-size:13px;font-weight:700;margin:10px 0 0">⚠️ 這些可能讓你不舒服</div>'; badL.slice(0,5).forEach(function(f,i){ h+=rk(f,i,true); }); }
-  if(goodL.length){ h+='<div style="font-size:13px;font-weight:700;margin:14px 0 0">👍 這些可能讓你比較舒服</div>'; goodL.slice(0,3).forEach(function(f,i){ h+=rk(f,i,false); }); }
+  if(badL.length){ h+='<div style="font-size:13px;font-weight:700;margin:10px 0 0">這些可能讓你不舒服</div>'; badL.slice(0,5).forEach(function(f,i){ h+=rk(f,i,true); }); }
+  if(goodL.length){ h+='<div style="font-size:13px;font-weight:700;margin:14px 0 0">這些可能讓你比較舒服</div>'; goodL.slice(0,3).forEach(function(f,i){ h+=rk(f,i,false); }); }
   h+='<p class="tip">這只是統計上的關聯，不等於因果，也不能用來診斷。有疑慮請諮詢醫師。</p>'+
     '<button class="btn ghost sm" id="detBtn" style="margin-top:4px">'+(anaDetail?"收起詳細數據 ▲":"看詳細數據 ▼")+'</button></div>';
 
@@ -1405,8 +1405,9 @@ function makeDemo(){
 }
 
 /* ================= 版本 ================= */
-var APP_VERSION="1.11.2";
+var APP_VERSION="1.12.0";
 var CHANGELOG=[
+  ["1.12.0","第一次開啟時先設定水杯大小；語音輸入改用簡潔圖示、不再使用表情符號"],
   ["1.11.2","男生／女生造型選擇暫時拿掉，維持原本的吉祥物"],
   ["1.11.1","修正語音輸入文字重複的問題"],
   ["1.11.0","修正小筆記點進去無法輸入的問題；新增語音輸入，說話自動轉成文字寫進筆記"],
@@ -1478,6 +1479,7 @@ function guide(){
   var faces=""; for(var j=1;j<=5;j++) faces+='<img src="'+icon("m"+j)+'" alt="">';
   var P=[
     {h:"歡迎來到嗯嗯日記！", b:'<img class="hero" src="'+icon("mascot")+'" alt=""><p>每天花 30 秒，記下嗯嗯、吃了什麼、肚子感覺、睡眠和心情。</p><p>記錄幾週後，就能看出哪些事情可能讓肚子不舒服。</p><p class="tip">所有內容點了就會自動儲存，不用另外按儲存。</p>'},
+    {h:"先設定你的水杯", cup:true, b:'<p>選你平常喝水用的杯子大小，記錄喝水時就會幫你換算成 ml。</p><div class="chips" id="obCup" style="justify-content:center"></div><div class="chips" style="justify-content:center;margin-top:10px;align-items:center"><input type="number" id="obCupIn" inputmode="numeric" min="50" max="2000" placeholder="自訂 ml" style="width:110px;border:1.5px solid var(--line);border-radius:12px;padding:8px 10px;background:#fff"><button class="btn ghost sm" data-a="cupset">設定</button></div><p class="tip">不確定的話先用 250 ml，之後可以到「設定」修改。</p>'},
     {h:"① 記錄嗯嗯", b:'<div class="icons">'+icons+'</div><p>每次上完廁所，點最像的形態，再按「<b>記下這次</b>」。</p><p>第 3～5 型是正常的，第 4 型最理想。一天可以記很多次；沒有嗯嗯的話，勾「今天沒有嗯嗯」。</p>'},
     {h:"② 肚子感覺與飲食", b:'<p>肚子痛、脹氣是<b>一天記一次</b>，用 0～3 分記整天的感覺，以最不舒服的時候為準。整天都沒事也請點 0，分析才知道哪天是舒服的。</p><p>吃了什麼：打開一餐，點「你常吃的」或打字搜尋就好，不用每樣都記。</p>'},
     {h:"③ 睡眠、心情、喝水", b:'<div class="icons">'+faces+'</div><p>拉一下睡眠時數、點一個心情表情。想多記一點，可以按「加一些細節」。</p><p>每一項都是選填，有空就記，越完整分析越準。</p>'},
@@ -1492,12 +1494,15 @@ function guide(){
         (i===0?'<button class="btn ghost sm" data-a="skip">略過</button>':'<button class="btn ghost sm" data-a="prev">上一步</button>')+
         (i===P.length-1?'<button class="btn sm" data-a="done">開始使用</button>':'<button class="btn sm" data-a="next">下一步</button>')+
       '</div>';
+    if(P[i].cup){ $("obCup").innerHTML=CUP_OPTS.map(function(v){ return '<button class="btn '+(v===cupMl?"":"ghost ")+'sm" data-c="'+v+'">'+v+' ml</button>'; }).join(""); if(CUP_OPTS.indexOf(cupMl)<0) $("obCupIn").value=cupMl; }
   }
   function finish(){ lsSet(OB_KEY,"1"); $("sheet").onclick=null; closeSheet(); }
   openSheet(""); draw();
   $("sheet").onclick=function(e){
+    var cb=e.target.closest("[data-c]"); if(cb){ setCup(cb.dataset.c); draw(); return; }
     var a=e.target.closest("[data-a]"); if(!a) return;
     var t=a.dataset.a;
+    if(t==="cupset"){ setCup($("obCupIn").value); draw(); return; }
     if(t==="next"){ i++; draw(); }
     else if(t==="prev"){ i--; draw(); }
     else if(t==="install"){ finish(); installApp(); }
@@ -1519,13 +1524,14 @@ function go(v){
 $("nav").onclick=function(e){ var b=e.target.closest("button"); if(b) go(b.dataset.v); };
 
 /* ================= 語音寫筆記（瀏覽器內建語音辨識） ================= */
+var MIC_ON='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3"/></svg>', MIC_OFF='<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2.5"/></svg>';
 function initMic(){
   var SR=window.SpeechRecognition||window.webkitSpeechRecognition, btn=$("micBtn"), ta=$("dayNote"), tip=$("micTip");
-  if(!SR){ btn.style.display="none"; tip.textContent="想用說的：可以按手機鍵盤上的 🎤 麥克風來語音輸入。"; return; }
+  if(!SR){ btn.style.display="none"; tip.textContent="想用說的：可以按手機鍵盤上的麥克風圖示來語音輸入。"; return; }
   tip.textContent="按「語音輸入」後直接說話，會自動變成文字寫進筆記。語音由瀏覽器辨識（Chrome 可能會把聲音傳給 Google 處理），筆記文字仍只存在這支手機。";
   var rec=null, on=false, stopping=false;
   function put(key,v){ var d=getDay(key,true); d.note=v; save(); tidy(key); if(key===cur) ta.value=v; }
-  function reset(){ on=false; stopping=false; btn.classList.remove("rec"); btn.textContent="🎤 語音輸入"; }
+  function reset(){ on=false; stopping=false; btn.classList.remove("rec"); btn.innerHTML=MIC_ON+"語音輸入"; }
   btn.onclick=function(){
     if(on){ stopping=true; try{ rec.stop(); }catch(e){} return; }
     var key=cur, base=(getDay(key)||{note:""}).note||"", got=false;
@@ -1552,7 +1558,7 @@ function initMic(){
       };
       try{ rec.start(); }catch(e){ reset(); }
     }
-    on=true; stopping=false; btn.classList.add("rec"); btn.textContent="⏹ 停止（說完請按這裡）"; toast("開始聆聽，請說話…");
+    on=true; stopping=false; btn.classList.add("rec"); btn.innerHTML=MIC_OFF+"停止（說完請按這裡）"; toast("開始聆聽，請說話…");
     session();
   };
 }
