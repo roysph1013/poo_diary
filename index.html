@@ -1405,8 +1405,9 @@ function makeDemo(){
 }
 
 /* ================= 版本 ================= */
-var APP_VERSION="1.12.1";
+var APP_VERSION="1.12.2";
 var CHANGELOG=[
+  ["1.12.2","語音輸入會自動過濾語氣詞與贅詞（呃、欸、喔、哦、句尾的啦／啊／耶…）"],
   ["1.12.1","語音輸入會自動加標點：停頓加逗號、轉折詞前加逗號、疑問句加問號、結束加句號"],
   ["1.12.0","第一次開啟時先設定水杯大小；語音輸入改用簡潔圖示、不再使用表情符號"],
   ["1.11.2","男生／女生造型選擇暫時拿掉，維持原本的吉祥物"],
@@ -1534,12 +1535,16 @@ function initMic(){
   /* 瀏覽器的中文語音辨識不會自動加標點：在轉折詞前加逗號、疑問句尾加問號，停頓處加逗號、結束加句號 */
   function punct(t){
     t=(t||"").replace(/\s+/g,"");
+    /* 過濾語氣詞、贅詞（「嗯嗯」是便便的意思，所以連續兩個以上的嗯不刪） */
+    t=t.replace(/[呃欸誒噢喔哦]/g,"").replace(/(^|[^嗯])嗯(?!嗯)/g,"$1");
+    t=t.replace(/^(就是說|就是|然後呢|對啊|對對對|那個那個|這個這個)/,"").replace(/(那個|這個|就是|然後)\1+/g,"$1");
+    t=t.replace(/([^嗯])\1{2,}/g,"$1");
+    t=t.replace(/(啦|耶|啊|呀|囉|嘛|唷|咩|捏)+(?=，|然後|但是|可是|所以|因為|結果|而且|不過|接著|後來|如果|雖然|另外)/g,"").replace(/(啦|耶|啊|呀|囉|嘛|唷|咩|捏)+$/,"");
+    if(!t) return "";
     t=t.replace(/([^，。？！、])(然後|但是|可是|所以|因為|結果|而且|不過|接著|後來|如果|雖然|另外)/g,"$1，$2");
     if(/(嗎|呢|是不是|有沒有|好不好|對不對)$/.test(t)) t+="？";
     return t;
   }
-  function put(key,v){ var d=getDay(key,true); d.note=v; save(); tidy(key); if(key===cur) ta.value=v; }
-  function reset(){ on=false; stopping=false; btn.classList.remove("rec"); btn.innerHTML=MIC_ON+"語音輸入"; }
   btn.onclick=function(){
     if(on){ stopping=true; try{ rec.stop(); }catch(e){} return; }
     var key=cur, base=(getDay(key)||{note:""}).note||"", got=false;
@@ -1560,7 +1565,7 @@ function initMic(){
         else if(ev.error==="no-speech"){ stopping=true; if(!got) toast("沒有聽到聲音，再試一次"); }
       };
       rec.onend=function(){
-        if(sess){ var p=punct(sess); base+=p+(/[？]$/.test(p)?"":"，"); got=true; put(key,base); }
+        var p=sess?punct(sess):""; if(p){ base+=p+(/[？]$/.test(p)?"":"，"); got=true; put(key,base); }
         if(on && !stopping){ session(); return; }
         reset(); if(got){ put(key, base.replace(/，$/,"。")); okToast("語音已轉成文字並儲存"); }
       };
