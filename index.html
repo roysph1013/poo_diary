@@ -1231,6 +1231,7 @@ function renderWater(){
     else { t="今天喝得不多，還差約 "+left+" ml（約 "+Math.ceil(left/cupMl)+" 杯），先喝一杯吧。"; c="#D9607C"; }
     m.innerHTML='<span style="color:'+c+';font-weight:700">'+t+'</span>'+note;
   }
+  renderProgress();
 }
 function renderLog(){
   var dt=parseK(cur), diff=Math.round((parseK(todayK())-dt)/864e5);
@@ -1690,8 +1691,9 @@ function makeDemo(){
 }
 
 /* ================= 版本 ================= */
-var APP_VERSION="1.24.1";
+var APP_VERSION="1.24.2";
 var CHANGELOG=[
+  ["1.24.2","修正喝水記錄後沒有馬上打勾、進度沒更新的問題"],
   ["1.24.1","日曆頁的生理期卡片移到「某天詳情」下面，點日期就能直接看到當天內容"],
   ["1.24.0","生理期卡片搬到「日曆」頁；心情的「生理期」標籤拿掉（避免和生理期功能重複）"],
   ["1.23.2","日曆用淡色框標出預計的生理期日子（依平均週期與平均經期天數推算）"],
