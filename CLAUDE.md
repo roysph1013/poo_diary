@@ -35,10 +35,10 @@
     belly: {pain:0-3|null, bloat:0-3|null},        // 一天記一次，以最不舒服的時候為準
     meals: {breakfast|lunch|dinner|snack|latenight: {items:[食物名], habits:[], note:""}},
     sleep: {hours:number|null, q:1-5|null}, mood: {q:1-5|null, tags:[]},
-    water: 杯數, note: "" } },
+    water: 杯數, cup: 當時一杯幾 ml（沒填視為 250）, note: "" } },
   customFoods: { 食物名: [大類 key] } }
 ```
-其他 key：`poodiary.stickers.v1`（自訂貼圖，dataURL）、`poodiary.onboarded`、`poodiary.fx`（音效/震動開關）。
+其他 key：`poodiary.cup`（一杯幾 ml）、`poodiary.gender`、`poodiary.stickers.v1`（自訂貼圖，dataURL）、`poodiary.onboarded`、`poodiary.fx`（音效/震動開關）。
 
 ## 重要設計決定（使用者確認過的）
 - **視覺風格**：奶茶色底 `#FFF6EC`、白色圓角卡片、三層柔和懸浮陰影、柔和配色。吉祥物是左上角那坨原創便便。

@@ -42,6 +42,7 @@ Settings → Pages → Build and deployment → Source 選 **Deploy from a branc
 
 版本號寫在 `index.html` 的 `APP_VERSION`，以及 `sw.js` 的 `CACHE`，改版時兩個要一起改。App 裡在「設定」最下方點版本號，可以看到更新紀錄。
 
+- **v1.10.0**：設定新增「喝水設定」，可選常用水杯容量（150～500 ml 或自訂）
 - **v1.9.0**：分析改成白話排名、詳細數據收進按鈕；設定新增「分享 App」；第一次開啟可選男生／女生造型
 - **v1.8.1**：圖示檔改名（icon-v2-*），避免手機沿用舊圖示快取
 - **v1.8.0**：新的 App 圖示，奶茶色底、便便放大置中

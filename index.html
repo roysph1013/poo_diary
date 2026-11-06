@@ -412,7 +412,7 @@ h1.pg{font-size:22px;margin:4px 0 0}
     </div>
 
     <div class="card" id="c-water">
-      <div class="card-h"><h2>喝水<span class="ok" data-ok="water" aria-hidden="true">✓</span></h2><small id="waterText">一杯約 250 ml</small></div>
+      <div class="card-h"><h2>喝水<span class="ok" data-ok="water" aria-hidden="true">✓</span></h2><small id="waterText"></small></div>
       <div class="cups" id="water"></div>
     </div>
 
@@ -458,6 +458,12 @@ h1.pg{font-size:22px;margin:4px 0 0}
     <div class="card">
       <div class="card-h"><h2>我的嗯嗯</h2><small>選一個造型</small></div>
       <div class="gsel" id="genSel" style="margin-top:0"></div>
+    </div>
+    <div class="card">
+      <div class="card-h"><h2>喝水設定</h2><small id="cupNow"></small></div>
+      <p class="tip" style="margin:0 0 12px">選你平常用的水杯大小，記錄頁就會用這個容量換算喝了多少 ml。之前記的紀錄不會被改動。</p>
+      <div class="chips" id="cupChips"></div>
+      <div class="chips" style="margin-top:10px;align-items:center"><input type="number" id="cupInput" inputmode="numeric" min="50" max="2000" placeholder="自訂 ml" style="width:110px;border:1.5px solid var(--line);border-radius:12px;padding:8px 10px;background:#fff"><button class="btn ghost sm" id="cupSet">設定</button></div>
     </div>
     <div class="card" id="installCard">
       <div class="card-h"><h2>安裝到手機</h2><small id="installState"></small></div>
@@ -864,9 +870,8 @@ function buildLog(){
   });
 
   // 喝水
-  var w=""; for(var j=1;j<=10;j++) w+='<button data-v="'+j+'" aria-label="'+j+' 杯"></button>';
-  $("water").innerHTML=w;
-  $("water").onclick=function(e){ var b=e.target.closest("button"); if(!b) return; var d=getDay(cur,true), v=+b.dataset.v; d.water = d.water===v? v-1 : v; save(); tidy(cur); renderWater(); okToast(d.water? "已記錄：喝水 "+d.water+" 杯" : "已清除喝水紀錄"); };
+  buildCups(0);
+  $("water").onclick=function(e){ var b=e.target.closest("button"); if(!b) return; var d=getDay(cur,true), v=+b.dataset.v; d.water = d.water===v? v-1 : v; d.cup=cupMl; save(); tidy(cur); renderWater(); okToast(d.water? "已記錄：喝水 "+d.water+" 杯・約 "+(d.water*cupMl)+" ml" : "已清除喝水紀錄"); };
 
   $("dayNote").oninput=function(){ var d=getDay(cur,true); d.note=this.value; save(); tidy(cur); };
   $("dayNote").onchange=function(){ if(this.value.trim()) okToast("筆記已儲存"); };
@@ -1099,10 +1104,18 @@ function renderBelly(){
   ["painLv","bloatLv"].forEach(function(id){ var v=d?d.belly[$(id).dataset.f]:null; Array.prototype.forEach.call($(id).children,function(b){ b.classList.toggle("on", +b.dataset.v===v); }); });
   renderProgress();
 }
+function dayMl(d){ return d.water*(d.cup||250); }
+function buildCups(minN){
+  var n=Math.max(minN, Math.min(16, Math.max(8, Math.ceil(2400/cupMl))), 1), w="";
+  for(var j=1;j<=n;j++) w+='<button data-v="'+j+'" aria-label="'+j+' 杯"></button>';
+  $("water").innerHTML=w;
+}
 function renderWater(){
   var d=getDay(cur), n=d?d.water:0;
+  var want=Math.max(n, Math.min(16, Math.max(8, Math.ceil(2400/cupMl))));
+  if($("water").children.length!==want) buildCups(n);
   Array.prototype.forEach.call($("water").children,function(b){ b.classList.toggle("on", +b.dataset.v<=n); });
-  $("waterText").textContent = n? n+" 杯・約 "+(n*250)+" ml" : "一杯約 250 ml";
+  $("waterText").textContent = n? n+" 杯・約 "+dayMl(d)+" ml" : "一杯約 "+cupMl+" ml";
   renderProgress();
 }
 function renderLog(){
@@ -1205,8 +1218,8 @@ function buildFactors(keys, mode){
   add("睡得不好","睡醒那天",hasSleepQ,function(d){ return d.sleep.q<=2; }, same);
   add("心情低落","當天",hasMood,function(d){ return d.mood.q!=null && d.mood.q<=2; }, same);
   MOOD_GROUPS.forEach(function(g){ g.items.forEach(function(t){ add("「"+t+"」","當天",hasMood,function(d){ return d.mood.tags.indexOf(t)>=0; }, same); }); });
-  add("喝水不到 4 杯","當天",hasWater,function(d){ return d.water<4; }, same);
-  add("喝水 8 杯以上","當天",hasWater,function(d){ return d.water>=8; }, same);
+  add("喝水不到 1000 ml","當天",hasWater,function(d){ return dayMl(d)<1000; }, same);
+  add("喝水 2000 ml 以上","當天",hasWater,function(d){ return dayMl(d)>=2000; }, same);
   return F;
 }
 function cmpBar(o, mode){ if(mode==="belly") return '<div class="cmp"><i style="width:'+o.normal+'%;background:var(--normal)"></i><i style="width:'+o.abn+'%;background:#EE8FA5"></i></div>'; return '<div class="cmp"><i style="width:'+o.normal+'%;background:var(--normal)"></i><i style="width:'+o.loose+'%;background:var(--loose)"></i><i style="width:'+o.hard+'%;background:var(--hard)"></i></div>'; }
@@ -1391,8 +1404,9 @@ function makeDemo(){
 }
 
 /* ================= 版本 ================= */
-var APP_VERSION="1.9.0";
+var APP_VERSION="1.10.0";
 var CHANGELOG=[
+  ["1.10.0","設定新增「喝水設定」：可選常用水杯容量（150～500 ml 或自訂），記錄頁會依容量換算 ml；分析的喝水因素改用 ml 計算"],
   ["1.9.0","分析改成一眼看懂：依關聯大小排名，用白話顯示「可能讓你不舒服／比較舒服」，詳細數據收進按鈕；設定新增「分享 App」；第一次開啟可選男生（藍帽子）或女生（粉蝴蝶結）造型，設定裡可更換"],
   ["1.8.1","圖示檔改名，避免手機沿用舊圖示快取"],
   ["1.8.0","新的 App 圖示：奶茶色底、便便放大置中"],
@@ -1501,6 +1515,22 @@ function go(v){
   window.scrollTo(0,0);
 }
 $("nav").onclick=function(e){ var b=e.target.closest("button"); if(b) go(b.dataset.v); };
+
+/* ================= 水杯容量 ================= */
+var CUP_KEY="poodiary.cup", cupMl=+lsGet(CUP_KEY)||250;
+if(!(cupMl>=50 && cupMl<=2000)) cupMl=250;
+var CUP_OPTS=[150,200,250,300,350,500];
+function drawCupSet(){
+  $("cupNow").textContent="一杯 "+cupMl+" ml";
+  $("cupChips").innerHTML=CUP_OPTS.map(function(v){ return '<button class="btn '+(v===cupMl?"":"ghost ")+'sm" data-c="'+v+'">'+v+' ml</button>'; }).join("");
+  $("cupInput").value=CUP_OPTS.indexOf(cupMl)<0? cupMl : "";
+}
+function setCup(v){
+  v=Math.round(+v); if(!(v>=50 && v<=2000)){ toast("請輸入 50～2000 之間的數字"); return; }
+  cupMl=v; lsSet(CUP_KEY,String(v)); drawCupSet(); renderWater(); toast("一杯已設定為 "+v+" ml",true);
+}
+$("cupChips").onclick=function(e){ var b=e.target.closest("[data-c]"); if(b) setCup(b.dataset.c); };
+$("cupSet").onclick=function(){ setCup($("cupInput").value); };
 
 /* ================= 性別造型（男生戴藍色帽子、女生戴粉紅蝴蝶結） ================= */
 var GEN_KEY="poodiary.gender", gender=lsGet(GEN_KEY);
@@ -1742,7 +1772,7 @@ function initPet(){
   /*PETAPI*/
 }
 
-load(); buildLog(); initFx(); applyGender(); applyStickers(); renderLog(); initPet();
+load(); buildLog(); initFx(); applyGender(); drawGenSel(); drawCupSet(); applyStickers(); renderLog(); initPet();
 updateInstallUI();
 if(!lsGet(OB_KEY)) setTimeout(guide, 400);
 if(!storageOK) toast("這個瀏覽器無法自動儲存，請記得匯出備份");
