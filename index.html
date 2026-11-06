@@ -467,6 +467,9 @@ h1.pg{font-size:22px;margin:4px 0 0}
   <!-- ============ 建議 ============ -->
   <section class="view" id="v-adv">
     <h1 class="pg">給你的建議</h1>
+    <div class="seg" id="advRangeSeg">
+      <button data-r="14">14 天</button><button data-r="30" class="on">30 天</button><button data-r="90">90 天</button><button data-r="0">全部</button>
+    </div>
     <div id="advBody"></div>
   </section>
 
@@ -1240,7 +1243,9 @@ $("calNext").onclick=function(){ calM++; if(calM>11){calM=0;calY++;} renderCal()
 
 /* ================= 分析 ================= */
 var range=30;
-$("rangeSeg").onclick=function(e){ var b=e.target.closest("button"); if(!b) return; range=+b.dataset.r; Array.prototype.forEach.call(this.children,function(x){ x.classList.toggle("on",x===b); }); renderAna(); };
+function syncRange(){ ["rangeSeg","advRangeSeg"].forEach(function(id){ Array.prototype.forEach.call($(id).children,function(x){ x.classList.toggle("on",+x.dataset.r===range); }); }); }
+$("rangeSeg").onclick=function(e){ var b=e.target.closest("button"); if(!b) return; range=+b.dataset.r; syncRange(); renderAna(); };
+$("advRangeSeg").onclick=function(e){ var b=e.target.closest("button"); if(!b) return; range=+b.dataset.r; syncRange(); renderAdv(); };
 function outcome(list){
   var c={hard:0,normal:0,loose:0}, n=0;
   list.forEach(function(s){ if(!s) return; n++; c[s==="none"||s==="pain"?"hard":(s==="soft"||s==="ok"?"normal":s)]++; });
@@ -1298,6 +1303,7 @@ function adviceHtml(ctx){
   function me(t){ return '<div class="me">'+t+'</div>'; }
   var P=ctx.prof||{}, kid=P.age==="u18", preg=(P.sex==="f" && !!P.preg), old=(P.age==="a65"), mid=(P.age==="a45"||P.age==="a65"), young=(P.age==="a18");
   var h='<div class="card adv"><div class="card-h"><h2>給你的初步改善建議</h2><small>依你的紀錄調整</small></div>';
+  h+='<p class="tip" style="margin:0 0 6px"><b>根據'+(ctx.range?'近 '+ctx.range+' 天':'全部')+'的紀錄</b>（這段期間你記了 '+ctx.nRec+' 天嗯嗯）。可以用上面的按鈕切換天數。</p>';
   h+='<p class="tip" style="margin:0">以下是參考國際指引與國健署衛教整理的<b>一般性生活建議</b>，不是診斷或處方。一次先挑 1～2 項做兩週，再回來看分數有沒有變好。'+(P.age||P.sex?'（已依你設定的年齡與性別調整）':'')+'</p>';
   if(kid) h+=me('你在 18 歲以下，下面的建議是以成人為主整理的，只保留適合的部分。排便不順或肚子不舒服，建議讓家長陪你一起看<b>小兒科或兒童腸胃科</b>，不要自己買藥。');
   if(preg) h+=me('你目前懷孕中：孕期因為荷爾蒙變化和子宮壓迫，便祕、脹氣都很常見。<b>任何飲食限制、成藥、益生菌或保健食品，都請先問產科醫師</b>，不要自己調整。');
@@ -1397,7 +1403,7 @@ function adviceHtml(ctx){
 }
 var MIN_N=5, anaMode="stool", anaDetail=false;
 function renderAdv(){
-  renderAna();
+  syncRange(); renderAna();
   $("advBody").innerHTML = ADV_HTML || '<div class="card"><div class="empty">至少記錄 3 天的嗯嗯，才能依你的狀況給建議。<br>先到「記錄」填寫幾天吧！</div></div>';
 }
 function renderAna(){
@@ -1441,7 +1447,7 @@ function renderAna(){
   var foodBad=[]; Fa.filter(function(f){ return /^吃了「/.test(f.label) && f.w.n>=MIN_N && f.o.n>=MIN_N && f.p<0.1 && f.w.abn>f.o.abn; }).sort(function(a,b){ return a.p-b.p; }).forEach(function(f){ var n=f.label.replace(/^吃了「(.*)」$/,"$1"); if(foodBad.indexOf(n)<0) foodBad.push(n); });
   var adv=adviceHtml({kind:(score<80 && (cnt.hard+cnt.none+cnt.loose))? ((cnt.hard+cnt.none)>cnt.loose?"hard":"loose") : null,
     water:aW==null?null:Math.round(aW/10)*10, sleep:aS==null?null:Math.round(aS*10)/10, late:late, fast:fast, skipB:skipB, stress:stress, moodLow:moodLow,
-    prof:profile, menses:Fa.some(function(f){ return f.label==='「生理期」' && f.w.n>=MIN_N && f.o.n>=MIN_N && f.p<0.1 && f.w.abn>f.o.abn; }), foods:foodBad.slice(0,2), bellyBad: bkeys.length>=5 && bbad/bkeys.length>=0.3});
+    range:range, nRec:rec.length, prof:profile, menses:Fa.some(function(f){ return f.label==='「生理期」' && f.w.n>=MIN_N && f.o.n>=MIN_N && f.p<0.1 && f.w.abn>f.o.abn; }), foods:foodBad.slice(0,2), bellyBad: bkeys.length>=5 && bbad/bkeys.length>=0.3});
   ADV_HTML=adv;
   var h=sh+'<div class="card"><div class="card-h"><h2>總覽</h2><small>'+(range?"近 "+range+" 天・":"")+'記錄 '+rec.length+' 天</small></div>'+
     '<div class="stats">'+
@@ -1611,8 +1617,9 @@ function makeDemo(){
 }
 
 /* ================= 版本 ================= */
-var APP_VERSION="1.17.3";
+var APP_VERSION="1.18.0";
 var CHANGELOG=[
+  ["1.18.0","建議頁新增天數按鈕（14／30／90 天／全部），並標明建議是根據近幾天的紀錄；和分析頁的天數同步"],
   ["1.17.3","拿掉喝水設定卡片標題右邊重複的小字"],
   ["1.17.2","喝水設定與個人資料按「確定」後會收折成一行摘要，需要時按「修改」再展開"],
   ["1.17.1","水杯與個人資料設定完成後，選中的項目會打勾並顯示「已設定／已儲存」"],
