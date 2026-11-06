@@ -166,6 +166,10 @@ h1.pg{font-size:22px;margin:4px 0 0}
 .cal .c{position:relative}
 .cal .c.has-note::after{content:"";position:absolute;top:6px;right:7px;width:6px;height:6px;border-radius:50%;background:var(--brown)}
 .cal .c.today{outline:2px solid #F0839A}
+.nitem{display:block;width:100%;text-align:left;border:0;background:var(--soft);border-radius:12px;padding:10px 12px;margin:8px 0;color:var(--ink)}
+.nitem b{display:block;font-size:12px;color:var(--brown-d);margin-bottom:2px}
+.nitem span{display:block;font-size:14px;line-height:1.6;white-space:pre-wrap;word-break:break-word}
+.nitem mark{background:#FFE29A;border-radius:3px;padding:0 1px}
 .notebox{background:#FFF8EE;border-radius:12px;padding:10px 12px;margin-top:10px;font-size:14px;line-height:1.7;white-space:pre-wrap;word-break:break-word}
 .notebox b{display:block;font-size:12px;color:var(--sub);margin-bottom:2px}
 .cal .c.sel{box-shadow:inset 0 0 0 2px var(--brown)}
@@ -470,6 +474,11 @@ h1.pg{font-size:22px;margin:4px 0 0}
       <div class="legend" id="legend"></div>
     </div>
     <div class="card" id="calDetail"></div>
+    <div class="card" id="noteCard">
+      <div class="card-h"><h2>所有小筆記</h2><small id="noteCount"></small></div>
+      <input type="search" id="noteQ" placeholder="搜尋筆記，例如「藥」" aria-label="搜尋筆記" style="width:100%;border:2px solid var(--line);border-radius:12px;padding:9px 12px;background:#FFFCF8;font-size:14px;margin-bottom:6px">
+      <div id="noteItems"></div>
+    </div>
   </section>
 
   <!-- ============ 建議 ============ -->
@@ -1225,7 +1234,21 @@ function renderCal(){
   }
   $("cal").innerHTML=h;
   renderCalDetail();
+  renderNoteList();
 }
+function renderNoteList(){
+  var q=($("noteQ").value||"").trim(), all=[];
+  Object.keys(mem.days).forEach(function(k){ var d=mem.days[k], t=d&&d.note?d.note.trim():""; if(t) all.push({k:k,t:t}); });
+  all.sort(function(a,b){ return a.k<b.k?1:-1; });
+  var list=q? all.filter(function(x){ return x.t.toLowerCase().indexOf(q.toLowerCase())>=0; }) : all;
+  $("noteCount").textContent = all.length? (q? "找到 "+list.length+" 則／共 "+all.length+" 則" : "共 "+all.length+" 則") : "";
+  function hl(t){ var e=esc(t); if(!q) return e; var eq=esc(q).replace(/[.*+?^${}()|[\]\\]/g,"\\$&"); return e.replace(new RegExp(eq,"gi"),function(m){ return "<mark>"+m+"</mark>"; }); }
+  $("noteItems").innerHTML = list.length? list.map(function(x){ var dt=parseK(x.k);
+    return '<button class="nitem" data-k="'+x.k+'"><b>'+dt.getFullYear()+'/'+(dt.getMonth()+1)+'/'+dt.getDate()+'（週'+WEEK[dt.getDay()]+'）</b><span>'+hl(x.t)+'</span></button>'; }).join("")
+    : '<div class="empty">'+(all.length? '沒有符合的筆記。' : '還沒有小筆記。<br>到「記錄」頁最下面寫一則吧。')+'</div>';
+}
+$("noteQ").oninput=renderNoteList;
+$("noteItems").onclick=function(e){ var b=e.target.closest("[data-k]"); if(!b) return; var d=parseK(b.dataset.k); calY=d.getFullYear(); calM=d.getMonth(); calSel=b.dataset.k; renderCal(); window.scrollTo(0,0); };
 function renderCalDetail(){
   var box=$("calDetail");
   if(!calSel){ box.innerHTML='<p class="tip" style="margin:0">點日期看當天的紀錄。</p>'; return; }
@@ -1631,8 +1654,9 @@ function makeDemo(){
 }
 
 /* ================= 版本 ================= */
-var APP_VERSION="1.20.0";
+var APP_VERSION="1.21.0";
 var CHANGELOG=[
+  ["1.21.0","日曆頁新增「所有小筆記」列表：由新到舊顯示、可搜尋關鍵字，點一則會跳到那天"],
   ["1.20.0","小筆記新增「確定」按鈕；日曆有小筆記的日期會有小圓點，點日期可看到完整筆記內容"],
   ["1.19.2","修正語音輸入沒有文字、無法停止的問題；按停止會立刻停下並存入已聽到的字，出錯時會顯示原因"],
   ["1.19.1","食物新增：麥片、水果穀麥、燕麥片、高蛋白飲、牛奶泡麥片"],
