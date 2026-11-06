@@ -317,8 +317,8 @@ h1.pg{font-size:22px;margin:4px 0 0}
       <div class="pet" id="pet" aria-hidden="true"><div class="pet-in" id="petIn">
         <svg id="petSvg" class="pet-svg e-o m-s" viewBox="0 0 64 64">
           <ellipse cx="32" cy="60" rx="22" ry="3.5" fill="#EAD9C6"/>
-          <g class="feet"><ellipse class="ft f1" cx="23" cy="59.3" rx="6.5" ry="4.2" fill="#A8714A"/><ellipse class="ft f2" cx="41" cy="59.3" rx="6.5" ry="4.2" fill="#A8714A"/></g>
-          <g class="arms" stroke="#B9835A" stroke-width="5" stroke-linecap="round" fill="none"><path d="M10 48Q2 46 3 37"/><path d="M56 48Q64 46 63 37"/></g>
+          <g class="feet" stroke="#2E2018" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"><path class="ft f1" d="M24 56v7h-4"/><path class="ft f2" d="M40 56v7h4"/></g>
+          <g class="arms" stroke="#2E2018" stroke-width="1.8" stroke-linecap="round" fill="none"><path d="M10 48Q2 46 3 37"/><path d="M56 48Q64 46 63 37"/></g>
           <path d="M10 50c-4-8 4-12 8-12-2-6 4-10 9-9 0-7 6-11 10-10 1 5 4 6 7 8 6 1 9 6 7 11 5 1 9 6 5 12 0 5-4 8-9 8H19c-5 0-9-3-9-8z" fill="#B9835A"/>
           <g id="petFace">
             <g class="eg eo"><circle cx="25" cy="46" r="2.6" fill="#4A3426"/><circle cx="39" cy="46" r="2.6" fill="#4A3426"/><circle cx="25.9" cy="45.1" r=".9" fill="#fff"/><circle cx="39.9" cy="45.1" r=".9" fill="#fff"/></g>
@@ -1352,8 +1352,9 @@ function makeDemo(){
 }
 
 /* ================= 版本 ================= */
-var APP_VERSION="1.7.0";
+var APP_VERSION="1.7.1";
 var CHANGELOG=[
+  ["1.7.1","吉祥物長出來的手腳改成細黑色線條"],
   ["1.7.0","標題下方的空白縮小；吉祥物變成會依實際時間作息的小生物：白天會吃東西、午後打盹，晚上走到最右邊睡覺（還會飄 Z），天亮再伸懶腰回家。也會跳上標題頂端散步、穿過標題、打滾、追蝴蝶"],
   ["1.6.0","標題列的小吉祥物活起來了：會眨眼、跳舞、長出小腳走路、頂標題、把標題抬起來搬走，表情也會跟著變；點牠也會有反應"],
   ["1.5.1","吉祥物便便底部改成圓潤完整，表情不再被切到"],
