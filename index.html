@@ -229,6 +229,8 @@ h1.pg{font-size:22px;margin:4px 0 0}
 .reflist li:last-child{border-bottom:0}
 .reflist a{color:var(--brown-d);font-weight:700;text-decoration:underline;text-underline-offset:3px;word-break:break-word}
 .reflist small{display:block;color:#6E5442;font-size:12px;margin-top:2px}
+.sumrow{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.sumrow .okline{margin-top:0;flex:1}
 .okline{margin-top:10px;font-size:13.5px;font-weight:700;color:#3E9A6A;width:100%}
 .okline .ck{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:#3E9A6A;color:#fff;font-size:11px;margin-right:4px}
 .det{margin-top:14px;padding-top:12px;border-top:2px dashed var(--line)}
@@ -488,15 +490,23 @@ h1.pg{font-size:22px;margin:4px 0 0}
     </div>
     <div class="card">
       <div class="card-h"><h2>喝水設定</h2><small id="cupNow"></small></div>
-      <p class="tip" style="margin:0 0 12px">選你平常用的水杯大小，記錄頁就會用這個容量換算喝了多少 ml。之前記的紀錄不會被改動。</p>
-      <div class="chips" id="cupChips"></div>
-      <div id="cupOk" class="okline"></div>
-      <div class="chips" style="margin-top:10px;align-items:center"><input type="number" id="cupInput" inputmode="numeric" min="50" max="2000" placeholder="自訂 ml" style="width:110px;border:1.5px solid var(--line);border-radius:12px;padding:8px 10px;background:#fff"><button class="btn ghost sm" id="cupSet">設定</button></div>
+      <div id="cupSum" class="sumrow"><span class="okline" id="cupSumTx"></span><button class="btn ghost sm" id="cupEdit">修改</button></div>
+      <div id="cupBody">
+        <p class="tip" style="margin:0 0 12px">選你平常用的水杯大小，記錄頁就會用這個容量換算喝了多少 ml。之前記的紀錄不會被改動。</p>
+        <div class="chips" id="cupChips"></div>
+        <div id="cupOk" class="okline"></div>
+        <div class="chips" style="margin-top:10px;align-items:center"><input type="number" id="cupInput" inputmode="numeric" min="50" max="2000" placeholder="自訂 ml" style="width:110px;border:1.5px solid var(--line);border-radius:12px;padding:8px 10px;background:#fff"><button class="btn ghost sm" id="cupSet">設定</button></div>
+        <button class="btn sm" id="cupDone" style="margin-top:14px">確定，收起來</button>
+      </div>
     </div>
     <div class="card">
       <div class="card-h"><h2>個人資料（選填）</h2></div>
-      <p class="tip" style="margin:0 0 12px">用來調整分析頁的建議，例如水分量、篩檢年齡、孕期注意事項。可以不填，只存在這支手機。</p>
-      <div id="profBox"></div>
+      <div id="profSum" class="sumrow"><span class="okline" id="profSumTx"></span><button class="btn ghost sm" id="profEdit">修改</button></div>
+      <div id="profBody">
+        <p class="tip" style="margin:0 0 12px">用來調整分析頁的建議，例如水分量、篩檢年齡、孕期注意事項。可以不填，只存在這支手機。</p>
+        <div id="profBox"></div>
+        <button class="btn sm" id="profDone" style="margin-top:14px">確定，收起來</button>
+      </div>
     </div>
     <div class="card" id="installCard">
       <div class="card-h"><h2>安裝到手機</h2><small id="installState"></small></div>
@@ -1601,8 +1611,9 @@ function makeDemo(){
 }
 
 /* ================= 版本 ================= */
-var APP_VERSION="1.17.1";
+var APP_VERSION="1.17.2";
 var CHANGELOG=[
+  ["1.17.2","喝水設定與個人資料按「確定」後會收折成一行摘要，需要時按「修改」再展開"],
   ["1.17.1","水杯與個人資料設定完成後，選中的項目會打勾並顯示「已設定／已儲存」"],
   ["1.17.0","喝水卡片會依你喝的量告訴你夠不夠、還差多少；杯子改成平均排滿整列，數量依杯子大小自動調整"],
   ["1.16.1","逐一核對參考資料：修正水分建議數字（總液體量，非含食物水分），並替換無法確認的連結"],
@@ -1787,7 +1798,10 @@ function initMic(){
 var CUP_KEY="poodiary.cup", cupMl=+lsGet(CUP_KEY)||250;
 if(!(cupMl>=50 && cupMl<=2000)) cupMl=250;
 var CUP_OPTS=[150,200,250,300,350,500];
+var cupOpen=(lsGet(CUP_KEY)==null);
 function drawCupSet(){
+  $("cupBody").style.display=cupOpen?"":"none"; $("cupSum").style.display=cupOpen?"none":"flex";
+  $("cupSumTx").innerHTML='<span class="ck">✓</span> 已設定：一杯 '+cupMl+' ml';
   $("cupNow").textContent="一杯 "+cupMl+" ml";
   $("cupChips").innerHTML=CUP_OPTS.map(function(v){ return '<button class="btn '+(v===cupMl?"":"ghost ")+'sm" data-c="'+v+'">'+(v===cupMl?"✓ ":"")+v+' ml</button>'; }).join("");
   $("cupOk").innerHTML='<span class="ck">✓</span> 已設定：一杯 '+cupMl+' ml'+(CUP_OPTS.indexOf(cupMl)<0?'（自訂）':'');
@@ -1799,6 +1813,8 @@ function setCup(v){
 }
 $("cupChips").onclick=function(e){ var b=e.target.closest("[data-c]"); if(b) setCup(b.dataset.c); };
 $("cupSet").onclick=function(){ setCup($("cupInput").value); };
+$("cupDone").onclick=function(){ lsSet(CUP_KEY,String(cupMl)); cupOpen=false; drawCupSet(); toast("水杯大小已設定完成",true); };
+$("cupEdit").onclick=function(){ cupOpen=true; drawCupSet(); };
 
 /* ================= 個人資料（選填：年齡層、性別、孕期，用來調整建議） ================= */
 var PROF_KEY="poodiary.profile", profile={age:null,sex:null,preg:false};
@@ -1819,8 +1835,18 @@ function setProf(spec){
   lsSet(PROF_KEY,JSON.stringify(profile));
   toast("已儲存",true);
 }
-function drawProf(){ var b=$("profBox"); if(b) b.innerHTML=profHtml(); }
+var PROF_DONE="poodiary.profile.done", profOpen=!(profile.age||profile.sex||lsGet(PROF_DONE));
+function profSummary(){
+  var sel=[]; PF_AGE.forEach(function(a){ if(profile.age===a[0]) sel.push(a[1]); }); PF_SEX.forEach(function(a){ if(profile.sex===a[0]) sel.push(a[1]); }); if(profile.preg) sel.push("懷孕中");
+  return sel.length? '<span class="ck">✓</span> 已儲存：'+sel.join("、") : '<span style="color:var(--sub);font-weight:400">未設定（沒有填也沒關係）</span>';
+}
 $("profBox").onclick=function(e){ var b=e.target.closest("[data-pf]"); if(b){ setProf(b.dataset.pf); drawProf(); } };
+function drawProf(){
+  var b=$("profBox"); if(b) b.innerHTML=profHtml();
+  $("profBody").style.display=profOpen?"":"none"; $("profSum").style.display=profOpen?"none":"flex"; $("profSumTx").innerHTML=profSummary();
+}
+$("profDone").onclick=function(){ lsSet(PROF_DONE,"1"); profOpen=false; drawProf(); toast("個人資料已設定完成",true); };
+$("profEdit").onclick=function(){ profOpen=true; drawProf(); };
 
 /* ================= 性別造型（男生戴藍色帽子、女生戴粉紅蝴蝶結） ================= */
 /* 男女生造型功能暫緩：先不開放選擇，一律用預設吉祥物（程式保留，之後確定風格再開） */
