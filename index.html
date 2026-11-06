@@ -1691,8 +1691,9 @@ function makeDemo(){
 }
 
 /* ================= 版本 ================= */
-var APP_VERSION="1.24.2";
+var APP_VERSION="1.25.0";
 var CHANGELOG=[
+  ["1.25.0","第一次使用說明新增第 2 頁「先把它變成 App」，安裝步驟直接寫在那一頁（已安裝的人不會看到）"],
   ["1.24.2","修正喝水記錄後沒有馬上打勾、進度沒更新的問題"],
   ["1.24.1","日曆頁的生理期卡片移到「某天詳情」下面，點日期就能直接看到當天內容"],
   ["1.24.0","生理期卡片搬到「日曆」頁；心情的「生理期」標籤拿掉（避免和生理期功能重複）"],
@@ -1797,8 +1798,10 @@ function guide(){
     {h:"② 肚子感覺與飲食", b:'<p>肚子痛、脹氣是<b>一天記一次</b>，用 0～3 分記整天的感覺，以最不舒服的時候為準。整天都沒事也請點 0，分析才知道哪天是舒服的。</p><p>吃了什麼：打開一餐，點「你常吃的」或打字搜尋就好，不用每樣都記。</p>'},
     {h:"③ 睡眠、心情、喝水", b:'<div class="icons">'+faces+'</div><p>拉一下睡眠時數、點一個心情表情。想多記一點，可以按「加一些細節」。</p><p>每一項都是選填，有空就記，越完整分析越準。</p>'},
     {h:"④ 看分析", b:'<p>持續記錄 <b>3～4 週</b>後，到「分析」看看哪些食物、作息或心情可能跟拉肚子、便祕、肚子痛有關。</p><p>這只是統計上的參考，不能取代醫生的診斷。有血便、黑便或劇烈腹痛請盡快就醫。</p>'},
-    {h:"⑤ 最後兩件事", b:'<p>紀錄只存在<b>這支手機</b>，不會上傳到任何地方。換手機前，記得到「設定」匯出備份。</p>'+(isStandalone()?'':'<p>建議把嗯嗯日記<b>安裝到主畫面</b>，用起來就像一般 App。</p><button class="btn sm" data-a="install" style="margin-top:4px">安裝 App</button>')}
+    {h:"⑤ 最後一件事", b:'<p>紀錄只存在<b>這支手機</b>，不會上傳到任何地方。換手機前，記得到「設定」匯出備份。</p>'}
   ];
+  /* 還沒安裝成 App 的人：第 2 頁教怎麼安裝（步驟直接寫在這頁） */
+  if(!isStandalone()) P.splice(1,0,{h:"先把它變成 App", inst:true, b:'<p>安裝到主畫面後，會有自己的圖示、全螢幕開啟，沒有網路也能用，像一般 App 一樣。</p><p style="margin-bottom:4px"><b>照這樣做：</b></p>'+installSteps()+'<div id="obInst"></div><p class="tip">現在不想裝也沒關係，之後可以到「設定」的「安裝到手機」再看一次。</p>'});
   var i=0;
   function draw(){
     var pts=P.map(function(_,k){ return '<i class="'+(k===i?"on":"")+'"></i>'; }).join("");
@@ -1808,6 +1811,7 @@ function guide(){
         (i===P.length-1?'<button class="btn sm" data-a="done">開始使用</button>':'<button class="btn sm" data-a="next">下一步</button>')+
       '</div>';
     if(P[i].prof) $("obProf").innerHTML=profHtml();
+    if(P[i].inst && installEvt) $("obInst").innerHTML='<button class="btn sm" data-a="install" style="margin-top:8px">直接安裝（一鍵）</button>';
     if(P[i].cup){ $("obCup").innerHTML=CUP_OPTS.map(function(v){ return '<button class="btn '+(v===cupMl?"":"ghost ")+'sm" data-c="'+v+'">'+(v===cupMl?"✓ ":"")+v+' ml</button>'; }).join("")+'<div class="okline" style="width:100%;text-align:center"><span class="ck">✓</span> 已設定：一杯 '+cupMl+' ml</div>'; if(CUP_OPTS.indexOf(cupMl)<0) $("obCupIn").value=cupMl; }
   }
   function finish(){ lsSet(OB_KEY,"1"); $("sheet").onclick=null; closeSheet(); }
@@ -1820,7 +1824,7 @@ function guide(){
     if(t==="cupset"){ setCup($("obCupIn").value); draw(); return; }
     if(t==="next"){ i++; draw(); }
     else if(t==="prev"){ i--; draw(); }
-    else if(t==="install"){ finish(); installApp(); }
+    else if(t==="install"){ if(installEvt){ installEvt.prompt(); installEvt.userChoice.then(function(){ installEvt=null; updateInstallUI(); draw(); }, function(){}); } else { finish(); installApp(); } }
     else finish();
   };
 }
