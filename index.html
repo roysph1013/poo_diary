@@ -215,6 +215,15 @@ h1.pg{font-size:22px;margin:4px 0 0}
 .item .stg{font-size:11px;font-weight:700;margin-left:6px}
 .gauge{position:relative;height:10px;border-radius:999px;margin-top:14px;background:linear-gradient(90deg,#D9607C 0%,#D9A03C 40%,#6BB08A 60%,#3E9A6A 100%)}
 .gauge i{position:absolute;top:50%;width:18px;height:18px;border-radius:50%;background:#fff;border:3px solid #7a5238;transform:translate(-50%,-50%);box-shadow:0 1px 4px rgba(0,0,0,.25)}
+.adv h3{font-size:14px;margin:14px 0 4px;color:#7a5238}
+.adv ul{margin:0;padding:0;list-style:none}
+.adv li{font-size:14px;line-height:1.7;padding:7px 0;border-bottom:1px dashed var(--line)}
+.adv li:last-child{border-bottom:0}
+.adv .src{display:inline-block;font-size:10.5px;font-weight:700;color:#8A6B55;background:#F3E8DC;border-radius:6px;padding:0 6px;margin-left:6px;vertical-align:1px;white-space:nowrap}
+.adv .me{background:#FFF1D9;border-radius:10px;padding:8px 10px;margin:4px 0;font-size:13.5px;line-height:1.7;color:#6A4A1E}
+.adv .dr{background:#FDECEF;border-radius:12px;padding:6px 12px;margin-top:6px}
+.adv .dr li{color:#7A2E40}
+.refs{font-size:12px;color:#6E5442;line-height:1.7;padding-left:18px;margin:8px 0 0}
 .empty{text-align:center;color:var(--sub);font-size:14px;padding:18px 6px;line-height:1.8}
 .empty img{width:72px;height:72px}
 .tbl{width:100%;border-collapse:collapse;font-size:13px}
@@ -1228,6 +1237,66 @@ function buildFactors(keys, mode){
   return F;
 }
 function cmpBar(o, mode){ if(mode==="belly") return '<div class="cmp"><i style="width:'+o.normal+'%;background:var(--normal)"></i><i style="width:'+o.abn+'%;background:#EE8FA5"></i></div>'; return '<div class="cmp"><i style="width:'+o.normal+'%;background:var(--normal)"></i><i style="width:'+o.loose+'%;background:var(--loose)"></i><i style="width:'+o.hard+'%;background:var(--hard)"></i></div>'; }
+
+/* ================= 初步改善建議（依紀錄個人化；內容依據見 refsHtml） ================= */
+var ANA_REF=false;
+function adviceHtml(ctx){
+  var S={nice:'NICE',acg:'ACG 2021',aasm:'AASM／SRS',hpa:'國健署',who:'WHO',gen:'一般衛教'};
+  function li(t,k){ return '<li>'+t+(k?'<span class="src">'+S[k]+'</span>':'')+'</li>'; }
+  function me(t){ return '<div class="me">'+t+'</div>'; }
+  var h='<div class="card adv"><div class="card-h"><h2>給你的初步改善建議</h2><small>依你的紀錄調整</small></div>';
+  h+='<p class="tip" style="margin:0">以下是參考國際指引與國健署衛教整理的<b>一般性生活建議</b>，不是診斷或處方。一次先挑 1～2 項做兩週，再回來看分數有沒有變好。</p>';
+  /* 飲食 */
+  h+='<h3>飲食</h3><ul>';
+  var habit=[]; if(ctx.late>=3) habit.push(ctx.late+" 天很晚吃或吃宵夜"); if(ctx.fast>=3) habit.push(ctx.fast+" 天吃很快"); if(ctx.skipB>=3) habit.push(ctx.skipB+" 天沒吃早餐");
+  h+=li('三餐盡量定時定量，不跳餐、不要隔太久才吃，吃飯細嚼慢嚥、慢慢吃。','nice');
+  if(habit.length) h+=me('你的紀錄裡有 '+habit.join('、')+'，這些是最容易先調整的地方。');
+  if(ctx.kind==="hard"){
+    h+=li('你的狀況偏便祕：每天喝足水分（國健署新版指南成人約 1600～2400 ml，含食物裡的水分，依體型與活動量調整），蔬菜水果、全穀雜糧慢慢增加，一次加太多容易脹氣。','hpa');
+    if(ctx.water!=null && ctx.water<1200) h+=me('你記錄的平均喝水約 '+ctx.water+' ml，偏少，可以先每天多喝 1～2 杯。');
+  } else if(ctx.kind==="loose"){
+    h+=li('你的狀況偏拉肚子：先減少咖啡、濃茶、酒精、冰飲、辛辣和油炸，吃清淡好消化的食物，並注意補充水分。','gen');
+  } else if(ctx.water!=null && ctx.water<1200){
+    h+=me('你記錄的平均喝水約 '+ctx.water+' ml，偏少，可以慢慢增加。');
+  }
+  ctx.foods.forEach(function(f){ h+=me('在你的紀錄中，吃了「'+esc(f)+'」的日子比較容易不舒服。可以試著連續 2 週減少，再看有沒有改善；一次只調整一種，才看得出是不是它。'); });
+  if(ctx.foods.length) h+=li('找出可疑食物的方法：一次只少吃一種、觀察一兩週，不要同時戒很多種，也不要長期嚴格忌口，以免營養不均衡。','nice');
+  if(ctx.bellyBad) h+=li('脹氣、肚子痛常出現的話，可以和醫師或營養師討論，在專業指導下短期嘗試「低 FODMAP 飲食」；它是限期試驗，不建議自己長期嚴格限制。','acg');
+  h+='</ul>';
+  /* 睡眠與作息 */
+  h+='<h3>睡眠與作息</h3><ul>';
+  if(ctx.sleep!=null){
+    if(ctx.sleep<7) h+=li('你記錄的平均睡眠約 '+ctx.sleep+' 小時。成人建議規律睡滿 <b>7 小時以上</b>；睡眠不足時，腸胃狀況也比較容易不穩。','aasm');
+    else h+=li('你記錄的平均睡眠約 '+ctx.sleep+' 小時，有達到成人建議的 7 小時以上，繼續保持。','aasm');
+  } else h+=li('成人建議規律睡滿 <b>7 小時以上</b>。多記幾天睡眠，這裡就能看出你的睡眠夠不夠。','aasm');
+  h+=li('固定起床和吃飯的時間，腸道會比較有規律。早餐後給自己 5～10 分鐘上廁所，有便意就去，不要憋；每次坐馬桶不要超過 10 分鐘，也不要太用力。','gen');
+  h+=li('每週累積 150 分鐘中等強度運動（例如每天快走 20～30 分鐘），有助腸道蠕動，也能減壓。','who');
+  h+='</ul>';
+  /* 心態 */
+  h+='<h3>壓力與心態</h3><ul>';
+  if(ctx.stress>=3||ctx.moodLow>=3) h+=me('你的紀錄中有 '+Math.max(ctx.stress,ctx.moodLow)+' 天出現壓力或情緒低落，腸道和情緒關係很密切，這些日子的狀況可以特別留意。');
+  h+=li('每天留一點放鬆的時間；腹式呼吸（吸 4 秒、吐 6 秒，每天 5～10 分鐘）、散步、聽音樂、和朋友聊聊都可以。','nice');
+  h+=li('如果壓力或焦慮已經影響生活，可以考慮找心理師或身心科。研究支持「認知行為治療」和「腸道導向催眠」對腸躁症有幫助。','acg');
+  h+=li('不要因為某一天不正常就太焦慮，越緊張腸道通常越不穩。看整體趨勢就好。','gen');
+  h+='</ul>';
+  /* 就醫 */
+  h+='<h3>什麼時候要看醫生</h3><div class="dr"><ul>'+
+    li('出現<b>血便、黑色柏油便</b>、不是刻意減重卻變瘦、原因不明的貧血、半夜被痛醒或拉醒、劇烈腹痛、持續嘔吐或發燒，請盡快就醫。','gen')+
+    li('排便習慣明顯改變，或便祕、腹瀉超過 2 週，建議掛腸胃科。','hpa')+
+    li('<b>45～74 歲</b>（有大腸癌家族史者 40 歲起）可每 2 年做一次公費糞便潛血檢查。不要因為覺得只是腸躁症就跳過篩檢。','hpa')+
+    '</ul></div>';
+  h+='<p class="tip">軟便劑、止瀉藥、益生菌等成藥或保健食品，請先詢問醫師或藥師。</p>';
+  h+='<button class="btn ghost sm" id="refBtn" style="margin-top:4px">'+(ANA_REF?'收起參考依據 ▲':'看參考依據 ▼')+'</button>';
+  if(ANA_REF) h+='<ol class="refs">'+
+    '<li>Lacy BE, et al. ACG Clinical Guideline: Management of Irritable Bowel Syndrome. <i>Am J Gastroenterol</i> 2021;116(1):17–44.（低 FODMAP 限期試驗、腸道導向心理治療）</li>'+
+    '<li>NICE. Irritable bowel syndrome in adults: diagnosis and management (CG61) 與 Quality Standard QS114.（規律飲食、不跳餐、放鬆、增加活動、單一食物排除）</li>'+
+    '<li>Watson NF, et al. Recommended amount of sleep for a healthy adult: AASM and SRS consensus statement. <i>Sleep</i> 2015;38(6):843–844.（成人睡眠 7 小時以上）</li>'+
+    '<li>衛生福利部國民健康署：大腸癌篩檢（定量免疫法糞便潛血檢查，每 2 年一次）；每日飲食指南（水分建議）。</li>'+
+    '<li>World Health Organization. Guidelines on physical activity and sedentary behaviour. 2020.（成人每週 150～300 分鐘中等強度活動）</li>'+
+    '<li>Lewis SJ, Heaton KW. <i>Scand J Gastroenterol</i> 1997;32:920–924（布里斯托分類）；Rome IV criteria（分類採 Rome 標準）。</li>'+
+    '</ol><p class="tip">標示「一般衛教」的項目是常見的生活建議，不是特定指引的條文。指引會更新，個人情況不同，請以醫師的建議為準。</p>';
+  return h+'</div>';
+}
 var MIN_N=5, anaMode="stool", anaDetail=false;
 function renderAna(){
   var body=$("anaBody"), tk=todayK();
@@ -1257,7 +1326,19 @@ function renderAna(){
     '<p class="tip" style="margin-top:10px">記錄的 '+rec.length+' 天裡：正常 '+cnt.normal+' 天'+((cnt.hard+cnt.none)?'、偏便祕或沒嗯嗯 '+(cnt.hard+cnt.none)+' 天':'')+(cnt.loose?'、偏拉肚子 '+cnt.loose+' 天':'')+'。'+(score<80 && (cnt.hard+cnt.none+cnt.loose)? '不正常的日子主要是'+dir+'。':'')+(bkeys.length?'肚子明顯不舒服 '+bbad+' 天（共 '+bkeys.length+' 天有填）。':'')+'</p>'+
     (rec.length<7?'<p class="tip">目前只記了 '+rec.length+' 天，資料還少，分數僅供參考。</p>':'')+
     '<p class="tip">這是依你的紀錄算出的參考分數，不是醫療診斷。若持續不正常，或出現血便、黑便、劇烈腹痛，請盡快就醫。</p></div>';
-  var h=sh+'<div class="card"><div class="card-h"><h2>總覽</h2><small>'+(range?"近 "+range+" 天・":"")+'記錄 '+rec.length+' 天</small></div>'+
+  var sl=[], wl=[], late=0, fast=0, skipB=0, stress=0, moodLow=0, SM=["焦慮","緊張","壓力大","難過","生氣","煩躁"];
+  keys.forEach(function(k){ var d=getDay(k); if(!d) return;
+    if(d.sleep.hours!=null) sl.push(d.sleep.hours); if(d.water>0) wl.push(dayMl(d));
+    if(d.mood.q!=null && d.mood.q<=2) moodLow++; if(d.mood.tags.some(function(t){ return SM.indexOf(t)>=0; })) stress++;
+    var hb=dayHabits(d); if(hb["很晚才吃"]||d.meals.latenight.items.length) late++; if(hb["吃很快"]) fast++; if(d.meals.breakfast.habits.indexOf("沒吃")>=0) skipB++; });
+  var avg=function(a){ return a.length>=3? a.reduce(function(x,y){ return x+y; },0)/a.length : null; };
+  var aS=avg(sl), aW=avg(wl);
+  var Fa=buildFactors(keys,"stool").concat(buildFactors(keys,"belly"));
+  var foodBad=[]; Fa.filter(function(f){ return /^吃了「/.test(f.label) && f.w.n>=MIN_N && f.o.n>=MIN_N && f.p<0.1 && f.w.abn>f.o.abn; }).sort(function(a,b){ return a.p-b.p; }).forEach(function(f){ var n=f.label.replace(/^吃了「(.*)」$/,"$1"); if(foodBad.indexOf(n)<0) foodBad.push(n); });
+  var adv=adviceHtml({kind:(score<80 && (cnt.hard+cnt.none+cnt.loose))? ((cnt.hard+cnt.none)>cnt.loose?"hard":"loose") : null,
+    water:aW==null?null:Math.round(aW/10)*10, sleep:aS==null?null:Math.round(aS*10)/10, late:late, fast:fast, skipB:skipB, stress:stress, moodLow:moodLow,
+    foods:foodBad.slice(0,2), bellyBad: bkeys.length>=5 && bbad/bkeys.length>=0.3});
+  var h=sh+adv+'<div class="card"><div class="card-h"><h2>總覽</h2><small>'+(range?"近 "+range+" 天・":"")+'記錄 '+rec.length+' 天</small></div>'+
     '<div class="stats">'+
       '<div class="stat"><b class="num" style="color:#3E9A6A">'+pct(cnt.normal,rec.length)+'%</b><span>正常</span></div>'+
       '<div class="stat"><b class="num" style="color:#A8683A">'+pct(cnt.hard+cnt.none,rec.length)+'%</b><span>便祕／沒嗯嗯</span></div>'+
@@ -1306,6 +1387,7 @@ function renderAna(){
     h+='<div class="bar-row"><span class="lb" style="width:104px">'+BRISTOL[t].n+'<span class="stg" style="color:'+STATUS[sp].c+';font-size:11px;font-weight:700;margin-left:4px">'+SLABEL[sp]+'</span></span><span class="bar"><i style="width:'+(total?types[t]*100/total:0)+'%;background:'+STATUS[sp].c+'"></i></span><span class="v num" style="width:74px;text-align:right">'+types[t]+' 次・'+pct(types[t],total)+'%</span></div>'; }
   h+='<p class="tip">綠色是正常的嗯嗯；棕色偏便祕；藍色偏腹瀉。</p></div>';
   body.innerHTML=h;
+  $("refBtn").onclick=function(){ ANA_REF=!ANA_REF; var y=window.scrollY; renderAna(); window.scrollTo(0,y); };
   $("detBtn").onclick=function(){ anaDetail=!anaDetail; var y=window.scrollY; renderAna(); window.scrollTo(0,y); };
   $("modeSeg").onclick=function(e){ var b=e.target.closest("[data-m]"); if(!b || b.dataset.m===anaMode) return; anaMode=b.dataset.m; var y=window.scrollY; renderAna(); window.scrollTo(0,y); };
 }
@@ -1423,8 +1505,9 @@ function makeDemo(){
 }
 
 /* ================= 版本 ================= */
-var APP_VERSION="1.13.0";
+var APP_VERSION="1.14.0";
 var CHANGELOG=[
+  ["1.14.0","分析頁新增「給你的初步改善建議」：依你的紀錄給飲食、睡眠作息、壓力心態與就醫時機建議，並標示參考依據（ACG、NICE、AASM/SRS、國健署、WHO）"],
   ["1.13.0","分析最上方新增「腸道狀況評分」（良好／還不錯／需要留意／不太理想）；嗯嗯形態直接寫名稱（硬球、香蕉…）與正常／異常，不再出現「第幾型」；詳細數據改放在按鈕正下方"],
   ["1.12.2","語音輸入會自動過濾語氣詞與贅詞（呃、欸、喔、哦、句尾的啦／啊／耶…）"],
   ["1.12.1","語音輸入會自動加標點：停頓加逗號、轉折詞前加逗號、疑問句加問號、結束加句號"],
