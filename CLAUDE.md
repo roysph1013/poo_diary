@@ -14,7 +14,7 @@
 ## 檔案結構
 - `index.html`：整個 App（HTML + CSS + JS 都在這一個檔案，沒有建置工具、沒有框架）
 - `sw.js`：Service Worker，網路優先、離線用快取
-- `manifest.webmanifest`、`icon.svg`、`icon-180/192/512.png`、`icon-maskable-512.png`
+- `manifest.webmanifest`、`icon-v2.svg`、`icon-v2-180/192/512.png`、`icon-v2-maskable-512.png`（圖示檔名帶 v2，是為了避開手機的舊圖示快取；下次換圖示請改成 v3）
 - `README.md`：使用說明、參考文獻、版本紀錄
 
 ## 改版流程（每次都要做）
