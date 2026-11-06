@@ -42,6 +42,7 @@ Settings → Pages → Build and deployment → Source 選 **Deploy from a branc
 
 版本號寫在 `index.html` 的 `APP_VERSION`，以及 `sw.js` 的 `CACHE`，改版時兩個要一起改。App 裡在「設定」最下方點版本號，可以看到更新紀錄。
 
+- **v1.17.3**：拿掉喝水設定卡片標題右邊重複的小字
 - **v1.17.2**：喝水設定、個人資料確定後收折成摘要
 - **v1.17.1**：水杯與個人資料設定完成後顯示打勾與「已設定／已儲存」
 - **v1.17.0**：喝水卡片會告訴你夠不夠；杯子排滿整列

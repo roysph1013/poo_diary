@@ -489,7 +489,7 @@ h1.pg{font-size:22px;margin:4px 0 0}
       <p class="tip" style="margin:4px 0 0">震動只支援 Android 手機；iPhone 的瀏覽器不開放震動功能。</p>
     </div>
     <div class="card">
-      <div class="card-h"><h2>喝水設定</h2><small id="cupNow"></small></div>
+      <div class="card-h"><h2>喝水設定</h2></div>
       <div id="cupSum" class="sumrow"><span class="okline" id="cupSumTx"></span><button class="btn ghost sm" id="cupEdit">修改</button></div>
       <div id="cupBody">
         <p class="tip" style="margin:0 0 12px">選你平常用的水杯大小，記錄頁就會用這個容量換算喝了多少 ml。之前記的紀錄不會被改動。</p>
@@ -1611,8 +1611,9 @@ function makeDemo(){
 }
 
 /* ================= 版本 ================= */
-var APP_VERSION="1.17.2";
+var APP_VERSION="1.17.3";
 var CHANGELOG=[
+  ["1.17.3","拿掉喝水設定卡片標題右邊重複的小字"],
   ["1.17.2","喝水設定與個人資料按「確定」後會收折成一行摘要，需要時按「修改」再展開"],
   ["1.17.1","水杯與個人資料設定完成後，選中的項目會打勾並顯示「已設定／已儲存」"],
   ["1.17.0","喝水卡片會依你喝的量告訴你夠不夠、還差多少；杯子改成平均排滿整列，數量依杯子大小自動調整"],
@@ -1802,7 +1803,6 @@ var cupOpen=(lsGet(CUP_KEY)==null);
 function drawCupSet(){
   $("cupBody").style.display=cupOpen?"":"none"; $("cupSum").style.display=cupOpen?"none":"flex";
   $("cupSumTx").innerHTML='<span class="ck">✓</span> 已設定：一杯 '+cupMl+' ml';
-  $("cupNow").textContent="一杯 "+cupMl+" ml";
   $("cupChips").innerHTML=CUP_OPTS.map(function(v){ return '<button class="btn '+(v===cupMl?"":"ghost ")+'sm" data-c="'+v+'">'+(v===cupMl?"✓ ":"")+v+' ml</button>'; }).join("");
   $("cupOk").innerHTML='<span class="ck">✓</span> 已設定：一杯 '+cupMl+' ml'+(CUP_OPTS.indexOf(cupMl)<0?'（自訂）':'');
   $("cupInput").value=CUP_OPTS.indexOf(cupMl)<0? cupMl : "";
