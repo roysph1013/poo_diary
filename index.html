@@ -172,6 +172,10 @@ h1.pg{font-size:22px;margin:4px 0 0}
 .pheart:active{transform:translateY(1px)}
 .pdate{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--sub);flex:1;min-width:0}
 .pdate input{flex:1;min-width:0;border:1.5px solid var(--line);border-radius:10px;padding:6px 8px;background:#fff;font-size:13px}
+.pnext{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;background:#FDECEF;border-radius:12px;padding:10px 12px;margin-top:12px}
+.pnext span{font-size:12.5px;color:#7A2E40}
+.pnext b{font-size:18px;color:#D93F6B}
+.pnext small{font-size:12px;color:#7A2E40}
 .plist{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
 .pchip{display:inline-flex;align-items:center;gap:6px;background:#FDECEF;color:#7A2E40;border-radius:999px;padding:4px 6px 4px 12px;font-size:12.5px;font-weight:700}
 .pchip button{border:0;background:#fff;color:#C94B6E;border-radius:50%;width:20px;height:20px;font-size:11px;padding:0;line-height:20px}
@@ -180,8 +184,7 @@ h1.pg{font-size:22px;margin:4px 0 0}
 .pwarn{background:#FDECEF;border-radius:12px;padding:8px 12px;margin-top:10px;font-size:13.5px;line-height:1.6;color:#7A2E40}
 .pgood{color:#3E9A6A;font-weight:700}.pmid{color:#C98B2E;font-weight:700}.pbad{color:#D9607C;font-weight:700}
 .prefs summary{font-size:12.5px;color:var(--brown-d);font-weight:700;cursor:pointer;margin-top:10px}
-.cal .c.menses{background:#F9B9CA}
-.cal .c.menses::before{content:"♥";position:absolute;top:2px;left:5px;font-size:10px;color:#D93F6B}
+.cal .c.menses{background:#FBD3D3}
 .nitem{display:block;width:100%;text-align:left;border:0;background:var(--soft);border-radius:12px;padding:10px 12px;margin:8px 0;color:var(--ink)}
 .nitem b{display:block;font-size:12px;color:var(--brown-d);margin-bottom:2px}
 .nitem span{display:block;font-size:14px;line-height:1.6;white-space:pre-wrap;word-break:break-word}
@@ -1241,7 +1244,7 @@ function renderLog(){
 
 /* ================= 日曆 ================= */
 var calY, calM, calSel=null;
-$("legend").innerHTML=["normal","hard","loose","none"].map(function(s){ return '<span><i style="background:'+STATUS[s].c+'"></i>'+STATUS[s].t+'</span>'; }).join("")+'<span><i style="background:var(--brown);width:6px;height:6px;margin:0 3px"></i>有小筆記</span>'+(profile.sex==="f"?'<span><i style="background:#F9B9CA"></i><span style="color:#D93F6B">♥</span> 生理期</span>':'');
+$("legend").innerHTML=["normal","hard","loose","none"].map(function(s){ return '<span><i style="background:'+STATUS[s].c+'"></i>'+STATUS[s].t+'</span>'; }).join("")+'<span><i style="background:var(--brown);width:6px;height:6px;margin:0 3px"></i>有小筆記</span>'+(profile.sex==="f"?'<span><i style="background:#FBD3D3"></i>生理期</span>':'');
 function renderCal(){
   $("legend").innerHTML=["normal","hard","loose","none"].map(function(s){ return '<span><i style="background:'+STATUS[s].c+'"></i>'+STATUS[s].t+'</span>'; }).join("")+'<span><i style="background:var(--brown);width:6px;height:6px;margin:0 3px"></i>有小筆記</span>'+(profile.sex==="f"?'<span><i style="background:#F9B9CA"></i><span style="color:#D93F6B">♥</span> 生理期</span>':'');
   $("calTitle").textContent=calY+" 年 "+(calM+1)+" 月";
@@ -1684,8 +1687,9 @@ function makeDemo(){
 }
 
 /* ================= 版本 ================= */
-var APP_VERSION="1.23.0";
+var APP_VERSION="1.23.1";
 var CHANGELOG=[
+  ["1.23.1","日曆的生理期改成淡紅色底（不再有愛心）；生理期卡片的「下次預計」改成顯眼的一列，並說明需要兩次開始日"],
   ["1.23.0","生理期卡片簡化成兩顆愛心按鈕（今天開始／今天結束，也能選日期補記以前的）；日曆的生理期改成明顯的粉紅底加愛心"],
   ["1.22.1","生理期卡片只在個人資料選「女生」時才出現；選男生或沒填都會隱藏"],
   ["1.22.0","新增「生理期」卡片：記錄開始與結束日，自動算平均週期、規律程度與下次預測，並附判斷依據；日曆標示生理期、分析自動比較生理期間是否較不舒服。小筆記列表改成先顯示 20 則"],
@@ -1876,8 +1880,10 @@ function renderPeriod(){
   if(recent.length) h+='<div class="plist">'+recent.map(function(p){ return '<span class="pchip">'+pfmt(p.s)+(p.e?' ～ '+pfmt(p.e):' ～ 進行中')+'<button data-pdel="'+p.s+'" aria-label="刪除這筆">✕</button></span>'; }).join("")+'</div>';
   if(st.n>=1){
     var v=st.n>=2? st.max-st.min : null, rg = v==null? "" : v<=7? "，規律" : v<20? "，略有變動" : "，不太規律，建議請婦產科評估";
-    h+='<p class="tip" style="margin:8px 0 0">平均週期 '+st.avg+' 天'+rg+'；下次預計 <b>'+pfmt(addDays(st.last.s,st.avg))+'</b> 前後。</p>';
-  } else if(L.length) h+='<p class="tip" style="margin:8px 0 0">再記一次下次的開始日，就能算出週期。</p>';
+    var nx=addDays(st.last.s,st.avg), dn=ddiff(today,nx);
+    h+='<div class="pnext"><span>下次預計</span><b>'+pfmt(nx)+' 前後</b><small>'+(dn>0?'約 '+dn+' 天後':dn===0?'就是今天':'已超過預計 '+(-dn)+' 天')+'</small></div>';
+    h+='<p class="tip" style="margin:6px 0 0">平均週期 '+st.avg+' 天'+rg+'（用最近 '+st.n+' 個週期推算）。</p>';
+  } else if(L.length) h+='<p class="tip" style="margin:8px 0 0">下次預計日期需要至少記到<b>兩次開始日</b>才算得出來，下次來的時候再按一次「今天開始」就會出現。</p>';
   else h+='<p class="tip" style="margin:8px 0 0">要補記以前的，用「或選日期」選那天就好。</p>';
   var since = last? ddiff(last.s,today) : 0;
   if(last && since>=90) h+='<div class="pwarn">距離上次開始已經 '+since+' 天，如果沒有懷孕，建議找婦產科了解原因。</div>';
