@@ -654,14 +654,14 @@ var CAT_NAME = {}; CATS.forEach(function(c){ CAT_NAME[c.k]=c.t; });
 var HABITS = ["吃太撐","吃很少","沒吃","吃很快","外食","很晚才吃"];
 // 常見食物 → 大類
 var FOOD_SRC = {
-  "早餐": "蛋餅:starch,protein|豆漿:bean|米漿:starch,sweet|奶茶:dairy,caffeine,sweet|早餐店紅茶:caffeine,sweet|飯糰:starch|燒餅油條:starch,fried|蘿蔔糕:starch,fried|三明治:starch,protein|漢堡:starch,protein,fried|吐司:starch|厚片吐司:starch,sweet|饅頭:starch|包子:starch,protein|鐵板麵:starch,salty|薯餅:fried,starch|熱狗:processed|水煮蛋:protein|荷包蛋:protein|燕麥:fiber|清粥:starch|地瓜粥:fiber,starch|鮮奶:dairy|優格:dairy,ferment|優酪乳:dairy,ferment|拿鐵:caffeine,dairy|美式咖啡:caffeine",
+  "早餐": "蛋餅:starch,protein|豆漿:bean|米漿:starch,sweet|奶茶:dairy,caffeine,sweet|早餐店紅茶:caffeine,sweet|飯糰:starch|燒餅油條:starch,fried|蘿蔔糕:starch,fried|三明治:starch,protein|漢堡:starch,protein,fried|吐司:starch|厚片吐司:starch,sweet|饅頭:starch|包子:starch,protein|鐵板麵:starch,salty|薯餅:fried,starch|熱狗:processed|水煮蛋:protein|荷包蛋:protein|燕麥:fiber|清粥:starch|地瓜粥:fiber,starch|鮮奶:dairy|優格:dairy,ferment|優酪乳:dairy,ferment|拿鐵:caffeine,dairy|美式咖啡:caffeine|麥片:fiber,sweet|水果穀麥:fiber,sweet,starch|燕麥片:fiber",
   "飯麵主食": "白飯:starch|糙米飯:fiber|滷肉飯:starch,fried,salty|雞肉飯:starch,protein|焢肉飯:starch,fried,salty|排骨便當:starch,fried,protein|雞腿便當:starch,protein|便當:starch,protein|炒飯:starch,fried|咖哩飯:starch,spicy|丼飯:starch,protein|牛肉麵:starch,protein,salty|陽春麵:starch|乾麵:starch|麻醬麵:starch,fried|涼麵:starch,cold|炒麵:starch,fried|義大利麵:starch|拉麵:starch,salty,protein|烏龍麵:starch|米粉:starch|粄條:starch|越南河粉:starch|麵線:starch,salty|水餃:starch,protein|鍋貼:starch,fried|小籠包:starch,protein|餛飩湯:starch,protein|肉圓:starch,fried|碗粿:starch|割包:starch,protein,fried|蔥油餅:starch,fried|胡椒餅:starch,protein|披薩:starch,dairy,fried|拌飯:starch,fiber|壽司:starch,cold",
   "小吃夜市": "鹽酥雞:fried,salty|雞排:fried,protein|炸雞:fried,protein|薯條:fried,starch|臭豆腐:ferment,fried,bean|蚵仔煎:fried,protein|大腸麵線:starch,salty|滷味:salty,processed|關東煮:processed,salty|甜不辣:processed,fried|豬血糕:starch|香腸:processed,salty|天婦羅:fried|章魚燒:fried,starch|韓式炸雞:fried,spicy|洋芋片:fried,salty",
   "辣味鍋物": "麻辣鍋:spicy,salty|麻辣燙:spicy,salty|火鍋:salty,protein,fiber|酸辣湯:spicy|辣炒年糕:spicy,starch|泡菜:ferment,spicy|泰式打拋豬:spicy,protein|麻婆豆腐:spicy,bean|辣椒醬:spicy|川菜:spicy,fried",
   "肉蛋海鮮": "豬肉:protein|牛肉:protein|雞肉:protein|牛排:protein|燒肉:protein,salty|海鮮:protein|生魚片:protein,cold|蝦子:protein|魚:protein|蛋:protein",
   "蔬菜水果": "燙青菜:fiber|高麗菜:fiber,gas|花椰菜:fiber,gas|地瓜葉:fiber|菠菜:fiber|洋蔥:gas|菇類:fiber|海帶:fiber|沙拉:fiber,cold|地瓜:fiber,gas|玉米:fiber|香蕉:fiber|芭樂:fiber|奇異果:fiber|火龍果:fiber|木瓜:fiber|蘋果:fiber|橘子:fiber|鳳梨:fiber|芒果:sweet|葡萄:sweet|西瓜:cold|堅果:fiber",
   "豆類發酵": "豆腐:bean|豆乾:bean,salty|豆花:bean,sweet|紅豆湯:bean,sweet|綠豆湯:bean,sweet,cold|納豆:ferment,bean|味噌湯:ferment,bean,salty|毛豆:bean,fiber",
-  "飲料": "珍珠奶茶:dairy,caffeine,sweet,starch|手搖飲:caffeine,sweet|全糖飲料:sweet|紅茶:caffeine|綠茶:caffeine|烏龍茶:caffeine|咖啡:caffeine|能量飲料:caffeine,sweet|汽水:gas,sweet|可樂:gas,caffeine,sweet|果汁:sweet|冰飲:cold",
+  "飲料": "珍珠奶茶:dairy,caffeine,sweet,starch|手搖飲:caffeine,sweet|全糖飲料:sweet|紅茶:caffeine|綠茶:caffeine|烏龍茶:caffeine|咖啡:caffeine|能量飲料:caffeine,sweet|汽水:gas,sweet|可樂:gas,caffeine,sweet|果汁:sweet|冰飲:cold|高蛋白飲:protein,dairy|牛奶泡麥片:dairy,fiber,sweet",
   "甜點零食": "蛋糕:sweet,dairy|餅乾:sweet,starch|巧克力:sweet,caffeine|麵包:starch,sweet|鬆餅:sweet,starch|雞蛋糕:sweet,starch|布丁:dairy,sweet|冰淇淋:cold,dairy,sweet|刨冰:cold,sweet|仙草:sweet|起司:dairy",
   "酒類": "啤酒:alcohol,gas|紅酒:alcohol|調酒:alcohol,sweet|高粱:alcohol|燒酒:alcohol|清酒:alcohol",
   "其他": "超商便當:processed,starch|微波食品:processed|泡麵:processed,salty,starch|火腿:processed|罐頭:processed,salty"
@@ -1618,8 +1618,9 @@ function makeDemo(){
 }
 
 /* ================= 版本 ================= */
-var APP_VERSION="1.19.0";
+var APP_VERSION="1.19.1";
 var CHANGELOG=[
+  ["1.19.1","食物新增：麥片、水果穀麥、燕麥片、高蛋白飲、牛奶泡麥片"],
   ["1.19.0","分析頁把「總覽」和「嗯嗯形態分佈」合併成一張「嗯嗯總覽」卡片"],
   ["1.18.1","分析與建議頁選的天數會記住，重開 App 也不會變回 30 天"],
   ["1.18.0","建議頁新增天數按鈕（14／30／90 天／全部），並標明建議是根據近幾天的紀錄；和分析頁的天數同步"],
