@@ -471,11 +471,9 @@ h1.pg{font-size:22px;margin:4px 0 0}
       <div id="waterMsg" style="margin-top:10px;font-size:13.5px;line-height:1.6"></div>
     </div>
 
-    <div class="card" id="c-period" style="display:none"></div>
-
     <div class="card">
       <div class="card-h"><h2>小筆記</h2><button class="mic" id="micBtn" type="button" aria-label="語音輸入"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3"/></svg>語音輸入</button></div>
-      <textarea class="note" id="dayNote" placeholder="例如：吃了新的藥、去旅行、生理期第二天…"></textarea>
+      <textarea class="note" id="dayNote" placeholder="例如：吃了新的藥、去旅行、跟朋友聚餐…"></textarea>
       <p class="tip" id="micTip" style="margin:6px 0 0"></p>
       <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px">
         <span class="okline" id="noteOk" style="margin:0"></span>
@@ -496,6 +494,7 @@ h1.pg{font-size:22px;margin:4px 0 0}
       <div class="cal" id="cal"></div>
       <div class="legend" id="legend"></div>
     </div>
+    <div class="card" id="c-period" style="display:none"></div>
     <div class="card" id="calDetail"></div>
     <div class="card" id="noteCard">
       <div class="card-h"><h2>所有小筆記</h2><small id="noteCount"></small></div>
@@ -719,7 +718,7 @@ var MOOD_Q = ["很糟","低落","普通","開心","超棒"];
 var MOOD_GROUPS = [
   {t:"好心情", items:["開心","放鬆","有成就感","被療癒"]},
   {t:"壞心情", items:["焦慮","緊張","壓力大","難過","生氣","煩躁","無聊"]},
-  {t:"身體狀態", items:["疲累","感冒生病","生理期","頭痛","肚子痛","吃藥中"]},
+  {t:"身體狀態", items:["疲累","感冒生病","頭痛","肚子痛","吃藥中"]},
   {t:"生活作息", items:["熬夜","工作課業忙","考試報告","運動","久坐沒動","出遊旅行","時差"]}
 ];
 var KEY="poodiary.v1", STK_KEY="poodiary.stickers.v1";
@@ -1241,7 +1240,7 @@ function renderLog(){
   var now=new Date(); $("stoolTime").value = cur===todayK()? pad(now.getHours())+":"+pad(now.getMinutes()) : "";
   var d=getDay(cur); $("dayNote").value=d?d.note:""; renderNoteOk();
   $("moodTagsCard").style.display="none";
-  renderBristol(); renderStools(); renderMeals(); renderSleep(); renderMood(); renderWater(); renderBelly(); renderPeriod();
+  renderBristol(); renderStools(); renderMeals(); renderSleep(); renderMood(); renderWater(); renderBelly();
 }
 
 /* ================= 日曆 ================= */
@@ -1260,6 +1259,7 @@ function renderCal(){
       '<i style="background:'+(st?STATUS[st].c:(d&&!isEmptyDay(d)?"#E5D6C8":"transparent"))+'"></i><span class="num">'+dd+'</span></button>';
   }
   $("cal").innerHTML=h;
+  renderPeriod();
   renderCalDetail();
   renderNoteList();
 }
@@ -1690,8 +1690,9 @@ function makeDemo(){
 }
 
 /* ================= 版本 ================= */
-var APP_VERSION="1.23.2";
+var APP_VERSION="1.24.0";
 var CHANGELOG=[
+  ["1.24.0","生理期卡片搬到「日曆」頁；心情的「生理期」標籤拿掉（避免和生理期功能重複）"],
   ["1.23.2","日曆用淡色框標出預計的生理期日子（依平均週期與平均經期天數推算）"],
   ["1.23.1","日曆的生理期改成淡紅色底（不再有愛心）；生理期卡片的「下次預計」改成顯眼的一列，並說明需要兩次開始日"],
   ["1.23.0","生理期卡片簡化成兩顆愛心按鈕（今天開始／今天結束，也能選日期補記以前的）；日曆的生理期改成明顯的粉紅底加愛心"],
@@ -1904,18 +1905,18 @@ function renderPeriod(){
 function pStart(d){
   if(d>todayK()){ toast("不能選未來的日期"); return; }
   var hit=periodAt(d); if(hit){ toast(hit.s===d? "這天已經記過開始了" : "這天已經在生理期內"); return; }
-  plist().push({s:d,e:null}); save(); renderPeriod(); okToast("已記錄：生理期 "+pfmt(d)+" 開始");
+  plist().push({s:d,e:null}); save(); renderCal(); okToast("已記錄：生理期 "+pfmt(d)+" 開始");
 }
 function pEndAt(d){
   if(d>todayK()){ toast("不能選未來的日期"); return; }
   var L=psorted().filter(function(p){ return p.s<=d; }), p=L.length?L[L.length-1]:null;
   if(!p){ toast("找不到開始日，請先記開始"); return; }
   if(ddiff(p.s,d)>14){ toast("離開始日超過 14 天，請確認日期"); return; }
-  p.e=d; save(); renderPeriod(); okToast("已記錄：生理期 "+pfmt(p.s)+" ～ "+pfmt(d));
+  p.e=d; save(); renderCal(); okToast("已記錄：生理期 "+pfmt(p.s)+" ～ "+pfmt(d));
 }
 $("c-period").onclick=function(e){
   var del=e.target.closest("[data-pdel]");
-  if(del){ var sd=del.dataset.pdel; confirmBox("要刪除 "+pfmt(sd)+" 開始的這筆生理期嗎？",function(){ mem.periods=plist().filter(function(p){ return p.s!==sd; }); save(); renderPeriod(); toast("已刪除"); }); return; }
+  if(del){ var sd=del.dataset.pdel; confirmBox("要刪除 "+pfmt(sd)+" 開始的這筆生理期嗎？",function(){ mem.periods=plist().filter(function(p){ return p.s!==sd; }); save(); renderCal(); toast("已刪除"); }); return; }
   var b=e.target.closest("[data-pa]"); if(!b) return;
   if(b.dataset.pa==="start") pStart(todayK()); else pEndAt(todayK());
 };
