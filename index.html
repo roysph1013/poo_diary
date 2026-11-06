@@ -1405,8 +1405,9 @@ function makeDemo(){
 }
 
 /* ================= 版本 ================= */
-var APP_VERSION="1.12.0";
+var APP_VERSION="1.12.1";
 var CHANGELOG=[
+  ["1.12.1","語音輸入會自動加標點：停頓加逗號、轉折詞前加逗號、疑問句加問號、結束加句號"],
   ["1.12.0","第一次開啟時先設定水杯大小；語音輸入改用簡潔圖示、不再使用表情符號"],
   ["1.11.2","男生／女生造型選擇暫時拿掉，維持原本的吉祥物"],
   ["1.11.1","修正語音輸入文字重複的問題"],
@@ -1530,12 +1531,19 @@ function initMic(){
   if(!SR){ btn.style.display="none"; tip.textContent="想用說的：可以按手機鍵盤上的麥克風圖示來語音輸入。"; return; }
   tip.textContent="按「語音輸入」後直接說話，會自動變成文字寫進筆記。語音由瀏覽器辨識（Chrome 可能會把聲音傳給 Google 處理），筆記文字仍只存在這支手機。";
   var rec=null, on=false, stopping=false;
+  /* 瀏覽器的中文語音辨識不會自動加標點：在轉折詞前加逗號、疑問句尾加問號，停頓處加逗號、結束加句號 */
+  function punct(t){
+    t=(t||"").replace(/\s+/g,"");
+    t=t.replace(/([^，。？！、])(然後|但是|可是|所以|因為|結果|而且|不過|接著|後來|如果|雖然|另外)/g,"$1，$2");
+    if(/(嗎|呢|是不是|有沒有|好不好|對不對)$/.test(t)) t+="？";
+    return t;
+  }
   function put(key,v){ var d=getDay(key,true); d.note=v; save(); tidy(key); if(key===cur) ta.value=v; }
   function reset(){ on=false; stopping=false; btn.classList.remove("rec"); btn.innerHTML=MIC_ON+"語音輸入"; }
   btn.onclick=function(){
     if(on){ stopping=true; try{ rec.stop(); }catch(e){} return; }
     var key=cur, base=(getDay(key)||{note:""}).note||"", got=false;
-    if(base && !/\s$/.test(base)) base+="，";
+    if(base && !/[\s，。？！、,.?!]$/.test(base)) base+="，";
     /* 不用 continuous：Android 的連續模式會把前面的字重複送回來。
        改成「一句一句辨識，句子結束後自動接著聽」，每句只在結束時寫入一次 */
     function session(){
@@ -1544,7 +1552,7 @@ function initMic(){
       rec.lang="zh-TW"; rec.continuous=false; rec.interimResults=true;
       rec.onresult=function(ev){
         var t=""; for(var i=0;i<ev.results.length;i++) t+=ev.results[i][0].transcript;
-        sess=t; put(key, base+sess);
+        sess=t; put(key, base+punct(sess));
       };
       rec.onerror=function(ev){
         var m={"not-allowed":"請在瀏覽器允許使用麥克風","service-not-allowed":"請在瀏覽器允許使用麥克風","network":"語音辨識需要網路","audio-capture":"找不到麥克風"}[ev.error];
@@ -1552,9 +1560,9 @@ function initMic(){
         else if(ev.error==="no-speech"){ stopping=true; if(!got) toast("沒有聽到聲音，再試一次"); }
       };
       rec.onend=function(){
-        if(sess){ base+=sess; got=true; }
+        if(sess){ var p=punct(sess); base+=p+(/[？]$/.test(p)?"":"，"); got=true; put(key,base); }
         if(on && !stopping){ session(); return; }
-        reset(); if(got) okToast("語音已轉成文字並儲存");
+        reset(); if(got){ put(key, base.replace(/，$/,"。")); okToast("語音已轉成文字並儲存"); }
       };
       try{ rec.start(); }catch(e){ reset(); }
     }
