@@ -229,6 +229,8 @@ h1.pg{font-size:22px;margin:4px 0 0}
 .reflist li:last-child{border-bottom:0}
 .reflist a{color:var(--brown-d);font-weight:700;text-decoration:underline;text-underline-offset:3px;word-break:break-word}
 .reflist small{display:block;color:#6E5442;font-size:12px;margin-top:2px}
+.okline{margin-top:10px;font-size:13.5px;font-weight:700;color:#3E9A6A;width:100%}
+.okline .ck{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:#3E9A6A;color:#fff;font-size:11px;margin-right:4px}
 .det{margin-top:14px;padding-top:12px;border-top:2px dashed var(--line)}
 .empty{text-align:center;color:var(--sub);font-size:14px;padding:18px 6px;line-height:1.8}
 .empty img{width:72px;height:72px}
@@ -488,6 +490,7 @@ h1.pg{font-size:22px;margin:4px 0 0}
       <div class="card-h"><h2>喝水設定</h2><small id="cupNow"></small></div>
       <p class="tip" style="margin:0 0 12px">選你平常用的水杯大小，記錄頁就會用這個容量換算喝了多少 ml。之前記的紀錄不會被改動。</p>
       <div class="chips" id="cupChips"></div>
+      <div id="cupOk" class="okline"></div>
       <div class="chips" style="margin-top:10px;align-items:center"><input type="number" id="cupInput" inputmode="numeric" min="50" max="2000" placeholder="自訂 ml" style="width:110px;border:1.5px solid var(--line);border-radius:12px;padding:8px 10px;background:#fff"><button class="btn ghost sm" id="cupSet">設定</button></div>
     </div>
     <div class="card">
@@ -1598,8 +1601,9 @@ function makeDemo(){
 }
 
 /* ================= 版本 ================= */
-var APP_VERSION="1.17.0";
+var APP_VERSION="1.17.1";
 var CHANGELOG=[
+  ["1.17.1","水杯與個人資料設定完成後，選中的項目會打勾並顯示「已設定／已儲存」"],
   ["1.17.0","喝水卡片會依你喝的量告訴你夠不夠、還差多少；杯子改成平均排滿整列，數量依杯子大小自動調整"],
   ["1.16.1","逐一核對參考資料：修正水分建議數字（總液體量，非含食物水分），並替換無法確認的連結"],
   ["1.16.0","改善建議獨立成新的「建議」分頁，建議後方不再放來源標籤，改在最下方列出可點開的參考資料（以中文官方與衛教資料為主）；分析頁的詳細數據展開後留在同一張卡片裡"],
@@ -1697,7 +1701,7 @@ function guide(){
         (i===P.length-1?'<button class="btn sm" data-a="done">開始使用</button>':'<button class="btn sm" data-a="next">下一步</button>')+
       '</div>';
     if(P[i].prof) $("obProf").innerHTML=profHtml();
-    if(P[i].cup){ $("obCup").innerHTML=CUP_OPTS.map(function(v){ return '<button class="btn '+(v===cupMl?"":"ghost ")+'sm" data-c="'+v+'">'+v+' ml</button>'; }).join(""); if(CUP_OPTS.indexOf(cupMl)<0) $("obCupIn").value=cupMl; }
+    if(P[i].cup){ $("obCup").innerHTML=CUP_OPTS.map(function(v){ return '<button class="btn '+(v===cupMl?"":"ghost ")+'sm" data-c="'+v+'">'+(v===cupMl?"✓ ":"")+v+' ml</button>'; }).join("")+'<div class="okline" style="width:100%;text-align:center"><span class="ck">✓</span> 已設定：一杯 '+cupMl+' ml</div>'; if(CUP_OPTS.indexOf(cupMl)<0) $("obCupIn").value=cupMl; }
   }
   function finish(){ lsSet(OB_KEY,"1"); $("sheet").onclick=null; closeSheet(); }
   openSheet(""); draw();
@@ -1785,7 +1789,8 @@ if(!(cupMl>=50 && cupMl<=2000)) cupMl=250;
 var CUP_OPTS=[150,200,250,300,350,500];
 function drawCupSet(){
   $("cupNow").textContent="一杯 "+cupMl+" ml";
-  $("cupChips").innerHTML=CUP_OPTS.map(function(v){ return '<button class="btn '+(v===cupMl?"":"ghost ")+'sm" data-c="'+v+'">'+v+' ml</button>'; }).join("");
+  $("cupChips").innerHTML=CUP_OPTS.map(function(v){ return '<button class="btn '+(v===cupMl?"":"ghost ")+'sm" data-c="'+v+'">'+(v===cupMl?"✓ ":"")+v+' ml</button>'; }).join("");
+  $("cupOk").innerHTML='<span class="ck">✓</span> 已設定：一杯 '+cupMl+' ml'+(CUP_OPTS.indexOf(cupMl)<0?'（自訂）':'');
   $("cupInput").value=CUP_OPTS.indexOf(cupMl)<0? cupMl : "";
 }
 function setCup(v){
@@ -1800,16 +1805,19 @@ var PROF_KEY="poodiary.profile", profile={age:null,sex:null,preg:false};
 try{ var pr=JSON.parse(lsGet(PROF_KEY)||"{}")||{}; if(["u18","a18","a45","a65"].indexOf(pr.age)>=0) profile.age=pr.age; if(pr.sex==="m"||pr.sex==="f") profile.sex=pr.sex; profile.preg=(profile.sex==="f" && !!pr.preg); }catch(e){}
 var PF_AGE=[["u18","18 歲以下"],["a18","18～44 歲"],["a45","45～64 歲"],["a65","65 歲以上"]], PF_SEX=[["m","男生"],["f","女生"]];
 function profHtml(){
-  function ch(k,v,t,on){ return '<button class="btn '+(on?"":"ghost ")+'sm" data-pf="'+k+':'+v+'">'+t+'</button>'; }
+  function ch(k,v,t,on){ return '<button class="btn '+(on?"":"ghost ")+'sm" data-pf="'+k+':'+v+'">'+(on?"✓ ":"")+t+'</button>'; }
+  var sel=[]; PF_AGE.forEach(function(a){ if(profile.age===a[0]) sel.push(a[1]); }); PF_SEX.forEach(function(a){ if(profile.sex===a[0]) sel.push(a[1]); }); if(profile.preg) sel.push("懷孕中");
   return '<div class="lbl" style="margin-top:0">年齡層</div><div class="chips">'+PF_AGE.map(function(a){ return ch("age",a[0],a[1],profile.age===a[0]); }).join("")+'</div>'+
     '<div class="lbl">性別</div><div class="chips">'+PF_SEX.map(function(a){ return ch("sex",a[0],a[1],profile.sex===a[0]); }).join("")+'</div>'+
-    (profile.sex==="f"? '<div class="chips" style="margin-top:8px">'+ch("preg","1","目前懷孕中",profile.preg)+'</div>':'');
+    (profile.sex==="f"? '<div class="chips" style="margin-top:8px">'+ch("preg","1","目前懷孕中",profile.preg)+'</div>':'')+
+    (sel.length? '<div class="okline"><span class="ck">✓</span> 已儲存：'+sel.join("、")+'</div>' : '<div class="okline" style="color:var(--sub)">尚未設定（可以不填）</div>');
 }
 function setProf(spec){
   var p=spec.split(":"), k=p[0], v=p[1];
   if(k==="preg") profile.preg=!profile.preg;
   else { profile[k]=(profile[k]===v? null : v); if(k==="sex" && profile.sex!=="f") profile.preg=false; }
   lsSet(PROF_KEY,JSON.stringify(profile));
+  toast("已儲存",true);
 }
 function drawProf(){ var b=$("profBox"); if(b) b.innerHTML=profHtml(); }
 $("profBox").onclick=function(e){ var b=e.target.closest("[data-pf]"); if(b){ setProf(b.dataset.pf); drawProf(); } };
