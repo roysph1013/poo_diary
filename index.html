@@ -477,6 +477,11 @@ h1.pg{font-size:22px;margin:4px 0 0}
       <div class="chips" id="cupChips"></div>
       <div class="chips" style="margin-top:10px;align-items:center"><input type="number" id="cupInput" inputmode="numeric" min="50" max="2000" placeholder="自訂 ml" style="width:110px;border:1.5px solid var(--line);border-radius:12px;padding:8px 10px;background:#fff"><button class="btn ghost sm" id="cupSet">設定</button></div>
     </div>
+    <div class="card">
+      <div class="card-h"><h2>個人資料（選填）</h2></div>
+      <p class="tip" style="margin:0 0 12px">用來調整分析頁的建議，例如水分量、篩檢年齡、孕期注意事項。可以不填，只存在這支手機。</p>
+      <div id="profBox"></div>
+    </div>
     <div class="card" id="installCard">
       <div class="card-h"><h2>安裝到手機</h2><small id="installState"></small></div>
       <p class="tip" style="margin:0 0 12px">安裝後會出現在手機主畫面，點開就像一般 App，沒有網路也能用。</p>
@@ -1244,57 +1249,86 @@ function adviceHtml(ctx){
   var S={nice:'NICE',acg:'ACG 2021',aasm:'AASM／SRS',hpa:'國健署',who:'WHO',gen:'一般衛教'};
   function li(t,k){ return '<li>'+t+(k?'<span class="src">'+S[k]+'</span>':'')+'</li>'; }
   function me(t){ return '<div class="me">'+t+'</div>'; }
+  var P=ctx.prof||{}, kid=P.age==="u18", preg=(P.sex==="f" && !!P.preg), old=(P.age==="a65"), mid=(P.age==="a45"||P.age==="a65"), young=(P.age==="a18");
   var h='<div class="card adv"><div class="card-h"><h2>給你的初步改善建議</h2><small>依你的紀錄調整</small></div>';
-  h+='<p class="tip" style="margin:0">以下是參考國際指引與國健署衛教整理的<b>一般性生活建議</b>，不是診斷或處方。一次先挑 1～2 項做兩週，再回來看分數有沒有變好。</p>';
+  h+='<p class="tip" style="margin:0">以下是參考國際指引與國健署衛教整理的<b>一般性生活建議</b>，不是診斷或處方。一次先挑 1～2 項做兩週，再回來看分數有沒有變好。'+(P.age||P.sex?'（已依你設定的年齡與性別調整）':'')+'</p>';
+  if(kid) h+=me('你在 18 歲以下，下面的建議是以成人為主整理的，只保留適合的部分。排便不順或肚子不舒服，建議讓家長陪你一起看<b>小兒科或兒童腸胃科</b>，不要自己買藥。');
+  if(preg) h+=me('你目前懷孕中：孕期因為荷爾蒙變化和子宮壓迫，便祕、脹氣都很常見。<b>任何飲食限制、成藥、益生菌或保健食品，都請先問產科醫師</b>，不要自己調整。');
   /* 飲食 */
   h+='<h3>飲食</h3><ul>';
   var habit=[]; if(ctx.late>=3) habit.push(ctx.late+" 天很晚吃或吃宵夜"); if(ctx.fast>=3) habit.push(ctx.fast+" 天吃很快"); if(ctx.skipB>=3) habit.push(ctx.skipB+" 天沒吃早餐");
-  h+=li('三餐盡量定時定量，不跳餐、不要隔太久才吃，吃飯細嚼慢嚥、慢慢吃。','nice');
+  h+=li((preg?'三餐定時定量，肚子容易不舒服可以少量多餐，':'三餐盡量定時定量，不跳餐、不要隔太久才吃，')+'吃飯細嚼慢嚥、慢慢吃。','nice');
   if(habit.length) h+=me('你的紀錄裡有 '+habit.join('、')+'，這些是最容易先調整的地方。');
+  var waterTxt = preg? "多喝水，分次慢慢喝" : P.sex==="m"? "國健署新版指南男性約 2000～2400 ml，含食物裡的水分" : P.sex==="f"? "國健署新版指南女性約 1600～2100 ml，含食物裡的水分" : "國健署新版指南成人約 1600～2400 ml，含食物裡的水分";
   if(ctx.kind==="hard"){
-    h+=li('你的狀況偏便祕：每天喝足水分（國健署新版指南成人約 1600～2400 ml，含食物裡的水分，依體型與活動量調整），蔬菜水果、全穀雜糧慢慢增加，一次加太多容易脹氣。','hpa');
+    h+=li('你的狀況偏便祕：每天喝足水分（'+waterTxt+'；依體型與活動量調整），蔬菜水果、全穀雜糧慢慢增加，一次加太多容易脹氣。','hpa');
     if(ctx.water!=null && ctx.water<1200) h+=me('你記錄的平均喝水約 '+ctx.water+' ml，偏少，可以先每天多喝 1～2 杯。');
   } else if(ctx.kind==="loose"){
     h+=li('你的狀況偏拉肚子：先減少咖啡、濃茶、酒精、冰飲、辛辣和油炸，吃清淡好消化的食物，並注意補充水分。','gen');
   } else if(ctx.water!=null && ctx.water<1200){
-    h+=me('你記錄的平均喝水約 '+ctx.water+' ml，偏少，可以慢慢增加。');
+    h+=me('你記錄的平均喝水約 '+ctx.water+' ml，偏少，可以慢慢增加（'+waterTxt+'）。');
   }
-  ctx.foods.forEach(function(f){ h+=me('在你的紀錄中，吃了「'+esc(f)+'」的日子比較容易不舒服。可以試著連續 2 週減少，再看有沒有改善；一次只調整一種，才看得出是不是它。'); });
-  if(ctx.foods.length) h+=li('找出可疑食物的方法：一次只少吃一種、觀察一兩週，不要同時戒很多種，也不要長期嚴格忌口，以免營養不均衡。','nice');
-  if(ctx.bellyBad) h+=li('脹氣、肚子痛常出現的話，可以和醫師或營養師討論，在專業指導下短期嘗試「低 FODMAP 飲食」；它是限期試驗，不建議自己長期嚴格限制。','acg');
+  if(old) h+=li('年長者口渴感會變遲鈍，不要等到口渴才喝水，分次少量喝。','gen');
+  if(!kid && !preg){
+    ctx.foods.forEach(function(f){ h+=me('在你的紀錄中，吃了「'+esc(f)+'」的日子比較容易不舒服。可以試著連續 2 週減少，再看有沒有改善；一次只調整一種，才看得出是不是它。'); });
+    if(ctx.foods.length) h+=li('找出可疑食物的方法：一次只少吃一種、觀察一兩週，不要同時戒很多種，也不要長期嚴格忌口，以免營養不均衡。','nice');
+    if(ctx.bellyBad) h+=li('脹氣、肚子痛常出現的話，可以和醫師或營養師討論，在專業指導下短期嘗試「低 FODMAP 飲食」；它是限期試驗，不建議自己長期嚴格限制。','acg');
+  } else if(ctx.foods.length){
+    h+=me('在你的紀錄中，吃了「'+esc(ctx.foods[0])+'」的日子比較容易不舒服。先少吃一陣子看看，要長期忌口前請先問'+(preg?'產科':'小兒科')+'醫師或營養師。');
+  }
   h+='</ul>';
   /* 睡眠與作息 */
   h+='<h3>睡眠與作息</h3><ul>';
-  if(ctx.sleep!=null){
+  if(kid) h+=li('青少年（13～18 歲）建議每天睡 <b>8～10 小時</b>，比成人更多。'+(ctx.sleep!=null?'你記錄的平均睡眠約 '+ctx.sleep+' 小時。':''),'aasm');
+  else if(ctx.sleep!=null){
     if(ctx.sleep<7) h+=li('你記錄的平均睡眠約 '+ctx.sleep+' 小時。成人建議規律睡滿 <b>7 小時以上</b>；睡眠不足時，腸胃狀況也比較容易不穩。','aasm');
     else h+=li('你記錄的平均睡眠約 '+ctx.sleep+' 小時，有達到成人建議的 7 小時以上，繼續保持。','aasm');
   } else h+=li('成人建議規律睡滿 <b>7 小時以上</b>。多記幾天睡眠，這裡就能看出你的睡眠夠不夠。','aasm');
   h+=li('固定起床和吃飯的時間，腸道會比較有規律。早餐後給自己 5～10 分鐘上廁所，有便意就去，不要憋；每次坐馬桶不要超過 10 分鐘，也不要太用力。','gen');
-  h+=li('每週累積 150 分鐘中等強度運動（例如每天快走 20～30 分鐘），有助腸道蠕動，也能減壓。','who');
+  if(kid) h+=li('每天累積至少 60 分鐘中等到劇烈強度的活動（跑跳、球類、騎車都算）。','who');
+  else if(preg) h+=li('適度走路、伸展對孕期便祕有幫助，運動的種類和強度請依產科醫師的建議。','gen');
+  else if(old) h+=li('每週累積 150 分鐘以上中等強度活動（例如快走），另外每週至少 3 天加入平衡訓練，有助腸道蠕動，也能預防跌倒。','who');
+  else h+=li('每週累積 150 分鐘中等強度運動（例如每天快走 20～30 分鐘），有助腸道蠕動，也能減壓。','who');
   h+='</ul>';
+  /* 女性：生理期 */
+  if(P.sex==="f" && !preg){
+    h+='<h3>生理期</h3><ul>';
+    if(ctx.menses) h+=me('你的紀錄中，生理期那幾天比較容易不舒服。這是常見的現象，那幾天可以多喝溫水、避開太刺激的食物，讓自己多休息。');
+    h+=li('有些人在經期前後排便會變軟或變硬，這是荷爾蒙變化造成的常見現象。記錄時勾上「生理期」標籤，累積幾個月就能看出自己的規律。','gen');
+    h+='</ul>';
+  }
+  /* 年長者：用藥 */
+  if(old) h+='<h3>用藥與慢性病</h3><ul>'+li('年長者的便祕常和藥物有關（例如鈣片、鐵劑、部分血壓藥或止痛藥）。有長期用藥請問醫師或藥師，<b>不要自己停藥</b>。','gen')+'</ul>';
   /* 心態 */
   h+='<h3>壓力與心態</h3><ul>';
   if(ctx.stress>=3||ctx.moodLow>=3) h+=me('你的紀錄中有 '+Math.max(ctx.stress,ctx.moodLow)+' 天出現壓力或情緒低落，腸道和情緒關係很密切，這些日子的狀況可以特別留意。');
   h+=li('每天留一點放鬆的時間；腹式呼吸（吸 4 秒、吐 6 秒，每天 5～10 分鐘）、散步、聽音樂、和朋友聊聊都可以。','nice');
-  h+=li('如果壓力或焦慮已經影響生活，可以考慮找心理師或身心科。研究支持「認知行為治療」和「腸道導向催眠」對腸躁症有幫助。','acg');
+  h+=li(kid? '如果壓力或焦慮已經影響生活，請和家長或學校輔導老師聊聊，也可以請醫師轉介兒童心智科。' : '如果壓力或焦慮已經影響生活，可以考慮找心理師或身心科。研究支持「認知行為治療」和「腸道導向催眠」對腸躁症有幫助。','acg');
   h+=li('不要因為某一天不正常就太焦慮，越緊張腸道通常越不穩。看整體趨勢就好。','gen');
   h+='</ul>';
   /* 就醫 */
-  h+='<h3>什麼時候要看醫生</h3><div class="dr"><ul>'+
-    li('出現<b>血便、黑色柏油便</b>、不是刻意減重卻變瘦、原因不明的貧血、半夜被痛醒或拉醒、劇烈腹痛、持續嘔吐或發燒，請盡快就醫。','gen')+
-    li('排便習慣明顯改變，或便祕、腹瀉超過 2 週，建議掛腸胃科。','hpa')+
-    li('<b>45～74 歲</b>（有大腸癌家族史者 40 歲起）可每 2 年做一次公費糞便潛血檢查。不要因為覺得只是腸躁症就跳過篩檢。','hpa')+
-    '</ul></div>';
+  h+='<h3>什麼時候要看醫生</h3><div class="dr"><ul>';
+  if(preg) h+=li('孕期出現<b>劇烈腹痛、陰道出血、持續嘔吐、發燒、血便</b>，請立刻聯絡產科或就醫。','gen');
+  h+=li('出現<b>血便、黑色柏油便</b>、不是刻意減重卻變瘦、原因不明的貧血、半夜被痛醒或拉醒、劇烈腹痛、持續嘔吐或發燒，請盡快就醫。','gen');
+  h+=li('排便習慣明顯改變，或便祕、腹瀉超過 2 週，建議掛'+(kid?'小兒科':'腸胃科')+'。','hpa');
+  if(mid) h+=li('年過 50 歲後<b>才新出現</b>的排便習慣改變或腹痛，要比年輕人更積極就醫評估，不要當成老毛病。','gen');
+  if(!kid){
+    if(P.age==="a45") h+=li('你已經符合資格：<b>45～74 歲</b>可每 2 年做一次公費糞便潛血檢查。不要因為覺得只是腸躁症就跳過篩檢。','hpa');
+    else if(old) h+=li('公費糞便潛血檢查可做到 <b>74 歲</b>，每 2 年一次；75 歲以上是否繼續，請和醫師討論。','hpa');
+    else if(young) h+=li('公費糞便潛血檢查從 45 歲開始；如果有大腸癌家族史，<b>40 歲起</b>就可以做。你現在若有警訊症狀，不用等篩檢，直接就醫。','hpa');
+    else h+=li('<b>45～74 歲</b>（有大腸癌家族史者 40 歲起）可每 2 年做一次公費糞便潛血檢查。不要因為覺得只是腸躁症就跳過篩檢。','hpa');
+  }
+  h+='</ul></div>';
   h+='<p class="tip">軟便劑、止瀉藥、益生菌等成藥或保健食品，請先詢問醫師或藥師。</p>';
   h+='<button class="btn ghost sm" id="refBtn" style="margin-top:4px">'+(ANA_REF?'收起參考依據 ▲':'看參考依據 ▼')+'</button>';
   if(ANA_REF) h+='<ol class="refs">'+
     '<li>Lacy BE, et al. ACG Clinical Guideline: Management of Irritable Bowel Syndrome. <i>Am J Gastroenterol</i> 2021;116(1):17–44.（低 FODMAP 限期試驗、腸道導向心理治療）</li>'+
     '<li>NICE. Irritable bowel syndrome in adults: diagnosis and management (CG61) 與 Quality Standard QS114.（規律飲食、不跳餐、放鬆、增加活動、單一食物排除）</li>'+
-    '<li>Watson NF, et al. Recommended amount of sleep for a healthy adult: AASM and SRS consensus statement. <i>Sleep</i> 2015;38(6):843–844.（成人睡眠 7 小時以上）</li>'+
+    '<li>Watson NF, et al. Recommended amount of sleep for a healthy adult: AASM and SRS consensus statement. <i>Sleep</i> 2015;38(6):843–844.（成人睡眠 7 小時以上）；Paruthi S, et al. AASM pediatric sleep consensus. <i>J Clin Sleep Med</i> 2016;12(6):785–786.（青少年 8～10 小時）</li>'+
     '<li>衛生福利部國民健康署：大腸癌篩檢（定量免疫法糞便潛血檢查，每 2 年一次）；每日飲食指南（水分建議）。</li>'+
-    '<li>World Health Organization. Guidelines on physical activity and sedentary behaviour. 2020.（成人每週 150～300 分鐘中等強度活動）</li>'+
+    '<li>World Health Organization. Guidelines on physical activity and sedentary behaviour. 2020.（成人每週 150～300 分鐘；兒童青少年每天 60 分鐘；長者加平衡訓練）</li>'+
     '<li>Lewis SJ, Heaton KW. <i>Scand J Gastroenterol</i> 1997;32:920–924（布里斯托分類）；Rome IV criteria（分類採 Rome 標準）。</li>'+
-    '</ol><p class="tip">標示「一般衛教」的項目是常見的生活建議，不是特定指引的條文。指引會更新，個人情況不同，請以醫師的建議為準。</p>';
+    '</ol><p class="tip">標示「一般衛教」的項目是常見的生活建議，不是特定指引的條文。年齡、性別與孕期的調整是依一般醫學常識整理。指引會更新，個人情況不同，請以醫師的建議為準。</p>';
   return h+'</div>';
 }
 var MIN_N=5, anaMode="stool", anaDetail=false;
@@ -1337,7 +1371,7 @@ function renderAna(){
   var foodBad=[]; Fa.filter(function(f){ return /^吃了「/.test(f.label) && f.w.n>=MIN_N && f.o.n>=MIN_N && f.p<0.1 && f.w.abn>f.o.abn; }).sort(function(a,b){ return a.p-b.p; }).forEach(function(f){ var n=f.label.replace(/^吃了「(.*)」$/,"$1"); if(foodBad.indexOf(n)<0) foodBad.push(n); });
   var adv=adviceHtml({kind:(score<80 && (cnt.hard+cnt.none+cnt.loose))? ((cnt.hard+cnt.none)>cnt.loose?"hard":"loose") : null,
     water:aW==null?null:Math.round(aW/10)*10, sleep:aS==null?null:Math.round(aS*10)/10, late:late, fast:fast, skipB:skipB, stress:stress, moodLow:moodLow,
-    foods:foodBad.slice(0,2), bellyBad: bkeys.length>=5 && bbad/bkeys.length>=0.3});
+    prof:profile, menses:Fa.some(function(f){ return f.label==='「生理期」' && f.w.n>=MIN_N && f.o.n>=MIN_N && f.p<0.1 && f.w.abn>f.o.abn; }), foods:foodBad.slice(0,2), bellyBad: bkeys.length>=5 && bbad/bkeys.length>=0.3});
   var h=sh+adv+'<div class="card"><div class="card-h"><h2>總覽</h2><small>'+(range?"近 "+range+" 天・":"")+'記錄 '+rec.length+' 天</small></div>'+
     '<div class="stats">'+
       '<div class="stat"><b class="num" style="color:#3E9A6A">'+pct(cnt.normal,rec.length)+'%</b><span>正常</span></div>'+
@@ -1505,8 +1539,9 @@ function makeDemo(){
 }
 
 /* ================= 版本 ================= */
-var APP_VERSION="1.14.0";
+var APP_VERSION="1.15.0";
 var CHANGELOG=[
+  ["1.15.0","新增選填的「個人資料」（年齡層、性別、孕期），第一次開啟與設定都能填；分析頁的建議會依此調整水分量、篩檢提醒、孕期與青少年／長者的注意事項"],
   ["1.14.0","分析頁新增「給你的初步改善建議」：依你的紀錄給飲食、睡眠作息、壓力心態與就醫時機建議，並標示參考依據（ACG、NICE、AASM/SRS、國健署、WHO）"],
   ["1.13.0","分析最上方新增「腸道狀況評分」（良好／還不錯／需要留意／不太理想）；嗯嗯形態直接寫名稱（硬球、香蕉…）與正常／異常，不再出現「第幾型」；詳細數據改放在按鈕正下方"],
   ["1.12.2","語音輸入會自動過濾語氣詞與贅詞（呃、欸、喔、哦、句尾的啦／啊／耶…）"],
@@ -1584,6 +1619,7 @@ function guide(){
   var P=[
     {h:"歡迎來到嗯嗯日記！", b:'<img class="hero" src="'+icon("mascot")+'" alt=""><p>每天花 30 秒，記下嗯嗯、吃了什麼、肚子感覺、睡眠和心情。</p><p>記錄幾週後，就能看出哪些事情可能讓肚子不舒服。</p><p class="tip">所有內容點了就會自動儲存，不用另外按儲存。</p>'},
     {h:"先設定你的水杯", cup:true, b:'<p>選你平常喝水用的杯子大小，記錄喝水時就會幫你換算成 ml。</p><div class="chips" id="obCup" style="justify-content:center"></div><div class="chips" style="justify-content:center;margin-top:10px;align-items:center"><input type="number" id="obCupIn" inputmode="numeric" min="50" max="2000" placeholder="自訂 ml" style="width:110px;border:1.5px solid var(--line);border-radius:12px;padding:8px 10px;background:#fff"><button class="btn ghost sm" data-a="cupset">設定</button></div><p class="tip">不確定的話先用 250 ml，之後可以到「設定」修改。</p>'},
+    {h:"關於你（選填）", prof:true, b:'<p>用來調整分析頁的建議，例如水分量、大腸癌篩檢年齡、孕期注意事項。不想填可以直接按「下一步」。</p><div id="obProf" style="text-align:left"></div><p class="tip">只存在這支手機，之後可以到「設定」修改。</p>'},
     {h:"① 記錄嗯嗯", b:'<div class="icons">'+icons+'</div><p>每次上完廁所，點最像的形態，再按「<b>記下這次</b>」。</p><p>「裂紋、香蕉、軟塊」都算正常，香蕉最理想。一天可以記很多次；沒有嗯嗯的話，勾「今天沒有嗯嗯」。</p>'},
     {h:"② 肚子感覺與飲食", b:'<p>肚子痛、脹氣是<b>一天記一次</b>，用 0～3 分記整天的感覺，以最不舒服的時候為準。整天都沒事也請點 0，分析才知道哪天是舒服的。</p><p>吃了什麼：打開一餐，點「你常吃的」或打字搜尋就好，不用每樣都記。</p>'},
     {h:"③ 睡眠、心情、喝水", b:'<div class="icons">'+faces+'</div><p>拉一下睡眠時數、點一個心情表情。想多記一點，可以按「加一些細節」。</p><p>每一項都是選填，有空就記，越完整分析越準。</p>'},
@@ -1598,11 +1634,13 @@ function guide(){
         (i===0?'<button class="btn ghost sm" data-a="skip">略過</button>':'<button class="btn ghost sm" data-a="prev">上一步</button>')+
         (i===P.length-1?'<button class="btn sm" data-a="done">開始使用</button>':'<button class="btn sm" data-a="next">下一步</button>')+
       '</div>';
+    if(P[i].prof) $("obProf").innerHTML=profHtml();
     if(P[i].cup){ $("obCup").innerHTML=CUP_OPTS.map(function(v){ return '<button class="btn '+(v===cupMl?"":"ghost ")+'sm" data-c="'+v+'">'+v+' ml</button>'; }).join(""); if(CUP_OPTS.indexOf(cupMl)<0) $("obCupIn").value=cupMl; }
   }
   function finish(){ lsSet(OB_KEY,"1"); $("sheet").onclick=null; closeSheet(); }
   openSheet(""); draw();
   $("sheet").onclick=function(e){
+    var pf=e.target.closest("[data-pf]"); if(pf){ setProf(pf.dataset.pf); draw(); return; }
     var cb=e.target.closest("[data-c]"); if(cb){ setCup(cb.dataset.c); draw(); return; }
     var a=e.target.closest("[data-a]"); if(!a) return;
     var t=a.dataset.a;
@@ -1693,6 +1731,25 @@ function setCup(v){
 }
 $("cupChips").onclick=function(e){ var b=e.target.closest("[data-c]"); if(b) setCup(b.dataset.c); };
 $("cupSet").onclick=function(){ setCup($("cupInput").value); };
+
+/* ================= 個人資料（選填：年齡層、性別、孕期，用來調整建議） ================= */
+var PROF_KEY="poodiary.profile", profile={age:null,sex:null,preg:false};
+try{ var pr=JSON.parse(lsGet(PROF_KEY)||"{}")||{}; if(["u18","a18","a45","a65"].indexOf(pr.age)>=0) profile.age=pr.age; if(pr.sex==="m"||pr.sex==="f") profile.sex=pr.sex; profile.preg=(profile.sex==="f" && !!pr.preg); }catch(e){}
+var PF_AGE=[["u18","18 歲以下"],["a18","18～44 歲"],["a45","45～64 歲"],["a65","65 歲以上"]], PF_SEX=[["m","男生"],["f","女生"]];
+function profHtml(){
+  function ch(k,v,t,on){ return '<button class="btn '+(on?"":"ghost ")+'sm" data-pf="'+k+':'+v+'">'+t+'</button>'; }
+  return '<div class="lbl" style="margin-top:0">年齡層</div><div class="chips">'+PF_AGE.map(function(a){ return ch("age",a[0],a[1],profile.age===a[0]); }).join("")+'</div>'+
+    '<div class="lbl">性別</div><div class="chips">'+PF_SEX.map(function(a){ return ch("sex",a[0],a[1],profile.sex===a[0]); }).join("")+'</div>'+
+    (profile.sex==="f"? '<div class="chips" style="margin-top:8px">'+ch("preg","1","目前懷孕中",profile.preg)+'</div>':'');
+}
+function setProf(spec){
+  var p=spec.split(":"), k=p[0], v=p[1];
+  if(k==="preg") profile.preg=!profile.preg;
+  else { profile[k]=(profile[k]===v? null : v); if(k==="sex" && profile.sex!=="f") profile.preg=false; }
+  lsSet(PROF_KEY,JSON.stringify(profile));
+}
+function drawProf(){ var b=$("profBox"); if(b) b.innerHTML=profHtml(); }
+$("profBox").onclick=function(e){ var b=e.target.closest("[data-pf]"); if(b){ setProf(b.dataset.pf); drawProf(); } };
 
 /* ================= 性別造型（男生戴藍色帽子、女生戴粉紅蝴蝶結） ================= */
 /* 男女生造型功能暫緩：先不開放選擇，一律用預設吉祥物（程式保留，之後確定風格再開） */
@@ -1933,7 +1990,7 @@ function initPet(){
   /*PETAPI*/
 }
 
-load(); buildLog(); initFx(); applyGender(); drawGenSel(); drawCupSet(); applyStickers(); renderLog(); initPet();
+load(); buildLog(); initFx(); applyGender(); drawGenSel(); drawCupSet(); drawProf(); applyStickers(); renderLog(); initPet();
 updateInstallUI();
 if(!lsGet(OB_KEY)) setTimeout(guide, 400);
 if(!storageOK) toast("這個瀏覽器無法自動儲存，請記得匯出備份");
