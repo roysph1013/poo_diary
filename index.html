@@ -149,7 +149,7 @@ textarea.note{width:100%;border:2px solid var(--line);border-radius:12px;padding
 .grouph{font-size:12px;color:var(--sub);margin:12px 0 6px;font-weight:700}
 nav{position:fixed;left:0;right:0;bottom:0;background:#fff;display:flex;justify-content:space-around;
   padding:6px 0 calc(8px + env(safe-area-inset-bottom));box-shadow:0 -4px 16px rgba(140,94,60,.08);z-index:10}
-nav button{border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;color:var(--sub);padding:7px 16px;border-radius:14px}
+nav button{border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;color:var(--sub);padding:7px 12px;border-radius:14px}
 nav button svg{width:22px;height:22px}
 nav button.on{color:var(--brown-d);background:var(--sel)}
 .view{display:none}.view.on{display:block}
@@ -224,6 +224,12 @@ h1.pg{font-size:22px;margin:4px 0 0}
 .adv .dr{background:#FDECEF;border-radius:12px;padding:6px 12px;margin-top:6px}
 .adv .dr li{color:#7A2E40}
 .refs{font-size:12px;color:#6E5442;line-height:1.7;padding-left:18px;margin:8px 0 0}
+.reflist{margin:0;padding:0;list-style:none}
+.reflist li{padding:8px 0;border-bottom:1px dashed var(--line);font-size:14px;line-height:1.5}
+.reflist li:last-child{border-bottom:0}
+.reflist a{color:var(--brown-d);font-weight:700;text-decoration:underline;text-underline-offset:3px;word-break:break-word}
+.reflist small{display:block;color:#6E5442;font-size:12px;margin-top:2px}
+.det{margin-top:14px;padding-top:12px;border-top:2px dashed var(--line)}
 .empty{text-align:center;color:var(--sub);font-size:14px;padding:18px 6px;line-height:1.8}
 .empty img{width:72px;height:72px}
 .tbl{width:100%;border-collapse:collapse;font-size:13px}
@@ -453,6 +459,12 @@ h1.pg{font-size:22px;margin:4px 0 0}
     <div class="card" id="calDetail"></div>
   </section>
 
+  <!-- ============ 建議 ============ -->
+  <section class="view" id="v-adv">
+    <h1 class="pg">給你的建議</h1>
+    <div id="advBody"></div>
+  </section>
+
   <!-- ============ 分析 ============ -->
   <section class="view" id="v-ana">
     <h1 class="pg">我的腸道分析</h1>
@@ -530,6 +542,7 @@ h1.pg{font-size:22px;margin:4px 0 0}
   <button data-v="log" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>記錄</button>
   <button data-v="cal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="4"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>日曆</button>
   <button data-v="ana"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20V12M12 20V5M19 20v-6"/></svg>分析</button>
+  <button data-v="adv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7.5-4.6-9-9.6C2 8 4.2 5 7.3 5c1.9 0 3.4 1 4.7 2.7C13.3 6 14.8 5 16.7 5 19.8 5 22 8 21 11.4c-1.500 5-9 9.600-9 9.600z" transform="translate(0 -.5)"/></svg>建議</button>
   <button data-v="set"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg>設定</button>
 </nav>
 
@@ -1244,10 +1257,10 @@ function buildFactors(keys, mode){
 function cmpBar(o, mode){ if(mode==="belly") return '<div class="cmp"><i style="width:'+o.normal+'%;background:var(--normal)"></i><i style="width:'+o.abn+'%;background:#EE8FA5"></i></div>'; return '<div class="cmp"><i style="width:'+o.normal+'%;background:var(--normal)"></i><i style="width:'+o.loose+'%;background:var(--loose)"></i><i style="width:'+o.hard+'%;background:var(--hard)"></i></div>'; }
 
 /* ================= 初步改善建議（依紀錄個人化；內容依據見 refsHtml） ================= */
-var ANA_REF=false;
+var ADV_HTML="";
 function adviceHtml(ctx){
   var S={nice:'NICE',acg:'ACG 2021',aasm:'AASM／SRS',hpa:'國健署',who:'WHO',gen:'一般衛教'};
-  function li(t,k){ return '<li>'+t+(k?'<span class="src">'+S[k]+'</span>':'')+'</li>'; }
+  function li(t){ return '<li>'+t+'</li>'; }
   function me(t){ return '<div class="me">'+t+'</div>'; }
   var P=ctx.prof||{}, kid=P.age==="u18", preg=(P.sex==="f" && !!P.preg), old=(P.age==="a65"), mid=(P.age==="a45"||P.age==="a65"), young=(P.age==="a18");
   var h='<div class="card adv"><div class="card-h"><h2>給你的初步改善建議</h2><small>依你的紀錄調整</small></div>';
@@ -1320,19 +1333,36 @@ function adviceHtml(ctx){
   }
   h+='</ul></div>';
   h+='<p class="tip">軟便劑、止瀉藥、益生菌等成藥或保健食品，請先詢問醫師或藥師。</p>';
-  h+='<button class="btn ghost sm" id="refBtn" style="margin-top:4px">'+(ANA_REF?'收起參考依據 ▲':'看參考依據 ▼')+'</button>';
-  if(ANA_REF) h+='<ol class="refs">'+
-    '<li>Lacy BE, et al. ACG Clinical Guideline: Management of Irritable Bowel Syndrome. <i>Am J Gastroenterol</i> 2021;116(1):17–44.（低 FODMAP 限期試驗、腸道導向心理治療）</li>'+
-    '<li>NICE. Irritable bowel syndrome in adults: diagnosis and management (CG61) 與 Quality Standard QS114.（規律飲食、不跳餐、放鬆、增加活動、單一食物排除）</li>'+
-    '<li>Watson NF, et al. Recommended amount of sleep for a healthy adult: AASM and SRS consensus statement. <i>Sleep</i> 2015;38(6):843–844.（成人睡眠 7 小時以上）；Paruthi S, et al. AASM pediatric sleep consensus. <i>J Clin Sleep Med</i> 2016;12(6):785–786.（青少年 8～10 小時）</li>'+
-    '<li>衛生福利部國民健康署：大腸癌篩檢（定量免疫法糞便潛血檢查，每 2 年一次）；每日飲食指南（水分建議）。</li>'+
-    '<li>World Health Organization. Guidelines on physical activity and sedentary behaviour. 2020.（成人每週 150～300 分鐘；兒童青少年每天 60 分鐘；長者加平衡訓練）</li>'+
-    '<li>Lewis SJ, Heaton KW. <i>Scand J Gastroenterol</i> 1997;32:920–924（布里斯托分類）；Rome IV criteria（分類採 Rome 標準）。</li>'+
-    '</ol><p class="tip">標示「一般衛教」的項目是常見的生活建議，不是特定指引的條文。年齡、性別與孕期的調整是依一般醫學常識整理。指引會更新，個人情況不同，請以醫師的建議為準。</p>';
-  return h+'</div>';
+  h+='</div>';
+  function lk(u,t,d){ return '<li><a href="'+u+'" target="_blank" rel="noopener noreferrer">'+t+'</a><small>'+d+'</small></li>'; }
+  h+='<div class="card adv"><div class="card-h"><h2>參考資料</h2><small>點標題可開啟</small></div>'+
+    '<p class="tip" style="margin:0 0 6px">上面的建議是參考下列資料整理的。連結會開啟外部網站；標示「報導」的是媒體轉述醫師或營養師的衛教內容，不是官方文件。</p>'+
+    '<h3>中文官方與衛教資料</h3><ul class="reflist">'+
+    lk('https://mohw.gov.tw/cp-16-84205-1.html','衛福部／國健署：大腸癌篩檢擴大為 45～74 歲','每 2 年一次公費糞便潛血檢查；40～44 歲有家族史者也可篩檢')+
+    lk('https://mohw.gov.tw/cp-16-82752-1.html','衛福部／國健署：糞便潛血檢查怎麼做','在家採檢、不必限制飲食；檢查異常要做大腸鏡；家族史指一等親')+
+    lk('https://mohw.gov.tw/cp-16-22785-1.html','衛福部／國健署：身體活動建議','兒童青少年每天 60 分鐘、成人每週 150 分鐘、長者加強平衡')+
+    lk('https://n.yam.com/Article/20260316821329','新版每日飲食指南首度納入「飲水」（報導）','成人每日水分建議；數字為草案報導，可能調整')+
+    lk('https://epaper.ntuh.gov.tw/health/201402/pdf/%E4%BE%BF%E7%A5%95%E7%9A%84%E8%97%A5%E7%89%A9%E6%B2%BB%E7%99%82.pdf','台大醫院電子報：便祕的藥物治療','先調整飲食與運動，無效才短期用瀉劑，並檢查是否有器質性問題')+
+    lk('https://edh.tw/articles/xd883er/2','台北榮總家醫科醫師衛教：老年人便祕（報導）','固定早上如廁、吃早餐誘發腸胃反射、有便意不要忍')+
+    lk('https://www.moneyweekly.com.tw/ArticleData/Info/Article/82448','臺北榮總桃園分院營養師：便祕飲食（報導）','飲水量、天天五蔬果、老年人便祕與鐵劑鈣劑')+
+    lk('https://health.tvbs.com.tw/medical/309178','腸躁症與低腹敏（低 FODMAP）飲食（報導）','需在醫師或營養師指導下短期進行，不建議長期限制')+
+    lk('https://www.edh.tw/article/27972','腸躁症的飲食與心理治療衛教（報導）','認知行為治療、催眠療法、放鬆訓練')+
+    lk('https://health.tvbs.com.tw/medical/327473','台灣睡眠醫學學會：好眠 10 招與建議睡眠時數（報導）','成人建議睡 7～9 小時，規律作息')+
+    lk('https://helloyishi.com.tw/pregnancy/prevention-of-constipation-during-pregnancy/','孕期便祕預防（Hello 醫師）','飲水、膳食纖維、適度運動；鐵劑與用藥請先問醫師')+
+    '</ul><h3>國際指引（英文）</h3><ul class="reflist">'+
+    lk('https://pubmed.ncbi.nlm.nih.gov/33315591/','ACG Clinical Guideline: Management of Irritable Bowel Syndrome（2021）','低 FODMAP 限期試驗、腸道導向心理治療')+
+    lk('https://www.nice.org.uk/guidance/cg61','NICE CG61：Irritable bowel syndrome in adults','規律進食、不跳餐、放鬆、增加活動、單一食物排除')+
+    lk('https://www.aasm.org/resources/pdf/adultsleepdurationconsensus.pdf','AASM／SRS 成人睡眠時間共識聲明（2015）','成人規律睡 7 小時以上')+
+    '</ul><p class="tip">另外參考：Lewis &amp; Heaton 1997（布里斯托分類）、Rome IV 標準、WHO 2020 身體活動指引。青少年睡眠 8～10 小時（AASM 2016 共識）。年齡、性別、孕期的調整與部分生活建議，是依一般醫學常識與衛教資料整理，未逐條對照原文。指引會更新、個人情況不同，請以醫師的建議為準。</p></div>';
+  return h;
 }
 var MIN_N=5, anaMode="stool", anaDetail=false;
+function renderAdv(){
+  renderAna();
+  $("advBody").innerHTML = ADV_HTML || '<div class="card"><div class="empty">至少記錄 3 天的嗯嗯，才能依你的狀況給建議。<br>先到「記錄」填寫幾天吧！</div></div>';
+}
 function renderAna(){
+  ADV_HTML="";
   var body=$("anaBody"), tk=todayK();
   var keys=Object.keys(mem.days).sort();
   if(range){ var from=addDays(tk,-(range-1)); keys=keys.filter(function(k){ return k>=from && k<=tk; }); }
@@ -1359,7 +1389,8 @@ function renderAna(){
     '<div class="gauge"><i style="left:'+Math.max(2,Math.min(98,score))+'%"></i></div>'+
     '<p class="tip" style="margin-top:10px">記錄的 '+rec.length+' 天裡：正常 '+cnt.normal+' 天'+((cnt.hard+cnt.none)?'、偏便祕或沒嗯嗯 '+(cnt.hard+cnt.none)+' 天':'')+(cnt.loose?'、偏拉肚子 '+cnt.loose+' 天':'')+'。'+(score<80 && (cnt.hard+cnt.none+cnt.loose)? '不正常的日子主要是'+dir+'。':'')+(bkeys.length?'肚子明顯不舒服 '+bbad+' 天（共 '+bkeys.length+' 天有填）。':'')+'</p>'+
     (rec.length<7?'<p class="tip">目前只記了 '+rec.length+' 天，資料還少，分數僅供參考。</p>':'')+
-    '<p class="tip">這是依你的紀錄算出的參考分數，不是醫療診斷。若持續不正常，或出現血便、黑便、劇烈腹痛，請盡快就醫。</p></div>';
+    '<p class="tip">這是依你的紀錄算出的參考分數，不是醫療診斷。若持續不正常，或出現血便、黑便、劇烈腹痛，請盡快就醫。</p>'+
+    '<button class="btn sm" id="goAdv" style="margin-top:4px">看我的改善建議 ›</button></div>';
   var sl=[], wl=[], late=0, fast=0, skipB=0, stress=0, moodLow=0, SM=["焦慮","緊張","壓力大","難過","生氣","煩躁"];
   keys.forEach(function(k){ var d=getDay(k); if(!d) return;
     if(d.sleep.hours!=null) sl.push(d.sleep.hours); if(d.water>0) wl.push(dayMl(d));
@@ -1372,7 +1403,8 @@ function renderAna(){
   var adv=adviceHtml({kind:(score<80 && (cnt.hard+cnt.none+cnt.loose))? ((cnt.hard+cnt.none)>cnt.loose?"hard":"loose") : null,
     water:aW==null?null:Math.round(aW/10)*10, sleep:aS==null?null:Math.round(aS*10)/10, late:late, fast:fast, skipB:skipB, stress:stress, moodLow:moodLow,
     prof:profile, menses:Fa.some(function(f){ return f.label==='「生理期」' && f.w.n>=MIN_N && f.o.n>=MIN_N && f.p<0.1 && f.w.abn>f.o.abn; }), foods:foodBad.slice(0,2), bellyBad: bkeys.length>=5 && bbad/bkeys.length>=0.3});
-  var h=sh+adv+'<div class="card"><div class="card-h"><h2>總覽</h2><small>'+(range?"近 "+range+" 天・":"")+'記錄 '+rec.length+' 天</small></div>'+
+  ADV_HTML=adv;
+  var h=sh+'<div class="card"><div class="card-h"><h2>總覽</h2><small>'+(range?"近 "+range+" 天・":"")+'記錄 '+rec.length+' 天</small></div>'+
     '<div class="stats">'+
       '<div class="stat"><b class="num" style="color:#3E9A6A">'+pct(cnt.normal,rec.length)+'%</b><span>正常</span></div>'+
       '<div class="stat"><b class="num" style="color:#A8683A">'+pct(cnt.hard+cnt.none,rec.length)+'%</b><span>便祕／沒嗯嗯</span></div>'+
@@ -1404,11 +1436,11 @@ function renderAna(){
   if(badL.length){ h+='<div style="font-size:13px;font-weight:700;margin:10px 0 0">這些可能讓你不舒服</div>'; badL.slice(0,5).forEach(function(f,i){ h+=rk(f,i,true); }); }
   if(goodL.length){ h+='<div style="font-size:13px;font-weight:700;margin:14px 0 0">這些可能讓你比較舒服</div>'; goodL.slice(0,3).forEach(function(f,i){ h+=rk(f,i,false); }); }
   h+='<p class="tip">這只是統計上的關聯，不等於因果，也不能用來診斷。有疑慮請諮詢醫師。</p>'+
-    '<button class="btn ghost sm" id="detBtn" style="margin-top:4px">'+(anaDetail?"收起詳細數據 ▲":"看詳細數據 ▼")+'</button></div>';
+    '<button class="btn ghost sm" id="detBtn" style="margin-top:4px">'+(anaDetail?"收起詳細數據 ▲":"看詳細數據 ▼")+'</button>';
 
   if(anaDetail){
     var rows=F.filter(function(f){ return f.w.n>0; });
-    h+='<div class="card"><div class="card-h"><h2>詳細數據</h2><small>'+(BELLY?"肚子不舒服比例":"嗯嗯不正常比例")+'</small></div>'+
+    h+='<div class="det"><div class="card-h"><h2 style="font-size:15px">詳細數據</h2><small>'+(BELLY?"肚子不舒服比例":"嗯嗯不正常比例")+'</small></div>'+
       '<p class="tip" style="margin:0 0 8px"><b>有</b>＝出現這項因素的日子，<b>其他日子</b>＝沒出現的日子，下面的小字是天數。<b>p 值</b>越小，越不像巧合（小於 0.05 差異較明顯）。<b>天數不夠</b>＝其中一邊少於 '+MIN_N+' 天，不做判斷。</p>'+
       '<table class="tbl"><tr><th>因素</th><th>有</th><th>其他日子</th><th>p 值</th></tr>'+
       rows.map(function(f){ var ok=f.w.n>=MIN_N && f.o.n>=MIN_N;
@@ -1416,12 +1448,13 @@ function renderAna(){
       '</table>'+
       '<p class="tip">方法：比較「有這個因素的日子」和「其他日子」的不舒服比例，用 Fisher 精確檢定排除比較像巧合的結果（只列出 p &lt; 0.1，且兩邊各至少 '+MIN_N+' 天）。'+(BELLY?'「肚子明顯不舒服」指肚子痛或脹氣 2 分以上。':'')+'飲食看吃完當天或隔天，睡眠看睡醒那天，心情看同一天。</p></div>';
   }
+  h+='</div>';
   h+='<div class="card"><div class="card-h"><h2>嗯嗯形態分佈</h2><small>共 '+total+' 次</small></div>';
   for(var t=1;t<=7;t++){ var sp=BRISTOL[t].s;
     h+='<div class="bar-row"><span class="lb" style="width:104px">'+BRISTOL[t].n+'<span class="stg" style="color:'+STATUS[sp].c+';font-size:11px;font-weight:700;margin-left:4px">'+SLABEL[sp]+'</span></span><span class="bar"><i style="width:'+(total?types[t]*100/total:0)+'%;background:'+STATUS[sp].c+'"></i></span><span class="v num" style="width:74px;text-align:right">'+types[t]+' 次・'+pct(types[t],total)+'%</span></div>'; }
   h+='<p class="tip">綠色是正常的嗯嗯；棕色偏便祕；藍色偏腹瀉。</p></div>';
   body.innerHTML=h;
-  $("refBtn").onclick=function(){ ANA_REF=!ANA_REF; var y=window.scrollY; renderAna(); window.scrollTo(0,y); };
+  $("goAdv").onclick=function(){ go("adv"); };
   $("detBtn").onclick=function(){ anaDetail=!anaDetail; var y=window.scrollY; renderAna(); window.scrollTo(0,y); };
   $("modeSeg").onclick=function(e){ var b=e.target.closest("[data-m]"); if(!b || b.dataset.m===anaMode) return; anaMode=b.dataset.m; var y=window.scrollY; renderAna(); window.scrollTo(0,y); };
 }
@@ -1539,8 +1572,9 @@ function makeDemo(){
 }
 
 /* ================= 版本 ================= */
-var APP_VERSION="1.15.0";
+var APP_VERSION="1.16.0";
 var CHANGELOG=[
+  ["1.16.0","改善建議獨立成新的「建議」分頁，建議後方不再放來源標籤，改在最下方列出可點開的參考資料（以中文官方與衛教資料為主）；分析頁的詳細數據展開後留在同一張卡片裡"],
   ["1.15.0","新增選填的「個人資料」（年齡層、性別、孕期），第一次開啟與設定都能填；分析頁的建議會依此調整水分量、篩檢提醒、孕期與青少年／長者的注意事項"],
   ["1.14.0","分析頁新增「給你的初步改善建議」：依你的紀錄給飲食、睡眠作息、壓力心態與就醫時機建議，並標示參考依據（ACG、NICE、AASM/SRS、國健署、WHO）"],
   ["1.13.0","分析最上方新增「腸道狀況評分」（良好／還不錯／需要留意／不太理想）；嗯嗯形態直接寫名稱（硬球、香蕉…）與正常／異常，不再出現「第幾型」；詳細數據改放在按鈕正下方"],
@@ -1659,6 +1693,7 @@ function go(v){
   Array.prototype.forEach.call(document.querySelectorAll(".view"),function(s){ s.classList.toggle("on",s.id==="v-"+v); });
   if(v==="cal"){ var d=parseK(cur); calY=d.getFullYear(); calM=d.getMonth(); calSel=cur; renderCal(); }
   if(v==="ana") renderAna();
+  if(v==="adv") renderAdv();
   if(v==="log") renderLog();
   if(v==="set") renderStickers();
   window.scrollTo(0,0);
