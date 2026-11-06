@@ -42,6 +42,7 @@ Settings → Pages → Build and deployment → Source 選 **Deploy from a branc
 
 版本號寫在 `index.html` 的 `APP_VERSION`，以及 `sw.js` 的 `CACHE`，改版時兩個要一起改。App 裡在「設定」最下方點版本號，可以看到更新紀錄。
 
+- **v1.19.0**：分析頁「總覽」與「嗯嗯形態分佈」合併成一張卡片
 - **v1.18.1**：分析與建議頁選的天數會記住
 - **v1.18.0**：建議頁新增天數按鈕，並標明根據近幾天的紀錄
 - **v1.17.3**：拿掉喝水設定卡片標題右邊重複的小字

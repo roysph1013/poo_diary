@@ -1450,12 +1450,16 @@ function renderAna(){
     water:aW==null?null:Math.round(aW/10)*10, sleep:aS==null?null:Math.round(aS*10)/10, late:late, fast:fast, skipB:skipB, stress:stress, moodLow:moodLow,
     range:range, nRec:rec.length, prof:profile, menses:Fa.some(function(f){ return f.label==='「生理期」' && f.w.n>=MIN_N && f.o.n>=MIN_N && f.p<0.1 && f.w.abn>f.o.abn; }), foods:foodBad.slice(0,2), bellyBad: bkeys.length>=5 && bbad/bkeys.length>=0.3});
   ADV_HTML=adv;
-  var h=sh+'<div class="card"><div class="card-h"><h2>總覽</h2><small>'+(range?"近 "+range+" 天・":"")+'記錄 '+rec.length+' 天</small></div>'+
+  var dist='<div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:16px"><span style="font-size:13px;color:var(--sub)">每種形態出現幾次</span><small style="color:var(--sub);font-size:12px">共 '+total+' 次</small></div>';
+  for(var t=1;t<=7;t++){ var sp=BRISTOL[t].s;
+    dist+='<div class="bar-row"><span class="lb" style="width:104px">'+BRISTOL[t].n+'<span class="stg" style="color:'+STATUS[sp].c+';font-size:11px;font-weight:700;margin-left:4px">'+SLABEL[sp]+'</span></span><span class="bar"><i style="width:'+(total?types[t]*100/total:0)+'%;background:'+STATUS[sp].c+'"></i></span><span class="v num" style="width:74px;text-align:right">'+types[t]+' 次・'+pct(types[t],total)+'%</span></div>'; }
+  dist+='<p class="tip" style="margin:6px 0 0">綠色是正常的嗯嗯；棕色偏便祕；藍色偏腹瀉。</p>';
+  var h=sh+'<div class="card"><div class="card-h"><h2>嗯嗯總覽</h2><small>'+(range?"近 "+range+" 天・":"")+'記錄 '+rec.length+' 天</small></div>'+
     '<div class="stats">'+
       '<div class="stat"><b class="num" style="color:#3E9A6A">'+pct(cnt.normal,rec.length)+'%</b><span>正常</span></div>'+
       '<div class="stat"><b class="num" style="color:#A8683A">'+pct(cnt.hard+cnt.none,rec.length)+'%</b><span>便祕／沒嗯嗯</span></div>'+
       '<div class="stat"><b class="num" style="color:#3F7DC0">'+pct(cnt.loose,rec.length)+'%</b><span>拉肚子</span></div>'+
-    '</div><div style="font-size:13px;color:var(--sub);margin-top:14px">每日狀態</div><div class="strip">'+strip+'</div>'+
+    '</div>'+dist+'<div style="font-size:13px;color:var(--sub);margin-top:16px">每日狀態</div><div class="strip">'+strip+'</div>'+
     '<div class="strip-l"><span class="num">'+addDays(tk,-(span-1)).slice(5).replace("-","/")+'</span><span>今天</span></div>'+
     (sticky?'<p class="tip">其中有 '+sticky+' 天出現「黏馬桶」。</p>':'')+
     (function(){ var bk=keys.filter(function(k){ return bellyStatus(getDay(k)); }), bad=bk.filter(function(k){ return bellyStatus(getDay(k))==="pain"; }).length;
@@ -1495,10 +1499,6 @@ function renderAna(){
       '<p class="tip">方法：比較「有這個因素的日子」和「其他日子」的不舒服比例，用 Fisher 精確檢定排除比較像巧合的結果（只列出 p &lt; 0.1，且兩邊各至少 '+MIN_N+' 天）。'+(BELLY?'「肚子明顯不舒服」指肚子痛或脹氣 2 分以上。':'')+'飲食看吃完當天或隔天，睡眠看睡醒那天，心情看同一天。</p></div>';
   }
   h+='</div>';
-  h+='<div class="card"><div class="card-h"><h2>嗯嗯形態分佈</h2><small>共 '+total+' 次</small></div>';
-  for(var t=1;t<=7;t++){ var sp=BRISTOL[t].s;
-    h+='<div class="bar-row"><span class="lb" style="width:104px">'+BRISTOL[t].n+'<span class="stg" style="color:'+STATUS[sp].c+';font-size:11px;font-weight:700;margin-left:4px">'+SLABEL[sp]+'</span></span><span class="bar"><i style="width:'+(total?types[t]*100/total:0)+'%;background:'+STATUS[sp].c+'"></i></span><span class="v num" style="width:74px;text-align:right">'+types[t]+' 次・'+pct(types[t],total)+'%</span></div>'; }
-  h+='<p class="tip">綠色是正常的嗯嗯；棕色偏便祕；藍色偏腹瀉。</p></div>';
   body.innerHTML=h;
   $("goAdv").onclick=function(){ go("adv"); };
   $("detBtn").onclick=function(){ anaDetail=!anaDetail; var y=window.scrollY; renderAna(); window.scrollTo(0,y); };
@@ -1618,8 +1618,9 @@ function makeDemo(){
 }
 
 /* ================= 版本 ================= */
-var APP_VERSION="1.18.1";
+var APP_VERSION="1.19.0";
 var CHANGELOG=[
+  ["1.19.0","分析頁把「總覽」和「嗯嗯形態分佈」合併成一張「嗯嗯總覽」卡片"],
   ["1.18.1","分析與建議頁選的天數會記住，重開 App 也不會變回 30 天"],
   ["1.18.0","建議頁新增天數按鈕（14／30／90 天／全部），並標明建議是根據近幾天的紀錄；和分析頁的天數同步"],
   ["1.17.3","拿掉喝水設定卡片標題右邊重複的小字"],
