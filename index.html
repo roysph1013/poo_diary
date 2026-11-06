@@ -142,8 +142,8 @@ header p{margin:0;font-size:12px;color:var(--sub)}
 .faces button{border:0;background:none;padding:0;width:44px;height:44px;border-radius:50%;opacity:.4;transition:.15s}
 .faces button img{width:100%;height:100%;object-fit:contain}
 .faces button.on{opacity:1;transform:scale(1.12)}
-.cups{display:flex;gap:6px;flex-wrap:wrap}
-.cups button{width:24px;height:30px;border-radius:4px 4px 9px 9px;border:2px solid #9CC8EE;background:transparent;padding:0}
+.cups{display:grid;grid-template-columns:repeat(var(--n,10),1fr);gap:6px}
+.cups button{width:100%;max-width:36px;justify-self:center;height:32px;border-radius:4px 4px 9px 9px;border:2px solid #9CC8EE;background:transparent;padding:0}
 .cups button.on{background:#CDE6FF}
 textarea.note{width:100%;border:2px solid var(--line);border-radius:12px;padding:8px 10px;min-height:64px;background:#FFFCF8;font-size:14px;resize:vertical}
 .grouph{font-size:12px;color:var(--sub);margin:12px 0 6px;font-weight:700}
@@ -435,6 +435,7 @@ h1.pg{font-size:22px;margin:4px 0 0}
     <div class="card" id="c-water">
       <div class="card-h"><h2>喝水<span class="ok" data-ok="water" aria-hidden="true">✓</span></h2><small id="waterText"></small></div>
       <div class="cups" id="water"></div>
+      <div id="waterMsg" style="margin-top:10px;font-size:13.5px;line-height:1.6"></div>
     </div>
 
     <div class="card">
@@ -1137,18 +1138,38 @@ function renderBelly(){
   renderProgress();
 }
 function dayMl(d){ return d.water*(d.cup||250); }
+function waterGoal(){
+  var P=profile||{};
+  if(P.age==="u18") return 0;                       /* 青少年不下判斷 */
+  if(P.sex==="f" && P.preg) return 2000;            /* 孕期僅供參考，請依產科醫師建議 */
+  return P.sex==="m"? 2400 : 2100;                  /* 國健署第九版參考攝取量草案：總液體攝取量 男 2400／女 2100 ml */
+}
+function cupCount(n){
+  var g=waterGoal()||2100;
+  return Math.max(n, Math.min(16, Math.max(6, Math.ceil(g/cupMl)+2)));
+}
 function buildCups(minN){
-  var n=Math.max(minN, Math.min(16, Math.max(8, Math.ceil(2400/cupMl))), 1), w="";
+  var n=cupCount(minN), w="";
   for(var j=1;j<=n;j++) w+='<button data-v="'+j+'" aria-label="'+j+' 杯"></button>';
-  $("water").innerHTML=w;
+  $("water").innerHTML=w; $("water").style.setProperty("--n",n);
 }
 function renderWater(){
   var d=getDay(cur), n=d?d.water:0;
-  var want=Math.max(n, Math.min(16, Math.max(8, Math.ceil(2400/cupMl))));
-  if($("water").children.length!==want) buildCups(n);
+  if($("water").children.length!==cupCount(n)) buildCups(n);
   Array.prototype.forEach.call($("water").children,function(b){ b.classList.toggle("on", +b.dataset.v<=n); });
   $("waterText").textContent = n? n+" 杯・約 "+dayMl(d)+" ml" : "一杯約 "+cupMl+" ml";
-  renderProgress();
+  var g=waterGoal(), ml=n?dayMl(d):0, m=$("waterMsg"), note='<small style="display:block;color:var(--sub);font-size:11.5px;margin-top:2px">目標依你的個人資料估算（國健署參考攝取量草案：喝水加飲料）；心臟或腎臟需要限水者，請依醫囑。</small>';
+  if(!n){ m.innerHTML = g? '<span style="color:var(--sub)">今天的目標約 '+g+' ml（約 '+Math.ceil(g/cupMl)+' 杯），點上面的杯子開始記。</span>'+note : ""; }
+  else if(!g){ m.innerHTML='<span style="color:#3F7DC0;font-weight:700">已喝約 '+ml+' ml</span>'; }
+  else {
+    var left=g-ml, r=ml/g, t, c;
+    if(r>=1.5){ t="已經喝很夠了，不用再硬喝（"+ml+" ml）。"; c="#3E9A6A"; }
+    else if(r>=1){ t="今天的水喝夠了！（"+ml+" / "+g+" ml）"; c="#3E9A6A"; }
+    else if(r>=0.7){ t="快到了，還差約 "+left+" ml（約 "+Math.ceil(left/cupMl)+" 杯）。"; c="#3F7DC0"; }
+    else if(r>=0.4){ t="目前偏少，還差約 "+left+" ml（約 "+Math.ceil(left/cupMl)+" 杯），記得慢慢補。"; c="#C98B2E"; }
+    else { t="今天喝得不多，還差約 "+left+" ml（約 "+Math.ceil(left/cupMl)+" 杯），先喝一杯吧。"; c="#D9607C"; }
+    m.innerHTML='<span style="color:'+c+';font-weight:700">'+t+'</span>'+note;
+  }
 }
 function renderLog(){
   var dt=parseK(cur), diff=Math.round((parseK(todayK())-dt)/864e5);
@@ -1577,8 +1598,9 @@ function makeDemo(){
 }
 
 /* ================= 版本 ================= */
-var APP_VERSION="1.16.1";
+var APP_VERSION="1.17.0";
 var CHANGELOG=[
+  ["1.17.0","喝水卡片會依你喝的量告訴你夠不夠、還差多少；杯子改成平均排滿整列，數量依杯子大小自動調整"],
   ["1.16.1","逐一核對參考資料：修正水分建議數字（總液體量，非含食物水分），並替換無法確認的連結"],
   ["1.16.0","改善建議獨立成新的「建議」分頁，建議後方不再放來源標籤，改在最下方列出可點開的參考資料（以中文官方與衛教資料為主）；分析頁的詳細數據展開後留在同一張卡片裡"],
   ["1.15.0","新增選填的「個人資料」（年齡層、性別、孕期），第一次開啟與設定都能填；分析頁的建議會依此調整水分量、篩檢提醒、孕期與青少年／長者的注意事項"],

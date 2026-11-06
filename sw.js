@@ -1,5 +1,5 @@
 // 嗯嗯日記：離線快取（網路優先，失敗時用快取）
-const CACHE = "poodiary-v1.16.1"; // 版本號要跟 index.html 的 APP_VERSION 一致
+const CACHE = "poodiary-v1.17.0"; // 版本號要跟 index.html 的 APP_VERSION 一致
 const FILES = ["./", "./index.html", "./manifest.webmanifest", "./icon-v2.svg", "./icon-v2-180.png", "./icon-v2-192.png", "./icon-v2-512.png", "./icon-v2-maskable-512.png"];
 
 self.addEventListener("install", (e) => {
