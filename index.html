@@ -1409,8 +1409,9 @@ function makeDemo(){
 }
 
 /* ================= 版本 ================= */
-var APP_VERSION="1.11.0";
+var APP_VERSION="1.11.1";
 var CHANGELOG=[
+  ["1.11.1","修正語音輸入文字重複的問題"],
   ["1.11.0","修正小筆記點進去無法輸入的問題；新增語音輸入，說話自動轉成文字寫進筆記"],
   ["1.10.0","設定新增「喝水設定」：可選常用水杯容量（150～500 ml 或自訂），記錄頁會依容量換算 ml；分析的喝水因素改用 ml 計算"],
   ["1.9.0","分析改成一眼看懂：依關聯大小排名，用白話顯示「可能讓你不舒服／比較舒服」，詳細數據收進按鈕；設定新增「分享 App」；第一次開啟可選男生（藍帽子）或女生（粉蝴蝶結）造型，設定裡可更換"],
@@ -1527,26 +1528,37 @@ function initMic(){
   var SR=window.SpeechRecognition||window.webkitSpeechRecognition, btn=$("micBtn"), ta=$("dayNote"), tip=$("micTip");
   if(!SR){ btn.style.display="none"; tip.textContent="想用說的：可以按手機鍵盤上的 🎤 麥克風來語音輸入。"; return; }
   tip.textContent="按「語音輸入」後直接說話，會自動變成文字寫進筆記。語音由瀏覽器辨識（Chrome 可能會把聲音傳給 Google 處理），筆記文字仍只存在這支手機。";
-  var rec=null, on=false;
+  var rec=null, on=false, stopping=false;
   function put(key,v){ var d=getDay(key,true); d.note=v; save(); tidy(key); if(key===cur) ta.value=v; }
-  function stop(){ on=false; btn.classList.remove("rec"); btn.textContent="🎤 語音輸入"; }
+  function reset(){ on=false; stopping=false; btn.classList.remove("rec"); btn.textContent="🎤 語音輸入"; }
   btn.onclick=function(){
-    if(on){ try{ rec.stop(); }catch(e){} return; }
-    var key=cur, base=(getDay(key)||{note:""}).note||"", fin="";
+    if(on){ stopping=true; try{ rec.stop(); }catch(e){} return; }
+    var key=cur, base=(getDay(key)||{note:""}).note||"", got=false;
     if(base && !/\s$/.test(base)) base+="，";
-    try{ rec=new SR(); }catch(e){ toast("這個瀏覽器無法使用語音辨識"); return; }
-    rec.lang="zh-TW"; rec.continuous=true; rec.interimResults=true;
-    rec.onresult=function(ev){
-      var interim="";
-      for(var i=ev.resultIndex;i<ev.results.length;i++){ var t=ev.results[i][0].transcript; if(ev.results[i].isFinal) fin+=t; else interim+=t; }
-      put(key, base+fin+interim);
-    };
-    rec.onerror=function(ev){
-      var m={"not-allowed":"請在瀏覽器允許使用麥克風","service-not-allowed":"請在瀏覽器允許使用麥克風","no-speech":"沒有聽到聲音，再試一次","network":"語音辨識需要網路","audio-capture":"找不到麥克風"}[ev.error];
-      if(m) toast(m);
-    };
-    rec.onend=function(){ var had=!!fin; stop(); if(had) okToast("語音已轉成文字並儲存"); };
-    try{ rec.start(); on=true; btn.classList.add("rec"); btn.textContent="⏹ 停止（說完請按這裡）"; toast("開始聆聽，請說話…"); }catch(e){ stop(); }
+    /* 不用 continuous：Android 的連續模式會把前面的字重複送回來。
+       改成「一句一句辨識，句子結束後自動接著聽」，每句只在結束時寫入一次 */
+    function session(){
+      var sess="";
+      try{ rec=new SR(); }catch(e){ toast("這個瀏覽器無法使用語音辨識"); reset(); return; }
+      rec.lang="zh-TW"; rec.continuous=false; rec.interimResults=true;
+      rec.onresult=function(ev){
+        var t=""; for(var i=0;i<ev.results.length;i++) t+=ev.results[i][0].transcript;
+        sess=t; put(key, base+sess);
+      };
+      rec.onerror=function(ev){
+        var m={"not-allowed":"請在瀏覽器允許使用麥克風","service-not-allowed":"請在瀏覽器允許使用麥克風","network":"語音辨識需要網路","audio-capture":"找不到麥克風"}[ev.error];
+        if(m){ toast(m); stopping=true; }
+        else if(ev.error==="no-speech"){ stopping=true; if(!got) toast("沒有聽到聲音，再試一次"); }
+      };
+      rec.onend=function(){
+        if(sess){ base+=sess; got=true; }
+        if(on && !stopping){ session(); return; }
+        reset(); if(got) okToast("語音已轉成文字並儲存");
+      };
+      try{ rec.start(); }catch(e){ reset(); }
+    }
+    on=true; stopping=false; btn.classList.add("rec"); btn.textContent="⏹ 停止（說完請按這裡）"; toast("開始聆聽，請說話…");
+    session();
   };
 }
 
