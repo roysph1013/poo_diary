@@ -185,6 +185,8 @@ h1.pg{font-size:22px;margin:4px 0 0}
 .pgood{color:#3E9A6A;font-weight:700}.pmid{color:#C98B2E;font-weight:700}.pbad{color:#D9607C;font-weight:700}
 .prefs summary{font-size:12.5px;color:var(--brown-d);font-weight:700;cursor:pointer;margin-top:10px}
 .cal .c.menses{background:#FBD3D3}
+.cal .c.pred{background:#FFF1F1;box-shadow:inset 0 0 0 2px #F3B8B8;border-radius:12px}
+.cal .c.pred.sel{box-shadow:inset 0 0 0 2px var(--brown)}
 .nitem{display:block;width:100%;text-align:left;border:0;background:var(--soft);border-radius:12px;padding:10px 12px;margin:8px 0;color:var(--ink)}
 .nitem b{display:block;font-size:12px;color:var(--brown-d);margin-bottom:2px}
 .nitem span{display:block;font-size:14px;line-height:1.6;white-space:pre-wrap;word-break:break-word}
@@ -1244,16 +1246,17 @@ function renderLog(){
 
 /* ================= 日曆 ================= */
 var calY, calM, calSel=null;
-$("legend").innerHTML=["normal","hard","loose","none"].map(function(s){ return '<span><i style="background:'+STATUS[s].c+'"></i>'+STATUS[s].t+'</span>'; }).join("")+'<span><i style="background:var(--brown);width:6px;height:6px;margin:0 3px"></i>有小筆記</span>'+(profile.sex==="f"?'<span><i style="background:#FBD3D3"></i>生理期</span>':'');
+$("legend").innerHTML=["normal","hard","loose","none"].map(function(s){ return '<span><i style="background:'+STATUS[s].c+'"></i>'+STATUS[s].t+'</span>'; }).join("")+'<span><i style="background:var(--brown);width:6px;height:6px;margin:0 3px"></i>有小筆記</span>'+(profile.sex==="f"?'<span><i style="background:#FBD3D3"></i>生理期</span><span><i style="background:#FFF1F1;box-shadow:inset 0 0 0 2px #F3B8B8"></i>預計生理期</span>':'');
 function renderCal(){
-  $("legend").innerHTML=["normal","hard","loose","none"].map(function(s){ return '<span><i style="background:'+STATUS[s].c+'"></i>'+STATUS[s].t+'</span>'; }).join("")+'<span><i style="background:var(--brown);width:6px;height:6px;margin:0 3px"></i>有小筆記</span>'+(profile.sex==="f"?'<span><i style="background:#F9B9CA"></i><span style="color:#D93F6B">♥</span> 生理期</span>':'');
+  var PRED=predictedDays();
+  $("legend").innerHTML=["normal","hard","loose","none"].map(function(s){ return '<span><i style="background:'+STATUS[s].c+'"></i>'+STATUS[s].t+'</span>'; }).join("")+'<span><i style="background:var(--brown);width:6px;height:6px;margin:0 3px"></i>有小筆記</span>'+(profile.sex==="f"?'<span><i style="background:#FBD3D3"></i>生理期</span><span><i style="background:#FFF1F1;box-shadow:inset 0 0 0 2px #F3B8B8"></i>預計生理期</span>':'');
   $("calTitle").textContent=calY+" 年 "+(calM+1)+" 月";
   var h=WEEK.map(function(w){ return '<div class="w">'+w+'</div>'; }).join("");
   var first=new Date(calY,calM,1).getDay(), n=new Date(calY,calM+1,0).getDate(), tk=todayK();
   for(var i=0;i<first;i++) h+='<div class="c blank"></div>';
   for(var dd=1;dd<=n;dd++){
     var k=calY+"-"+pad(calM+1)+"-"+pad(dd), d=getDay(k), st=dayStatus(d);
-    h+='<button class="c'+(st?" st-"+st:"")+(k===tk?" today":"")+(k===calSel?" sel":"")+(d&&d.note&&d.note.trim()?" has-note":"")+(profile.sex==="f"&&!profile.preg&&periodAt(k)?" menses":"")+'" data-k="'+k+'" aria-label="'+(calM+1)+'月'+dd+'日'+(st?" "+STATUS[st].t:"")+'">'+
+    h+='<button class="c'+(st?" st-"+st:"")+(k===tk?" today":"")+(k===calSel?" sel":"")+(d&&d.note&&d.note.trim()?" has-note":"")+(profile.sex==="f"&&!profile.preg&&periodAt(k)?" menses":(PRED[k]?" pred":""))+'" data-k="'+k+'" aria-label="'+(calM+1)+'月'+dd+'日'+(st?" "+STATUS[st].t:"")+'">'+
       '<i style="background:'+(st?STATUS[st].c:(d&&!isEmptyDay(d)?"#E5D6C8":"transparent"))+'"></i><span class="num">'+dd+'</span></button>';
   }
   $("cal").innerHTML=h;
@@ -1282,14 +1285,14 @@ function renderCalDetail(){
   if(!calSel){ box.innerHTML='<p class="tip" style="margin:0">點日期看當天的紀錄。</p>'; return; }
   var dt=parseK(calSel), d=getDay(calSel), st=dayStatus(d);
   var head='<div class="card-h"><h2>'+(dt.getMonth()+1)+' 月 '+dt.getDate()+' 日（週'+WEEK[dt.getDay()]+'）</h2><button class="link" id="calEdit">編輯這天 ›</button></div>';
-  if(!d || isEmptyDay(d)){ box.innerHTML=head+'<p class="tip" style="margin:0">這天還沒有紀錄。</p>'; }
+  if(!d || isEmptyDay(d)){ box.innerHTML=head+(predictedDays()[calSel]?'<div class="chips"><span class="pill" style="background:#FFF1F1;box-shadow:inset 0 0 0 1.5px #F3B8B8">預計生理期（推算）</span></div>':'')+'<p class="tip" style="margin:'+(predictedDays()[calSel]?'8px':'0')+' 0 0">這天還沒有紀錄。</p>'; }
   else{
     var p=[];
     if(st) p.push('<span class="pill" style="background:'+STATUS[st].c+';color:#fff">'+STATUS[st].t+(d.stools.length>1?" ×"+d.stools.length:"")+'</span>');
     var foods=[]; MEALS.forEach(function(m){ foods=foods.concat(d.meals[m.k].items); });
     foods.slice(0,6).forEach(function(f){ p.push('<span class="pill">'+esc(f)+'</span>'); });
     var BL=["沒有","一點","明顯","很嚴重"];
-    if(profile.sex==="f" && !profile.preg){ var pp=periodAt(calSel); if(pp) p.push('<span class="pill" style="background:#FCDDE5">生理期第 '+(ddiff(pp.s,calSel)+1)+' 天</span>'); }
+    if(profile.sex==="f" && !profile.preg){ var pp=periodAt(calSel); if(pp) p.push('<span class="pill" style="background:#FBD3D3">生理期第 '+(ddiff(pp.s,calSel)+1)+' 天</span>'); else if(predictedDays()[calSel]) p.push('<span class="pill" style="background:#FFF1F1;box-shadow:inset 0 0 0 1.5px #F3B8B8">預計生理期（推算）</span>'); }
     if(d.belly.pain) p.push('<span class="pill" style="background:#F9C3CE">肚子痛：'+BL[d.belly.pain]+'</span>');
     if(d.belly.bloat) p.push('<span class="pill" style="background:#FFDCC8">脹氣：'+BL[d.belly.bloat]+'</span>');
     if(d.sleep.hours!=null) p.push('<span class="pill">睡 '+d.sleep.hours+' 小時</span>');
@@ -1687,8 +1690,9 @@ function makeDemo(){
 }
 
 /* ================= 版本 ================= */
-var APP_VERSION="1.23.1";
+var APP_VERSION="1.23.2";
 var CHANGELOG=[
+  ["1.23.2","日曆用淡色框標出預計的生理期日子（依平均週期與平均經期天數推算）"],
   ["1.23.1","日曆的生理期改成淡紅色底（不再有愛心）；生理期卡片的「下次預計」改成顯眼的一列，並說明需要兩次開始日"],
   ["1.23.0","生理期卡片簡化成兩顆愛心按鈕（今天開始／今天結束，也能選日期補記以前的）；日曆的生理期改成明顯的粉紅底加愛心"],
   ["1.22.1","生理期卡片只在個人資料選「女生」時才出現；選男生或沒填都會隱藏"],
@@ -1848,6 +1852,13 @@ function cycleStats(){
   function avg(a){ return a.length? a.reduce(function(x,y){ return x+y; },0)/a.length : null; }
   return {n:rc.length, avg:rc.length?Math.round(avg(rc)):null, min:rc.length?Math.min.apply(null,rc):null, max:rc.length?Math.max.apply(null,rc):null,
           dur:rd.length?Math.round(avg(rd)*10)/10:null, maxDur:rd.length?Math.max.apply(null,rd):null, last:L.length?L[L.length-1]:null, count:L.length};
+}
+function predictedDays(){
+  var m={}; if(profile.sex!=="f" || profile.preg) return m;
+  var st=cycleStats(); if(st.n<1 || !st.last) return m;
+  var nx=addDays(st.last.s,st.avg), d=Math.max(2,Math.min(8,st.dur!=null?Math.round(st.dur):5));
+  for(var i=0;i<d;i++){ var k=addDays(nx,i); if(!periodAt(k)) m[k]=1; }
+  return m;
 }
 function pfmt(k){ var d=parseK(k); return (d.getMonth()+1)+"/"+d.getDate(); }
 function periodLinks(){
