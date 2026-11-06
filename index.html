@@ -166,13 +166,22 @@ h1.pg{font-size:22px;margin:4px 0 0}
 .cal .c{position:relative}
 .cal .c.has-note::after{content:"";position:absolute;top:6px;right:7px;width:6px;height:6px;border-radius:50%;background:var(--brown)}
 .cal .c.today{outline:2px solid #F0839A}
-.pbtns{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.prow{display:flex;align-items:center;gap:10px;margin-top:10px}
+.pheart{display:inline-flex;align-items:center;gap:6px;border:0;border-radius:999px;background:#F06A8C;color:#fff;font-weight:700;font-size:14px;padding:10px 18px;box-shadow:0 2px 0 #C94B6E;flex:none}
+.pheart.end{background:#fff;color:#E0527A;box-shadow:inset 0 0 0 2px #F06A8C}
+.pheart:active{transform:translateY(1px)}
+.pdate{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--sub);flex:1;min-width:0}
+.pdate input{flex:1;min-width:0;border:1.5px solid var(--line);border-radius:10px;padding:6px 8px;background:#fff;font-size:13px}
+.plist{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.pchip{display:inline-flex;align-items:center;gap:6px;background:#FDECEF;color:#7A2E40;border-radius:999px;padding:4px 6px 4px 12px;font-size:12.5px;font-weight:700}
+.pchip button{border:0;background:#fff;color:#C94B6E;border-radius:50%;width:20px;height:20px;font-size:11px;padding:0;line-height:20px}
 .pst{font-size:13.5px;line-height:1.7;margin-top:10px}
 .pst b{color:var(--brown-d)}
 .pwarn{background:#FDECEF;border-radius:12px;padding:8px 12px;margin-top:10px;font-size:13.5px;line-height:1.6;color:#7A2E40}
 .pgood{color:#3E9A6A;font-weight:700}.pmid{color:#C98B2E;font-weight:700}.pbad{color:#D9607C;font-weight:700}
 .prefs summary{font-size:12.5px;color:var(--brown-d);font-weight:700;cursor:pointer;margin-top:10px}
-.cal .c.menses{background:#FCDDE5}
+.cal .c.menses{background:#F9B9CA}
+.cal .c.menses::before{content:"♥";position:absolute;top:2px;left:5px;font-size:10px;color:#D93F6B}
 .nitem{display:block;width:100%;text-align:left;border:0;background:var(--soft);border-radius:12px;padding:10px 12px;margin:8px 0;color:var(--ink)}
 .nitem b{display:block;font-size:12px;color:var(--brown-d);margin-bottom:2px}
 .nitem span{display:block;font-size:14px;line-height:1.6;white-space:pre-wrap;word-break:break-word}
@@ -1232,9 +1241,9 @@ function renderLog(){
 
 /* ================= 日曆 ================= */
 var calY, calM, calSel=null;
-$("legend").innerHTML=["normal","hard","loose","none"].map(function(s){ return '<span><i style="background:'+STATUS[s].c+'"></i>'+STATUS[s].t+'</span>'; }).join("")+'<span><i style="background:var(--brown);width:6px;height:6px;margin:0 3px"></i>有小筆記</span>'+(profile.sex==="f"?'<span><i style="background:#F6A9BB"></i>生理期</span>':'');
+$("legend").innerHTML=["normal","hard","loose","none"].map(function(s){ return '<span><i style="background:'+STATUS[s].c+'"></i>'+STATUS[s].t+'</span>'; }).join("")+'<span><i style="background:var(--brown);width:6px;height:6px;margin:0 3px"></i>有小筆記</span>'+(profile.sex==="f"?'<span><i style="background:#F9B9CA"></i><span style="color:#D93F6B">♥</span> 生理期</span>':'');
 function renderCal(){
-  $("legend").innerHTML=["normal","hard","loose","none"].map(function(s){ return '<span><i style="background:'+STATUS[s].c+'"></i>'+STATUS[s].t+'</span>'; }).join("")+'<span><i style="background:var(--brown);width:6px;height:6px;margin:0 3px"></i>有小筆記</span>'+(profile.sex==="f"?'<span><i style="background:#F6A9BB"></i>生理期</span>':'');
+  $("legend").innerHTML=["normal","hard","loose","none"].map(function(s){ return '<span><i style="background:'+STATUS[s].c+'"></i>'+STATUS[s].t+'</span>'; }).join("")+'<span><i style="background:var(--brown);width:6px;height:6px;margin:0 3px"></i>有小筆記</span>'+(profile.sex==="f"?'<span><i style="background:#F9B9CA"></i><span style="color:#D93F6B">♥</span> 生理期</span>':'');
   $("calTitle").textContent=calY+" 年 "+(calM+1)+" 月";
   var h=WEEK.map(function(w){ return '<div class="w">'+w+'</div>'; }).join("");
   var first=new Date(calY,calM,1).getDay(), n=new Date(calY,calM+1,0).getDate(), tk=todayK();
@@ -1449,7 +1458,7 @@ function adviceHtml(ctx){
     lk('https://www.edh.tw/article/10556/3','腸躁症是什麼？4型腸躁症如何改善（早安健康）','心理療法：認知行為療法、催眠療法、放鬆訓練')+
     lk('https://health.tvbs.com.tw/medical/327473','老是睡不著…好眠10招你做到幾項？（TVBS 健康）','台灣睡眠醫學學會 2021 年調查：平均睡 6.67 小時，專家建議 7～9 小時；好眠 10 招')+
     lk('https://helloyishi.com.tw/pregnancy/pregnancy-progression/pregnancy-problems/prevention-of-constipation-during-pregnancy/','懷孕便祕有解！5方法助腸道避免痔瘡 注意鐵劑量（Hello 醫師）','孕期喝水、膳食纖維、適度運動；鐵劑量請和醫師討論')+
-    '</ul><h3>國際指引（英文）</h3><ul class="reflist">'+
+    '</ul>'+(profile.sex==="f"?'<h3>生理期週期判斷</h3>'+periodLinks():'')+'<h3>國際指引（英文）</h3><ul class="reflist">'+
     lk('https://pubmed.ncbi.nlm.nih.gov/33315591/','ACG Clinical Guideline: Management of Irritable Bowel Syndrome（2021）','限期嘗試低 FODMAP 飲食；腸道導向心理治療')+
     lk('https://www.nice.org.uk/guidance/QS114/chapter/Quality-statement-3-Dietary-management','NICE QS114 Quality statement 3：Dietary management（腸躁症）','規律進食、不跳餐、放鬆、增加活動；持續時再考慮單一食物排除與低 FODMAP')+
     lk('https://www.nice.org.uk/guidance/cg61','NICE CG61：Irritable bowel syndrome in adults','腸躁症的診斷與處置指引')+
@@ -1675,8 +1684,9 @@ function makeDemo(){
 }
 
 /* ================= 版本 ================= */
-var APP_VERSION="1.22.1";
+var APP_VERSION="1.23.0";
 var CHANGELOG=[
+  ["1.23.0","生理期卡片簡化成兩顆愛心按鈕（今天開始／今天結束，也能選日期補記以前的）；日曆的生理期改成明顯的粉紅底加愛心"],
   ["1.22.1","生理期卡片只在個人資料選「女生」時才出現；選男生或沒填都會隱藏"],
   ["1.22.0","新增「生理期」卡片：記錄開始與結束日，自動算平均週期、規律程度與下次預測，並附判斷依據；日曆標示生理期、分析自動比較生理期間是否較不舒服。小筆記列表改成先顯示 20 則"],
   ["1.21.0","日曆頁新增「所有小筆記」列表：由新到舊顯示、可搜尋關鍵字，點一則會跳到那天"],
@@ -1847,64 +1857,54 @@ function periodLinks(){
     a('https://health.tvbs.com.tw/medical/334499','月經來為什麼會一直拉肚子？婦產科醫師說明（TVBS 健康，報導）','經期前列腺素可能加速腸蠕動；經痛與腹瀉越來越嚴重要排除子宮內膜異位症')+
     '</ul>';
 }
+var HEART='<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M12 21s-7.500-4.600-9-9.600C2 8 4.200 5 7.300 5c1.900 0 3.400 1 4.700 2.700C13.300 6 14.800 5 16.700 5 19.800 5 22 8 21 11.400c-1.500 5-9 9.600-9 9.600z"/></svg>';
 function renderPeriod(){
   var card=$("c-period"); if(!card) return;
   if(profile.sex!=="f"){ card.style.display="none"; return; }
   card.style.display="";
-  var teen=(profile.age==="u18"), hi=teen?45:35, st=cycleStats(), cp=periodAt(cur), today=todayK(), h="", status="";
+  var today=todayK(), st=cycleStats();
   if(profile.preg){
-    card.innerHTML='<div class="card-h"><h2>生理期</h2><small>暫停</small></div><p class="tip" style="margin:0">你在個人資料設定為懷孕中，所以暫停週期統計與預測。產後或想繼續記錄時，到「設定」取消「目前懷孕中」就會恢復。</p>';
+    card.innerHTML='<div class="card-h"><h2>生理期</h2><small>暫停</small></div><p class="tip" style="margin:0">個人資料設定為懷孕中，暫停生理期記錄。到「設定」取消就會恢復。</p>';
     return;
   }
-  if(cp){ status="生理期第 "+(ddiff(cp.s,today)+1>0 && today>=cp.s && today<=pEnd(cp)? ddiff(cp.s,today)+1 : ddiff(cp.s,cur)+1)+" 天"; }
-  /* 預測與狀態 */
-  var next=null, win=null, late=0;
-  if(st.n>=1 && st.last){ next=addDays(st.last.s,st.avg); if(st.n>=2 && st.max-st.min>2) win=[addDays(st.last.s,st.min),addDays(st.last.s,st.max)]; late=ddiff(next,today); }
-  if(!cp && next) status = late>0? "比預計晚 "+late+" 天" : (-late===0? "預計今天" : "預計 "+(-late)+" 天後");
-  var title='<div class="card-h"><h2>生理期</h2><small>'+(status||"")+'</small></div>';
-  /* 這天的操作 */
-  var btns='';
-  if(cp){
-    var n=ddiff(cp.s,cur)+1;
-    h+='<div class="okline" style="margin-top:0"><span class="ck">✓</span> 這天是生理期第 '+n+' 天'+(cp.e?'（'+pfmt(cp.s)+' ～ '+pfmt(cp.e)+'）':'（還沒填結束日）')+'</div>';
-    if(!cp.e && cur>=cp.s) btns+='<button class="btn sm" data-pa="end">這天是最後一天</button>';
-    btns+='<button class="btn ghost sm" data-pa="del">刪除這筆</button>';
-  } else if(cur<=today){
-    h+='<p class="tip" style="margin:0">生理期來的第一天，到那天的記錄頁按下面的按鈕。可以切換日期補記以前的。</p>';
-    btns+='<button class="btn sm" data-pa="start">'+(cur===today?'今天':pfmt(cur))+' 生理期開始</button>';
-  }
-  h+='<div class="pbtns">'+btns+'</div>';
-  /* 統計 */
-  var stat='';
-  if(st.count===0) stat='<p class="tip">記錄 3 次以上的開始日，就能算出週期長度、規律程度，並預測下次。</p>';
-  else if(st.n===0) stat='<p class="tip">已記錄 1 次。再記一次下次的開始日，就能算出週期長度。</p>';
-  else {
-    var lenCls = (st.avg<21)? ["偏短（少於 21 天）","pbad"] : (st.avg>hi)? ["偏長（超過 "+hi+" 天）","pbad"] : ["在一般正常範圍（21～"+hi+" 天）","pgood"];
-    stat+='<div class="pst"><b>平均週期 '+st.avg+' 天</b>'+(st.n>=2?'（最短 '+st.min+'、最長 '+st.max+' 天）':'')+'，<span class="'+lenCls[1]+'">'+lenCls[0]+'</span>。</div>';
-    if(st.n>=2){
-      var v=st.max-st.min, rg = v<=7? ["規律","pgood","最短與最長只差 "+v+" 天"] : v<20? ["略有變動","pmid","最短與最長差 "+v+" 天"] : ["不太規律","pbad","最短與最長差 "+v+" 天，建議請婦產科評估"];
-      stat+='<div class="pst">規律程度：<span class="'+rg[1]+'">'+rg[0]+'</span>（'+rg[2]+'）。'+(st.n<3?'目前只有 '+st.n+' 個週期，資料少，僅供參考。':'')+'</div>';
-    } else stat+='<div class="pst" style="color:var(--sub)">再多記幾個週期，才能判斷規律程度。</div>';
-    if(st.dur!=null) stat+='<div class="pst">平均經期 '+st.dur+' 天'+(st.maxDur>7?'，<span class="pbad">最長 '+st.maxDur+' 天，超過 7 天建議就醫評估</span>':'')+'。</div>';
-    if(next){
-      stat+='<div class="pst">下次預計：<b>'+pfmt(next)+'</b>'+(win?'（範圍 '+pfmt(win[0])+' ～ '+pfmt(win[1])+'）':'')+(late>0?'，已經晚了 '+late+' 天':'')+'。這是用最近 '+st.n+' 個週期的平均推算，不規律時只能參考。</div>';
-    }
-  }
-  h+=stat;
-  /* 警訊 */
-  var sinceLast = st.last? ddiff(st.last.s,today) : 0;
-  if(st.last && sinceLast>=90) h+='<div class="pwarn">距離上次開始已經 '+sinceLast+' 天（超過 3 個月）。如果沒有懷孕，建議找婦產科了解原因。</div>';
-  if(teen) h+='<p class="tip">青少年的正常週期可到 45 天，初經後前幾年不規則很常見。</p>';
-  h+='<p class="tip">生理期前後排便變化很常見：經期的前列腺素可能讓人拉肚子，經前黃體素可能讓人便祕。「分析」頁會自動比較生理期那幾天是否比較不舒服。若經痛和腹瀉越來越嚴重，請看婦產科。</p>';
-  h+='<p class="tip" style="margin-top:6px">這是生活紀錄與規律參考，<b>不能當作避孕或受孕的依據</b>，也不是診斷。吃避孕藥等荷爾蒙藥物時週期會改變。</p>';
-  h+='<details class="prefs"><summary>判斷依據（點開看來源）</summary>'+periodLinks()+'</details>';
-  card.innerHTML=title+h;
+  var L=psorted(), last=L.length?L[L.length-1]:null, status="";
+  if(last){ var inP=today>=last.s && today<=pEnd(last) && (!last.e || today<=last.e); status = inP? "第 "+(ddiff(last.s,today)+1)+" 天" : "上次 "+pfmt(last.s)+" 開始"; }
+  var h='<div class="card-h"><h2>生理期</h2><small>'+status+'</small></div>';
+  h+='<div class="prow"><button class="pheart" data-pa="start">'+HEART+'今天開始</button><label class="pdate">或選日期<input type="date" id="pdStart" max="'+today+'" aria-label="選開始日期"></label></div>';
+  h+='<div class="prow"><button class="pheart end" data-pa="end">'+HEART+'今天結束</button><label class="pdate">或選日期<input type="date" id="pdEnd" max="'+today+'" aria-label="選結束日期"></label></div>';
+  var recent=L.slice(-3).reverse();
+  if(recent.length) h+='<div class="plist">'+recent.map(function(p){ return '<span class="pchip">'+pfmt(p.s)+(p.e?' ～ '+pfmt(p.e):' ～ 進行中')+'<button data-pdel="'+p.s+'" aria-label="刪除這筆">✕</button></span>'; }).join("")+'</div>';
+  if(st.n>=1){
+    var v=st.n>=2? st.max-st.min : null, rg = v==null? "" : v<=7? "，規律" : v<20? "，略有變動" : "，不太規律，建議請婦產科評估";
+    h+='<p class="tip" style="margin:8px 0 0">平均週期 '+st.avg+' 天'+rg+'；下次預計 <b>'+pfmt(addDays(st.last.s,st.avg))+'</b> 前後。</p>';
+  } else if(L.length) h+='<p class="tip" style="margin:8px 0 0">再記一次下次的開始日，就能算出週期。</p>';
+  else h+='<p class="tip" style="margin:8px 0 0">要補記以前的，用「或選日期」選那天就好。</p>';
+  var since = last? ddiff(last.s,today) : 0;
+  if(last && since>=90) h+='<div class="pwarn">距離上次開始已經 '+since+' 天，如果沒有懷孕，建議找婦產科了解原因。</div>';
+  h+='<p class="tip" style="margin:6px 0 0;font-size:11.5px">僅供記錄參考，不能當作避孕或受孕的依據。</p>';
+  card.innerHTML=h;
+}
+function pStart(d){
+  if(d>todayK()){ toast("不能選未來的日期"); return; }
+  var hit=periodAt(d); if(hit){ toast(hit.s===d? "這天已經記過開始了" : "這天已經在生理期內"); return; }
+  plist().push({s:d,e:null}); save(); renderPeriod(); okToast("已記錄：生理期 "+pfmt(d)+" 開始");
+}
+function pEndAt(d){
+  if(d>todayK()){ toast("不能選未來的日期"); return; }
+  var L=psorted().filter(function(p){ return p.s<=d; }), p=L.length?L[L.length-1]:null;
+  if(!p){ toast("找不到開始日，請先記開始"); return; }
+  if(ddiff(p.s,d)>14){ toast("離開始日超過 14 天，請確認日期"); return; }
+  p.e=d; save(); renderPeriod(); okToast("已記錄：生理期 "+pfmt(p.s)+" ～ "+pfmt(d));
 }
 $("c-period").onclick=function(e){
-  var b=e.target.closest("[data-pa]"); if(!b) return; var a=b.dataset.pa, cp=periodAt(cur);
-  if(a==="start"){ plist().push({s:cur,e:null}); save(); renderPeriod(); okToast("已記錄：生理期從 "+pfmt(cur)+" 開始"); }
-  else if(a==="end" && cp){ cp.e=cur; save(); renderPeriod(); okToast("已記錄：生理期到 "+pfmt(cur)+" 結束"); }
-  else if(a==="del" && cp){ confirmBox("要刪除這筆生理期紀錄（"+pfmt(cp.s)+" 開始）嗎？",function(){ mem.periods=plist().filter(function(p){ return p!==cp; }); save(); renderPeriod(); toast("已刪除"); }); }
+  var del=e.target.closest("[data-pdel]");
+  if(del){ var sd=del.dataset.pdel; confirmBox("要刪除 "+pfmt(sd)+" 開始的這筆生理期嗎？",function(){ mem.periods=plist().filter(function(p){ return p.s!==sd; }); save(); renderPeriod(); toast("已刪除"); }); return; }
+  var b=e.target.closest("[data-pa]"); if(!b) return;
+  if(b.dataset.pa==="start") pStart(todayK()); else pEndAt(todayK());
+};
+$("c-period").onchange=function(e){
+  var t=e.target; if(!t.value) return;
+  if(t.id==="pdStart") pStart(t.value); else if(t.id==="pdEnd") pEndAt(t.value);
 };
 
 /* ================= 語音寫筆記（瀏覽器內建語音辨識） ================= */
