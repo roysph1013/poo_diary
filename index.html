@@ -1272,7 +1272,7 @@ function adviceHtml(ctx){
   var habit=[]; if(ctx.late>=3) habit.push(ctx.late+" 天很晚吃或吃宵夜"); if(ctx.fast>=3) habit.push(ctx.fast+" 天吃很快"); if(ctx.skipB>=3) habit.push(ctx.skipB+" 天沒吃早餐");
   h+=li((preg?'三餐定時定量，肚子容易不舒服可以少量多餐，':'三餐盡量定時定量，不跳餐、不要隔太久才吃，')+'吃飯細嚼慢嚥、慢慢吃。','nice');
   if(habit.length) h+=me('你的紀錄裡有 '+habit.join('、')+'，這些是最容易先調整的地方。');
-  var waterTxt = preg? "多喝水，分次慢慢喝" : P.sex==="m"? "國健署新版指南男性約 2000～2400 ml，含食物裡的水分" : P.sex==="f"? "國健署新版指南女性約 1600～2100 ml，含食物裡的水分" : "國健署新版指南成人約 1600～2400 ml，含食物裡的水分";
+  var waterTxt = preg? "多喝水，分次慢慢喝" : P.sex==="m"? "國健署新版參考攝取量草案：成年男性每天喝水加上各種飲料，總共約 2400 ml" : P.sex==="f"? "國健署新版參考攝取量草案：成年女性每天喝水加上各種飲料，總共約 2100 ml" : "國健署新版參考攝取量草案：成人每天喝水加上各種飲料，總共約 2100～2400 ml（男性較多）";
   if(ctx.kind==="hard"){
     h+=li('你的狀況偏便祕：每天喝足水分（'+waterTxt+'；依體型與活動量調整），蔬菜水果、全穀雜糧慢慢增加，一次加太多容易脹氣。','hpa');
     if(ctx.water!=null && ctx.water<1200) h+=me('你記錄的平均喝水約 '+ctx.water+' ml，偏少，可以先每天多喝 1～2 杯。');
@@ -1297,7 +1297,7 @@ function adviceHtml(ctx){
     if(ctx.sleep<7) h+=li('你記錄的平均睡眠約 '+ctx.sleep+' 小時。成人建議規律睡滿 <b>7 小時以上</b>；睡眠不足時，腸胃狀況也比較容易不穩。','aasm');
     else h+=li('你記錄的平均睡眠約 '+ctx.sleep+' 小時，有達到成人建議的 7 小時以上，繼續保持。','aasm');
   } else h+=li('成人建議規律睡滿 <b>7 小時以上</b>。多記幾天睡眠，這裡就能看出你的睡眠夠不夠。','aasm');
-  h+=li('固定起床和吃飯的時間，腸道會比較有規律。早餐後給自己 5～10 分鐘上廁所，有便意就去，不要憋；每次坐馬桶不要超過 10 分鐘，也不要太用力。','gen');
+  h+=li('固定起床和吃飯的時間，腸道會比較有規律。早餐後給自己 5～10 分鐘上廁所，有便意就去，不要憋；不要久坐馬桶，也不要太用力。','gen');
   if(kid) h+=li('每天累積至少 60 分鐘中等到劇烈強度的活動（跑跳、球類、騎車都算）。','who');
   else if(preg) h+=li('適度走路、伸展對孕期便祕有幫助，運動的種類和強度請依產科醫師的建議。','gen');
   else if(old) h+=li('每週累積 150 分鐘以上中等強度活動（例如快走），另外每週至少 3 天加入平衡訓練，有助腸道蠕動，也能預防跌倒。','who');
@@ -1336,24 +1336,29 @@ function adviceHtml(ctx){
   h+='</div>';
   function lk(u,t,d){ return '<li><a href="'+u+'" target="_blank" rel="noopener noreferrer">'+t+'</a><small>'+d+'</small></li>'; }
   h+='<div class="card adv"><div class="card-h"><h2>參考資料</h2><small>點標題可開啟</small></div>'+
-    '<p class="tip" style="margin:0 0 6px">上面的建議是參考下列資料整理的。連結會開啟外部網站；標示「報導」的是媒體轉述醫師或營養師的衛教內容，不是官方文件。</p>'+
-    '<h3>中文官方與衛教資料</h3><ul class="reflist">'+
-    lk('https://mohw.gov.tw/cp-16-84205-1.html','衛福部／國健署：大腸癌篩檢擴大為 45～74 歲','每 2 年一次公費糞便潛血檢查；40～44 歲有家族史者也可篩檢')+
-    lk('https://mohw.gov.tw/cp-16-82752-1.html','衛福部／國健署：糞便潛血檢查怎麼做','在家採檢、不必限制飲食；檢查異常要做大腸鏡；家族史指一等親')+
-    lk('https://mohw.gov.tw/cp-16-22785-1.html','衛福部／國健署：身體活動建議','兒童青少年每天 60 分鐘、成人每週 150 分鐘、長者加強平衡')+
-    lk('https://n.yam.com/Article/20260316821329','新版每日飲食指南首度納入「飲水」（報導）','成人每日水分建議；數字為草案報導，可能調整')+
-    lk('https://epaper.ntuh.gov.tw/health/201402/pdf/%E4%BE%BF%E7%A5%95%E7%9A%84%E8%97%A5%E7%89%A9%E6%B2%BB%E7%99%82.pdf','台大醫院電子報：便祕的藥物治療','先調整飲食與運動，無效才短期用瀉劑，並檢查是否有器質性問題')+
-    lk('https://edh.tw/articles/xd883er/2','台北榮總家醫科醫師衛教：老年人便祕（報導）','固定早上如廁、吃早餐誘發腸胃反射、有便意不要忍')+
-    lk('https://www.moneyweekly.com.tw/ArticleData/Info/Article/82448','臺北榮總桃園分院營養師：便祕飲食（報導）','飲水量、天天五蔬果、老年人便祕與鐵劑鈣劑')+
-    lk('https://health.tvbs.com.tw/medical/309178','腸躁症與低腹敏（低 FODMAP）飲食（報導）','需在醫師或營養師指導下短期進行，不建議長期限制')+
-    lk('https://www.edh.tw/article/27972','腸躁症的飲食與心理治療衛教（報導）','認知行為治療、催眠療法、放鬆訓練')+
-    lk('https://health.tvbs.com.tw/medical/327473','台灣睡眠醫學學會：好眠 10 招與建議睡眠時數（報導）','成人建議睡 7～9 小時，規律作息')+
-    lk('https://helloyishi.com.tw/pregnancy/prevention-of-constipation-during-pregnancy/','孕期便祕預防（Hello 醫師）','飲水、膳食纖維、適度運動；鐵劑與用藥請先問醫師')+
+    '<p class="tip" style="margin:0 0 6px">上面的建議是參考下列資料整理的。連結會開啟外部網站。標「報導」的是媒體轉述醫師或營養師的衛教內容，不是官方文件，數字可能和正式公告有出入。</p>'+
+    '<h3>衛福部／國健署與醫院衛教</h3><ul class="reflist">'+
+    lk('https://www.mohw.gov.tw/cp-16-84205-1.html','中秋「腸」健人安康 定期篩檢可降40%死亡率（衛福部）','45～74 歲（40～44 歲有家族史者）每 2 年一次公費糞便潛血檢查；異常要做大腸鏡')+
+    lk('https://www.mohw.gov.tw/cp-16-82752-1.html','定期篩檢，健康「腸腸」久久（衛福部）','在家採檢、不必限制飲食；家族史指父母、子女、兄弟姊妹曾罹患大腸癌')+
+    lk('https://www.mohw.gov.tw/fp-16-51393-1.html','健康防疫更有效 居家運動三妙招（衛福部）','身體活動建議：成人每週 150 分鐘、兒童青少年每天 60 分鐘、長者每週至少 3 天平衡訓練（引述 WHO）')+
+    lk('https://n.yam.com/Article/20260705606014','你喝夠水了嗎？國健署最新建議：蔬菜、水果、飲料算水分（報導）','國人膳食營養素參考攝取量第九版草案首度納入水；成人總液體攝取量男 2400、女 2100 ml，草案可能調整')+
+    lk('https://epaper.ntuh.gov.tw/health/201402/project_3.html','便祕的藥物治療（臺大醫院健康電子報）','各類瀉劑的特性與注意事項；部分藥物本身也會造成便祕')+
+    '</ul><h3>醫師、營養師衛教（報導）</h3><ul class="reflist">'+
+    lk('https://edh.tw/articles/DKplHMn','便祕恐失智前兆？早上起床先做3件事，擺脫便祕不靠浣腸、軟便藥（早安健康）','起床後的排便習慣：有便意別忍、不靠浣腸與軟便藥')+
+    lk('https://edh.tw/articles/VeZ3iFc','一吃飽就想衝廁所正常嗎？…「胃結腸反射亢進」（早安健康）','吃飯後腸道會蠕動的「胃結腸反射」')+
+    lk('https://www.moneyweekly.com.tw/ArticleData/Info/Article/216179','想補纖維又怕脹氣？護理師教9招（理財周刊）','成人纖維約 25～34 公克，循序漸進增加，搭配喝水與飯後散步')+
+    lk('https://www.moneyweekly.com.tw/ArticleData/Info/Article/211243','晨起喝水有用嗎？營養師：總水量達標才是關鍵（理財周刊）','水分與便祕：重點是一天的總水量')+
+    lk('https://health.tvbs.com.tw/nutrition/350407','什麼是低腹敏飲食？腸躁症怎麼吃才有效？腸胃科醫師解答（TVBS 健康）','低腹敏（低 FODMAP）飲食的做法與注意事項')+
+    lk('https://edh.tw/article/27972','一緊張就肚子痛、想拉肚子？改善腸躁症狀這樣吃（早安健康）','低 FODMAP 通常只短期進行（約 2～8 週）後逐步恢復')+
+    lk('https://www.edh.tw/article/10556/3','腸躁症是什麼？4型腸躁症如何改善（早安健康）','心理療法：認知行為療法、催眠療法、放鬆訓練')+
+    lk('https://health.tvbs.com.tw/medical/327473','老是睡不著…好眠10招你做到幾項？（TVBS 健康）','台灣睡眠醫學學會 2021 年調查：平均睡 6.67 小時，專家建議 7～9 小時；好眠 10 招')+
+    lk('https://helloyishi.com.tw/pregnancy/pregnancy-progression/pregnancy-problems/prevention-of-constipation-during-pregnancy/','懷孕便祕有解！5方法助腸道避免痔瘡 注意鐵劑量（Hello 醫師）','孕期喝水、膳食纖維、適度運動；鐵劑量請和醫師討論')+
     '</ul><h3>國際指引（英文）</h3><ul class="reflist">'+
-    lk('https://pubmed.ncbi.nlm.nih.gov/33315591/','ACG Clinical Guideline: Management of Irritable Bowel Syndrome（2021）','低 FODMAP 限期試驗、腸道導向心理治療')+
-    lk('https://www.nice.org.uk/guidance/cg61','NICE CG61：Irritable bowel syndrome in adults','規律進食、不跳餐、放鬆、增加活動、單一食物排除')+
-    lk('https://www.aasm.org/resources/pdf/adultsleepdurationconsensus.pdf','AASM／SRS 成人睡眠時間共識聲明（2015）','成人規律睡 7 小時以上')+
-    '</ul><p class="tip">另外參考：Lewis &amp; Heaton 1997（布里斯托分類）、Rome IV 標準、WHO 2020 身體活動指引。青少年睡眠 8～10 小時（AASM 2016 共識）。年齡、性別、孕期的調整與部分生活建議，是依一般醫學常識與衛教資料整理，未逐條對照原文。指引會更新、個人情況不同，請以醫師的建議為準。</p></div>';
+    lk('https://pubmed.ncbi.nlm.nih.gov/33315591/','ACG Clinical Guideline: Management of Irritable Bowel Syndrome（2021）','限期嘗試低 FODMAP 飲食；腸道導向心理治療')+
+    lk('https://www.nice.org.uk/guidance/QS114/chapter/Quality-statement-3-Dietary-management','NICE QS114 Quality statement 3：Dietary management（腸躁症）','規律進食、不跳餐、放鬆、增加活動；持續時再考慮單一食物排除與低 FODMAP')+
+    lk('https://www.nice.org.uk/guidance/cg61','NICE CG61：Irritable bowel syndrome in adults','腸躁症的診斷與處置指引')+
+    lk('https://www.aasm.org/resources/pdf/adultsleepdurationconsensus.pdf','AASM／SRS 成人睡眠時間共識聲明（2015）','成人（18～60 歲）規律睡 7 小時以上')+
+    '</ul><p class="tip">另外參考：Lewis &amp; Heaton 1997（布里斯托分類）、Rome IV 標準。以下是我沒有找到可點開的來源、依一般醫學常識整理的部分：青少年睡眠 8～10 小時、年長者口渴感較遲鈍、腹式呼吸與如廁習慣的細節、各年齡與孕期的調整。這些請當作一般衛教，並以醫師的建議為準；指引會更新，個人情況也不同。</p></div>';
   return h;
 }
 var MIN_N=5, anaMode="stool", anaDetail=false;
@@ -1572,8 +1577,9 @@ function makeDemo(){
 }
 
 /* ================= 版本 ================= */
-var APP_VERSION="1.16.0";
+var APP_VERSION="1.16.1";
 var CHANGELOG=[
+  ["1.16.1","逐一核對參考資料：修正水分建議數字（總液體量，非含食物水分），並替換無法確認的連結"],
   ["1.16.0","改善建議獨立成新的「建議」分頁，建議後方不再放來源標籤，改在最下方列出可點開的參考資料（以中文官方與衛教資料為主）；分析頁的詳細數據展開後留在同一張卡片裡"],
   ["1.15.0","新增選填的「個人資料」（年齡層、性別、孕期），第一次開啟與設定都能填；分析頁的建議會依此調整水分量、篩檢提醒、孕期與青少年／長者的注意事項"],
   ["1.14.0","分析頁新增「給你的初步改善建議」：依你的紀錄給飲食、睡眠作息、壓力心態與就醫時機建議，並標示參考依據（ACG、NICE、AASM/SRS、國健署、WHO）"],
