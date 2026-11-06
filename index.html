@@ -27,8 +27,8 @@ body{padding:env(safe-area-inset-top) env(safe-area-inset-right) calc(90px + env
 button,input,textarea,select{font:inherit;color:inherit}
 button{cursor:pointer}
 .num{font-family:"Fredoka","Arial Rounded MT Bold","Nunito",system-ui,sans-serif;font-variant-numeric:tabular-nums}
-.wrap{max-width:560px;margin:0 auto;padding:16px 18px 24px}
-header{position:relative;height:86px}
+.wrap{max-width:560px;margin:0 auto;padding:28px 18px 24px}
+header{position:relative;height:52px}
 header .txt{position:absolute;left:58px;top:3px;width:max-content;max-width:calc(100% - 58px);will-change:transform}
 header h1{font-size:22px;margin:0;letter-spacing:1px}
 header p{margin:0;font-size:12px;color:var(--sub)}
@@ -60,6 +60,17 @@ header p{margin:0;font-size:12px;color:var(--sub)}
 @keyframes pStrain{0%,100%{transform:translateX(-1px)}50%{transform:translateX(1px)}}
 @keyframes pStep{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
 @keyframes pPoke{0%{transform:none}35%{transform:translateY(-8px) rotate(-2deg)}100%{transform:none}}
+.pet.asleep .pet-in{animation:pBreath 3.4s ease-in-out infinite}
+.pet-in.stretch{animation:pStretch 1.3s ease-in-out}
+.pet-in.roll{transform-origin:50% 55%;animation:pRoll .8s ease-in-out 2}
+.note.z{font-size:13px;color:#9A86C4;font-weight:800}
+.food,.bf{position:absolute;z-index:4;font-size:17px;line-height:1;pointer-events:none}
+.food{transition:transform .35s}
+.bf{animation:pFlutter .45s ease-in-out infinite alternate;transition:left 1.7s ease-in,top 1.7s ease-in,opacity 1.7s}
+@keyframes pBreath{0%,100%{transform:scale(1.1,.86)}50%{transform:scale(1.03,.95)}}
+@keyframes pStretch{0%{transform:none}40%{transform:scale(.88,1.24)}70%{transform:scale(1.12,.88)}100%{transform:none}}
+@keyframes pRoll{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+@keyframes pFlutter{from{transform:translate(-3px,2px) rotate(-12deg)}to{transform:translate(3px,-3px) rotate(12deg)}}
 @keyframes pNote{0%{opacity:0;transform:translate(0,0) scale(.6)}20%{opacity:1}100%{opacity:0;transform:translate(var(--dx),-36px) scale(1.1)}}
 .card{background:var(--card);border-radius:var(--r);padding:16px;margin:14px 0;box-shadow:var(--shadow)}
 .card-h{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:12px}
@@ -1341,8 +1352,9 @@ function makeDemo(){
 }
 
 /* ================= 版本 ================= */
-var APP_VERSION="1.6.0";
+var APP_VERSION="1.7.0";
 var CHANGELOG=[
+  ["1.7.0","標題下方的空白縮小；吉祥物變成會依實際時間作息的小生物：白天會吃東西、午後打盹，晚上走到最右邊睡覺（還會飄 Z），天亮再伸懶腰回家。也會跳上標題頂端散步、穿過標題、打滾、追蝴蝶"],
   ["1.6.0","標題列的小吉祥物活起來了：會眨眼、跳舞、長出小腳走路、頂標題、把標題抬起來搬走，表情也會跟著變；點牠也會有反應"],
   ["1.5.1","吉祥物便便底部改成圓潤完整，表情不再被切到"],
   ["1.5.0","點日期會跳出月曆快速選日；打勾時加上音效、震動和卡片彈跳；六項全部填完會跳出慶祝動畫；設定可開關音效與震動"],
@@ -1442,9 +1454,10 @@ $("nav").onclick=function(e){ var b=e.target.closest("button"); if(b) go(b.datas
 function initPet(){
   var pet=$("pet"), pin=$("petIn"), svg=$("petSvg"), faceG=$("petFace"), txt=$("hdTxt"), ttl=$("hdTtl"), hdr=$("hd");
   if(!pet || REDUCE) return;           /* 尊重「減少動態效果」：維持靜態 */
-  var st={x:0,y:0,s:1}, cur={e:"o",m:"s"}, busy=false, GROUND=42, GS=0.8;
+  var st={x:0,y:0,s:1}, cur={e:"o",m:"s"}, busy=false, asleep=false, GROUND=10, GS=0.8;
   function wait(ms){ return new Promise(function(r){ setTimeout(r,ms); }); }
   function rnd(a,b){ return a+Math.random()*(b-a); }
+  function pickOf(a){ return a[Math.floor(Math.random()*a.length)]; }
   function face(e,m){ cur.e=e; cur.m=m; svg.setAttribute("class","pet-svg e-"+e+" m-"+m); }
   function look(d){ faceG.style.transform="translateX("+(d*2.5)+"px)"; }
   function flag(c,on){ pet.classList.toggle(c,on); }
@@ -1456,22 +1469,37 @@ function initPet(){
     return wait(dur*1000+40);
   }
   function setTxt(x,y,r,tr){ txt.style.transition=tr||"transform .3s cubic-bezier(.3,1.6,.5,1)"; txt.style.transform="translate("+x+"px,"+y+"px) rotate("+r+"deg)"; }
-  function notes(n){
+  function notes(n,chars,cls){
+    chars=chars||["♪","♫"];
     for(var i=0;i<n;i++) (function(i){ setTimeout(function(){
-      var e=document.createElement("span"); e.className="note"; e.textContent=i%2?"♫":"♪";
-      e.style.left=(st.x+rnd(6,34))+"px"; e.style.top=(st.y+rnd(-4,10))+"px"; e.style.setProperty("--dx",rnd(-14,14)+"px");
+      var e=document.createElement("span"); e.className="note"+(cls?" "+cls:""); e.textContent=chars[i%chars.length];
+      e.style.left=(st.x+rnd(10,38)*st.s)+"px"; e.style.top=(st.y+rnd(-4,8))+"px"; e.style.setProperty("--dx",rnd(-14,14)+"px");
       hdr.appendChild(e); setTimeout(function(){ if(e.parentNode) e.parentNode.removeChild(e); },1400);
     },i*380); })(i);
   }
   function W(){ return hdr.clientWidth; }
-  /* 跳下到「地面」、再爬回家 */
+  function bedX(){ return W()-48*GS-2; }
+  /* 標題文字實際佔的範圍（相對標題列） */
+  function titleBox(){
+    var rg=document.createRange(); rg.selectNodeContents(ttl);
+    var r=rg.getBoundingClientRect(), h=hdr.getBoundingClientRect();
+    return {l:r.left-h.left, w:r.width, t:r.top-h.top};
+  }
+  function hr(){ var d=new Date(); return d.getHours()+d.getMinutes()/60; }
+  function sleepTime(){ var h=hr(); return h>=22.5 || h<6.5; }
+  /* 站到「地面」（標題列底部）、再回家；地面會從標題前面穿過去 */
   function down(){ return Promise.all([anim("hop",520), moveTo(st.x,GROUND,GS,100,"ease-in-out")]).then(function(){ flag("legs",true); }); }
   function up(){ flag("legs",false); return Promise.all([anim("hop",520), moveTo(0,0,1,100,"ease-in-out")]); }
-  function walkTo(x){
+  function walkTo(x,speed){
     look(x>st.x?1:-1); flag("walking",true); pin.classList.add("bob");
-    return moveTo(x,GROUND,GS,70).then(function(){ flag("walking",false); pin.classList.remove("bob"); look(0); });
+    return moveTo(x,GROUND,GS,speed||70).then(function(){ flag("walking",false); pin.classList.remove("bob"); look(0); });
   }
   function goHome(){ return walkTo(0).then(function(){ return up(); }); }
+  function yawn(){ face("b","o"); return anim("stretch",1300).then(function(){ face("o","s"); }); }
+  function snooze(ms){
+    face("b","s"); flag("asleep",true); notes(Math.max(2,Math.round(ms/1500)),["Z","z","z"],"z");
+    return wait(ms).then(function(){ flag("asleep",false); });
+  }
 
   var B={
     hop:function(){ face("h","d"); return anim("hop",560).then(function(){ face("o","s"); }); },
@@ -1483,6 +1511,31 @@ function initPet(){
       face("h","d"); flag("up",true); pin.classList.add("dance"); notes(5);
       return wait(2400).then(function(){ pin.classList.remove("dance"); flag("up",false); return anim("hop",520); }).then(function(){ face("o","s"); });
     },
+    yawn:function(){ return wait(300).then(yawn).then(function(){ return wait(300); }); },
+    roll:function(){
+      face("h","d"); return down().then(function(){ flag("legs",false); return wait(200); })
+        .then(function(){ pin.classList.add("roll"); return wait(1700); })
+        .then(function(){ pin.classList.remove("roll"); face("s","o"); return wait(600); })
+        .then(function(){ face("o","s"); return goHome(); });
+    },
+    nap:function(){ return yawn().then(function(){ return snooze(rnd(5000,8000)); }).then(function(){ face("s","o"); return wait(500); }).then(yawn); },
+    eat:function(){
+      var f=document.createElement("span"); f.className="food"; f.textContent=pickOf(["🍙","🍓","🍪","🥟","🍡","🍊"]);
+      f.style.left=(st.x+36)+"px"; f.style.top=(st.y+22)+"px"; hdr.appendChild(f);
+      face("s","o"); var p=wait(700);
+      for(var i=0;i<4;i++) (function(i){ p=p.then(function(){ face("h","d"); f.style.transform="scale("+(1-(i+1)*.22)+")"; return wait(280); })
+        .then(function(){ face("o","s"); return wait(260); }); })(i);
+      return p.then(function(){ f.parentNode&&f.parentNode.removeChild(f); face("h","s"); notes(2,["♥"]); return anim("hop",520); }).then(function(){ face("o","s"); });
+    },
+    butterfly:function(){
+      var bx=rnd(W()*.45,W()-60), f=document.createElement("span"); f.className="bf"; f.textContent="🦋";
+      f.style.left=(bx+8)+"px"; f.style.top="-4px"; hdr.appendChild(f);
+      return down().then(function(){ return walkTo(bx-30); })
+        .then(function(){ look(1); face("s","o"); return wait(700); })
+        .then(function(){ face("h","d"); f.style.left=(bx+70)+"px"; f.style.top="-22px"; f.style.opacity="0"; return anim("hop",520); })
+        .then(function(){ look(1); return wait(500); })
+        .then(function(){ face("o","s"); return goHome(); });
+    },
     walk:function(){
       return down().then(function(){ return walkTo(rnd(W()*.35,W()-42)); })
         .then(function(){ face("h","s"); return anim("hop",520); })
@@ -1490,8 +1543,20 @@ function initPet(){
         .then(function(){ return walkTo(rnd(W()*.15,W()*.5)); })
         .then(goHome);
     },
+    /* 跳上標題頂端、在字上面散步，再跳下來 */
+    topwalk:function(){
+      var t=titleBox(), sc=.55, ty=t.t+4-2-48*sc, endX=t.l+t.w-18;
+      return down().then(function(){ return walkTo(Math.max(0,t.l-26)); })
+        .then(function(){ face("h","d"); flag("legs",true); pin.classList.add("bob"); return Promise.all([anim("hop",520), moveTo(t.l+2,ty,sc,70,"ease-out")]); })
+        .then(function(){ face("o","s"); look(1); flag("walking",true); return moveTo(endX,ty,sc,32); })
+        .then(function(){ flag("walking",false); look(0); face("h","s"); return anim("hop",520); })
+        .then(function(){ flag("walking",true); look(-1); return moveTo(t.l+t.w*.4,ty,sc,32); })
+        .then(function(){ flag("walking",false); pin.classList.remove("bob"); look(0); face("s","o"); return wait(900); })
+        .then(function(){ face("h","d"); return Promise.all([anim("hop",520), moveTo(t.l+t.w+8,GROUND,GS,70,"ease-in")]); })
+        .then(function(){ face("o","s"); return goHome(); });
+    },
     headbutt:function(){
-      var r=ttl.getBoundingClientRect(), h=hdr.getBoundingClientRect(), cx=r.left-h.left+r.width/2-19;
+      var t=titleBox(), cx=t.l+t.w/2-19;
       return down().then(function(){ return walkTo(cx); }).then(function(){
         face("h","d");
         function one(){ setTimeout(function(){ ttl.classList.remove("poke"); void ttl.offsetWidth; ttl.classList.add("poke"); },190); return anim("hop",520); }
@@ -1515,15 +1580,47 @@ function initPet(){
         .then(lift).then(function(){ return carryTo(0); }).then(drop)
         .then(function(){ face("h","d"); return anim("hop",520); }).then(function(){ face("o","s"); })
         .then(goHome);
+    },
+    /* 夜深了：走到最右邊睡覺 */
+    bed:function(){
+      return down().then(function(){ return wait(300); })
+        .then(function(){ return walkTo(Math.max(0,bedX()-70)); })
+        .then(function(){ return yawn(); })
+        .then(function(){ return walkTo(bedX(),40); })
+        .then(function(){ flag("legs",false); face("b","s"); flag("asleep",true); asleep=true; notes(3,["Z","z","z"],"z"); });
+    },
+    /* 天亮了：伸懶腰、走回家 */
+    wakeUp:function(){
+      asleep=false; flag("asleep",false); face("s","o");
+      return wait(500).then(function(){ return yawn(); }).then(function(){ face("h","s"); flag("legs",true); return wait(400); })
+        .then(function(){ return goHome(); });
+    },
+    /* 睡覺時被戳：嚇一跳、打哈欠、再睡回去 */
+    disturbed:function(){
+      asleep=false; flag("asleep",false); face("s","o"); look(-1);
+      return anim("hop",520).then(function(){ look(1); return wait(600); })
+        .then(function(){ look(0); return yawn(); }).then(function(){ return wait(800); })
+        .then(function(){ face("b","s"); flag("asleep",true); asleep=true; notes(2,["Z","z"],"z"); });
     }
   };
-  var BAG=["hop","hop","look","look","dance","dance","walk","walk","headbutt","carry"];
+  var BAG=["hop","hop","look","look","dance","dance","walk","walk","topwalk","topwalk","headbutt","carry","yawn","roll","butterfly","eat"];
+  /* 依實際時間調整作息 */
+  function pick(){
+    var h=hr(), b=BAG.slice();
+    if((h>=11.5&&h<13.5)||(h>=17.5&&h<19.5)) b=b.concat(["eat","eat","eat","eat","eat"]);
+    if(h>=13&&h<15) b=b.concat(["nap","nap","nap","nap","yawn","yawn"]);
+    if(h>=6.5&&h<9) b=b.concat(["yawn","yawn","yawn","walk"]);
+    if(h>=21&&h<22.5) b=b.concat(["yawn","yawn","yawn","nap","nap"]);
+    return pickOf(b);
+  }
   function run(name){
     busy=true;
     return B[name]().catch(function(){}).then(function(){
-      pin.className="pet-in"; pet.classList.remove("legs","walking","up"); face("o","s"); look(0);
+      pin.className="pet-in"; pet.classList.remove("legs","walking","up"); look(0);
+      Array.prototype.forEach.call(hdr.querySelectorAll(".food,.bf"),function(e){ e.parentNode.removeChild(e); });
       txt.style.transition="transform .2s"; txt.style.transform=""; ttl.classList.remove("poke");
-      pet.style.transition="transform .2s"; st={x:0,y:0,s:1}; pet.style.transform="";
+      if(asleep){ face("b","s"); }
+      else { face("o","s"); pet.classList.remove("asleep"); pet.style.transition="transform .2s"; st={x:0,y:0,s:1}; pet.style.transform=""; }
       busy=false;
     });
   }
@@ -1532,15 +1629,28 @@ function initPet(){
   }
   function tick(first){
     setTimeout(function(){
-      if(allowed()) run(BAG[Math.floor(Math.random()*BAG.length)]).then(function(){ tick(); }); else tick();
+      if(!allowed()){ tick(); return; }
+      var p;
+      if(sleepTime()){ if(!asleep) p=run("bed"); }
+      else if(asleep) p=run("wakeUp");
+      else p=run(pick());
+      if(p) p.then(function(){ tick(); }); else tick();
     }, first?1800:rnd(3500,8000));
   }
+  /* 開 App 時如果正好是睡覺時間，直接睡在右邊 */
+  if(sleepTime()){
+    asleep=true; st={x:bedX(),y:GROUND,s:GS}; pet.style.transition="none"; pet.style.transform="translate("+st.x+"px,"+st.y+"px) scale("+GS+")";
+    face("b","s"); flag("asleep",true);
+  }
+  window.addEventListener("resize",function(){ if(asleep && !busy){ st.x=bedX(); pet.style.transition="none"; pet.style.transform="translate("+st.x+"px,"+st.y+"px) scale("+GS+")"; } });
+  /* 睡覺時飄 Z */
+  setInterval(function(){ if(asleep && !busy && !document.hidden && $("v-log").classList.contains("on")) notes(2,["Z","z"],"z"); },5200);
   /* 眨眼 */
   (function blink(){ setTimeout(function(){
     if(cur.e==="o" && !document.hidden){ var m=cur.m; svg.setAttribute("class","pet-svg e-b m-"+m); setTimeout(function(){ if(cur.e==="o") svg.setAttribute("class","pet-svg e-o m-"+cur.m); },130); }
     blink(); }, rnd(2200,5200)); })();
   /* 點一下會有反應 */
-  pet.onclick=function(){ if(busy) return; run(Math.random()<.5?"hop":"dance"); };
+  pet.onclick=function(){ if(busy) return; if(asleep) run("disturbed"); else run(Math.random()<.5?"hop":"dance"); };
   tick(true);
   /*PETAPI*/
 }
