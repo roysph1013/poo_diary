@@ -1618,8 +1618,9 @@ function makeDemo(){
 }
 
 /* ================= 版本 ================= */
-var APP_VERSION="1.19.1";
+var APP_VERSION="1.19.2";
 var CHANGELOG=[
+  ["1.19.2","修正語音輸入沒有文字、無法停止的問題；按停止會立刻停下並存入已聽到的字，出錯時會顯示原因"],
   ["1.19.1","食物新增：麥片、水果穀麥、燕麥片、高蛋白飲、牛奶泡麥片"],
   ["1.19.0","分析頁把「總覽」和「嗯嗯形態分佈」合併成一張「嗯嗯總覽」卡片"],
   ["1.18.1","分析與建議頁選的天數會記住，重開 App 也不會變回 30 天"],
@@ -1775,33 +1776,54 @@ function initMic(){
     if(/(嗎|呢|是不是|有沒有|好不好|對不對)$/.test(t)) t+="？";
     return t;
   }
+  function put(key,v){ var d=getDay(key,true); d.note=v; save(); tidy(key); if(key===cur) ta.value=v; }
+  function reset(){ on=false; stopping=false; btn.classList.remove("rec"); btn.innerHTML=MIC_ON+"語音輸入"; }
+  var cur_run=0, stopFn=null;
   btn.onclick=function(){
-    if(on){ stopping=true; try{ rec.stop(); }catch(e){} return; }
-    var key=cur, base=(getDay(key)||{note:""}).note||"", got=false;
+    if(on){ if(stopFn) stopFn(); else reset(); return; }
+    var key=cur, base=(getDay(key)||{note:""}).note||"", got=false, sess="", empty=0, watch=null, myRun=++cur_run;
     if(base && !/[\s，。？！、,.?!]$/.test(base)) base+="，";
+    function setBtn(t){ btn.innerHTML=MIC_OFF+t; }
+    /* 結束：立刻收尾（不等瀏覽器回報），把已聽到的字寫進筆記 */
+    function finish(msg){
+      clearTimeout(watch); stopping=true; cur_run++;
+      var r=rec; if(r){ r.onresult=r.onerror=r.onend=r.onaudiostart=r.onspeechstart=null; try{ r.abort(); }catch(e){} try{ r.stop(); }catch(e){} }
+      var p=sess?punct(sess):""; if(p){ base+=p+(/[？]$/.test(p)?"":"，"); got=true; } sess="";
+      reset();
+      if(got){ put(key, base.replace(/，$/,"。")); okToast("語音已轉成文字並儲存"); }
+      else if(msg) toast(msg);
+    }
     /* 不用 continuous：Android 的連續模式會把前面的字重複送回來。
        改成「一句一句辨識，句子結束後自動接著聽」，每句只在結束時寫入一次 */
+    stopFn=function(){ finish(); };
     function session(){
-      var sess="";
-      try{ rec=new SR(); }catch(e){ toast("這個瀏覽器無法使用語音辨識"); reset(); return; }
+      if(myRun!==cur_run) return;
+      sess="";
+      try{ rec=new SR(); }catch(e){ finish("這個瀏覽器無法使用語音辨識"); return; }
       rec.lang="zh-TW"; rec.continuous=false; rec.interimResults=true;
+      rec.onaudiostart=function(){ clearTimeout(watch); setBtn("停止（聆聽中…）"); };
+      rec.onspeechstart=function(){ setBtn("停止（聽到你說話了）"); };
       rec.onresult=function(ev){
         var t=""; for(var i=0;i<ev.results.length;i++) t+=ev.results[i][0].transcript;
-        sess=t; put(key, base+punct(sess));
+        sess=t; empty=0; if(t) put(key, base+punct(sess));
       };
       rec.onerror=function(ev){
-        var m={"not-allowed":"請在瀏覽器允許使用麥克風","service-not-allowed":"請在瀏覽器允許使用麥克風","network":"語音辨識需要網路","audio-capture":"找不到麥克風"}[ev.error];
-        if(m){ toast(m); stopping=true; }
-        else if(ev.error==="no-speech"){ stopping=true; if(!got) toast("沒有聽到聲音，再試一次"); }
+        var m={"not-allowed":"沒有麥克風權限，請到手機設定允許瀏覽器使用麥克風","service-not-allowed":"瀏覽器不允許語音辨識，請改用 Chrome 或到設定開啟","network":"語音辨識需要網路","audio-capture":"找不到麥克風","language-not-supported":"不支援中文語音辨識"}[ev.error];
+        if(m){ finish(m); }
+        else if(ev.error==="aborted"){ /* 自己中止，忽略 */ }
+        else if(ev.error!=="no-speech"){ finish("語音辨識失敗（"+ev.error+"）"); }
       };
       rec.onend=function(){
-        var p=sess?punct(sess):""; if(p){ base+=p+(/[？]$/.test(p)?"":"，"); got=true; put(key,base); }
-        if(on && !stopping){ session(); return; }
-        reset(); if(got){ put(key, base.replace(/，$/,"。")); okToast("語音已轉成文字並儲存"); }
+        if(myRun!==cur_run) return;
+        var p=sess?punct(sess):""; if(p){ base+=p+(/[？]$/.test(p)?"":"，"); got=true; put(key,base); empty=0; } else empty++;
+        sess="";
+        if(empty>=2){ finish(got?"":"沒有聽到聲音，請靠近麥克風再試一次"); return; }
+        setTimeout(session,300);
       };
-      try{ rec.start(); }catch(e){ reset(); }
+      try{ rec.start(); }catch(e){ finish("無法啟動語音辨識，請再按一次"); return; }
+      clearTimeout(watch); watch=setTimeout(function(){ if(on && myRun===cur_run) finish("沒有收到聲音，請確認已允許麥克風，並再試一次"); },12000);
     }
-    on=true; stopping=false; btn.classList.add("rec"); btn.innerHTML=MIC_OFF+"停止（說完請按這裡）"; toast("開始聆聽，請說話…");
+    on=true; stopping=false; btn.classList.add("rec"); setBtn("停止（準備中…）"); toast("請說話…說完按「停止」");
     session();
   };
 }
