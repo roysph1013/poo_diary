@@ -1232,16 +1232,16 @@ function renderLog(){
 
 /* ================= 日曆 ================= */
 var calY, calM, calSel=null;
-$("legend").innerHTML=["normal","hard","loose","none"].map(function(s){ return '<span><i style="background:'+STATUS[s].c+'"></i>'+STATUS[s].t+'</span>'; }).join("")+'<span><i style="background:var(--brown);width:6px;height:6px;margin:0 3px"></i>有小筆記</span>'+(profile.sex!=="m"?'<span><i style="background:#F6A9BB"></i>生理期</span>':'');
+$("legend").innerHTML=["normal","hard","loose","none"].map(function(s){ return '<span><i style="background:'+STATUS[s].c+'"></i>'+STATUS[s].t+'</span>'; }).join("")+'<span><i style="background:var(--brown);width:6px;height:6px;margin:0 3px"></i>有小筆記</span>'+(profile.sex==="f"?'<span><i style="background:#F6A9BB"></i>生理期</span>':'');
 function renderCal(){
-  $("legend").innerHTML=["normal","hard","loose","none"].map(function(s){ return '<span><i style="background:'+STATUS[s].c+'"></i>'+STATUS[s].t+'</span>'; }).join("")+'<span><i style="background:var(--brown);width:6px;height:6px;margin:0 3px"></i>有小筆記</span>'+(profile.sex!=="m"?'<span><i style="background:#F6A9BB"></i>生理期</span>':'');
+  $("legend").innerHTML=["normal","hard","loose","none"].map(function(s){ return '<span><i style="background:'+STATUS[s].c+'"></i>'+STATUS[s].t+'</span>'; }).join("")+'<span><i style="background:var(--brown);width:6px;height:6px;margin:0 3px"></i>有小筆記</span>'+(profile.sex==="f"?'<span><i style="background:#F6A9BB"></i>生理期</span>':'');
   $("calTitle").textContent=calY+" 年 "+(calM+1)+" 月";
   var h=WEEK.map(function(w){ return '<div class="w">'+w+'</div>'; }).join("");
   var first=new Date(calY,calM,1).getDay(), n=new Date(calY,calM+1,0).getDate(), tk=todayK();
   for(var i=0;i<first;i++) h+='<div class="c blank"></div>';
   for(var dd=1;dd<=n;dd++){
     var k=calY+"-"+pad(calM+1)+"-"+pad(dd), d=getDay(k), st=dayStatus(d);
-    h+='<button class="c'+(st?" st-"+st:"")+(k===tk?" today":"")+(k===calSel?" sel":"")+(d&&d.note&&d.note.trim()?" has-note":"")+(profile.sex!=="m"&&!profile.preg&&periodAt(k)?" menses":"")+'" data-k="'+k+'" aria-label="'+(calM+1)+'月'+dd+'日'+(st?" "+STATUS[st].t:"")+'">'+
+    h+='<button class="c'+(st?" st-"+st:"")+(k===tk?" today":"")+(k===calSel?" sel":"")+(d&&d.note&&d.note.trim()?" has-note":"")+(profile.sex==="f"&&!profile.preg&&periodAt(k)?" menses":"")+'" data-k="'+k+'" aria-label="'+(calM+1)+'月'+dd+'日'+(st?" "+STATUS[st].t:"")+'">'+
       '<i style="background:'+(st?STATUS[st].c:(d&&!isEmptyDay(d)?"#E5D6C8":"transparent"))+'"></i><span class="num">'+dd+'</span></button>';
   }
   $("cal").innerHTML=h;
@@ -1277,7 +1277,7 @@ function renderCalDetail(){
     var foods=[]; MEALS.forEach(function(m){ foods=foods.concat(d.meals[m.k].items); });
     foods.slice(0,6).forEach(function(f){ p.push('<span class="pill">'+esc(f)+'</span>'); });
     var BL=["沒有","一點","明顯","很嚴重"];
-    if(profile.sex!=="m" && !profile.preg){ var pp=periodAt(calSel); if(pp) p.push('<span class="pill" style="background:#FCDDE5">生理期第 '+(ddiff(pp.s,calSel)+1)+' 天</span>'); }
+    if(profile.sex==="f" && !profile.preg){ var pp=periodAt(calSel); if(pp) p.push('<span class="pill" style="background:#FCDDE5">生理期第 '+(ddiff(pp.s,calSel)+1)+' 天</span>'); }
     if(d.belly.pain) p.push('<span class="pill" style="background:#F9C3CE">肚子痛：'+BL[d.belly.pain]+'</span>');
     if(d.belly.bloat) p.push('<span class="pill" style="background:#FFDCC8">脹氣：'+BL[d.belly.bloat]+'</span>');
     if(d.sleep.hours!=null) p.push('<span class="pill">睡 '+d.sleep.hours+' 小時</span>');
@@ -1343,7 +1343,7 @@ function buildFactors(keys, mode){
   add("睡得不好","睡醒那天",hasSleepQ,function(d){ return d.sleep.q<=2; }, same);
   add("心情低落","當天",hasMood,function(d){ return d.mood.q!=null && d.mood.q<=2; }, same);
   MOOD_GROUPS.forEach(function(g){ g.items.forEach(function(t){ add("「"+t+"」","當天",hasMood,function(d){ return d.mood.tags.indexOf(t)>=0; }, same); }); });
-  if(profile.sex!=="m" && !profile.preg && plist().length){ var firstP=psorted()[0].s; add("生理期期間","當天",function(d,k){ return k>=firstP && k<=todayK(); },function(d,k){ return !!periodAt(k); }, same); }
+  if(profile.sex==="f" && !profile.preg && plist().length){ var firstP=psorted()[0].s; add("生理期期間","當天",function(d,k){ return k>=firstP && k<=todayK(); },function(d,k){ return !!periodAt(k); }, same); }
   add("喝水不到 1000 ml","當天",hasWater,function(d){ return dayMl(d)<1000; }, same);
   add("喝水 2000 ml 以上","當天",hasWater,function(d){ return dayMl(d)>=2000; }, same);
   return F;
@@ -1675,8 +1675,9 @@ function makeDemo(){
 }
 
 /* ================= 版本 ================= */
-var APP_VERSION="1.22.0";
+var APP_VERSION="1.22.1";
 var CHANGELOG=[
+  ["1.22.1","生理期卡片只在個人資料選「女生」時才出現；選男生或沒填都會隱藏"],
   ["1.22.0","新增「生理期」卡片：記錄開始與結束日，自動算平均週期、規律程度與下次預測，並附判斷依據；日曆標示生理期、分析自動比較生理期間是否較不舒服。小筆記列表改成先顯示 20 則"],
   ["1.21.0","日曆頁新增「所有小筆記」列表：由新到舊顯示、可搜尋關鍵字，點一則會跳到那天"],
   ["1.20.0","小筆記新增「確定」按鈕；日曆有小筆記的日期會有小圓點，點日期可看到完整筆記內容"],
@@ -1848,7 +1849,7 @@ function periodLinks(){
 }
 function renderPeriod(){
   var card=$("c-period"); if(!card) return;
-  if(profile.sex==="m"){ card.style.display="none"; return; }
+  if(profile.sex!=="f"){ card.style.display="none"; return; }
   card.style.display="";
   var teen=(profile.age==="u18"), hi=teen?45:35, st=cycleStats(), cp=periodAt(cur), today=todayK(), h="", status="";
   if(profile.preg){
