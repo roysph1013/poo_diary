@@ -42,6 +42,7 @@ Settings → Pages → Build and deployment → Source 選 **Deploy from a branc
 
 版本號寫在 `index.html` 的 `APP_VERSION`，以及 `sw.js` 的 `CACHE`，改版時兩個要一起改。App 裡在「設定」最下方點版本號，可以看到更新紀錄。
 
+- **v1.11.2**：男生／女生造型選擇暫時拿掉
 - **v1.11.1**：修正語音輸入文字重複
 - **v1.11.0**：修正小筆記無法輸入；新增語音輸入
 - **v1.10.0**：設定新增「喝水設定」，可選常用水杯容量（150～500 ml 或自訂）

@@ -460,10 +460,6 @@ h1.pg{font-size:22px;margin:4px 0 0}
       <p class="tip" style="margin:4px 0 0">震動只支援 Android 手機；iPhone 的瀏覽器不開放震動功能。</p>
     </div>
     <div class="card">
-      <div class="card-h"><h2>我的嗯嗯</h2><small>選一個造型</small></div>
-      <div class="gsel" id="genSel" style="margin-top:0"></div>
-    </div>
-    <div class="card">
       <div class="card-h"><h2>喝水設定</h2><small id="cupNow"></small></div>
       <p class="tip" style="margin:0 0 12px">選你平常用的水杯大小，記錄頁就會用這個容量換算喝了多少 ml。之前記的紀錄不會被改動。</p>
       <div class="chips" id="cupChips"></div>
@@ -1409,8 +1405,9 @@ function makeDemo(){
 }
 
 /* ================= 版本 ================= */
-var APP_VERSION="1.11.1";
+var APP_VERSION="1.11.2";
 var CHANGELOG=[
+  ["1.11.2","男生／女生造型選擇暫時拿掉，維持原本的吉祥物"],
   ["1.11.1","修正語音輸入文字重複的問題"],
   ["1.11.0","修正小筆記點進去無法輸入的問題；新增語音輸入，說話自動轉成文字寫進筆記"],
   ["1.10.0","設定新增「喝水設定」：可選常用水杯容量（150～500 ml 或自訂），記錄頁會依容量換算 ml；分析的喝水因素改用 ml 計算"],
@@ -1480,7 +1477,7 @@ function guide(){
   var icons=""; for(var i=1;i<=7;i++) icons+='<img src="'+icon("b"+i)+'" alt="">';
   var faces=""; for(var j=1;j<=5;j++) faces+='<img src="'+icon("m"+j)+'" alt="">';
   var P=[
-    {h:"歡迎來到嗯嗯日記！", gen:true, b:'<p>每天花 30 秒，記下嗯嗯、吃了什麼、肚子感覺、睡眠和心情，記幾週後就能看出哪些事情可能讓肚子不舒服。</p><p><b>先選一隻陪你的嗯嗯：</b></p><div class="gsel" id="obGen"></div><p class="tip">之後可以到「設定」更換。所有內容點了就會自動儲存。</p>'},
+    {h:"歡迎來到嗯嗯日記！", b:'<img class="hero" src="'+icon("mascot")+'" alt=""><p>每天花 30 秒，記下嗯嗯、吃了什麼、肚子感覺、睡眠和心情。</p><p>記錄幾週後，就能看出哪些事情可能讓肚子不舒服。</p><p class="tip">所有內容點了就會自動儲存，不用另外按儲存。</p>'},
     {h:"① 記錄嗯嗯", b:'<div class="icons">'+icons+'</div><p>每次上完廁所，點最像的形態，再按「<b>記下這次</b>」。</p><p>第 3～5 型是正常的，第 4 型最理想。一天可以記很多次；沒有嗯嗯的話，勾「今天沒有嗯嗯」。</p>'},
     {h:"② 肚子感覺與飲食", b:'<p>肚子痛、脹氣是<b>一天記一次</b>，用 0～3 分記整天的感覺，以最不舒服的時候為準。整天都沒事也請點 0，分析才知道哪天是舒服的。</p><p>吃了什麼：打開一餐，點「你常吃的」或打字搜尋就好，不用每樣都記。</p>'},
     {h:"③ 睡眠、心情、喝水", b:'<div class="icons">'+faces+'</div><p>拉一下睡眠時數、點一個心情表情。想多記一點，可以按「加一些細節」。</p><p>每一項都是選填，有空就記，越完整分析越準。</p>'},
@@ -1495,12 +1492,10 @@ function guide(){
         (i===0?'<button class="btn ghost sm" data-a="skip">略過</button>':'<button class="btn ghost sm" data-a="prev">上一步</button>')+
         (i===P.length-1?'<button class="btn sm" data-a="done">開始使用</button>':'<button class="btn sm" data-a="next">下一步</button>')+
       '</div>';
-    if(P[i].gen) $("obGen").innerHTML=genBtns(gender);
   }
   function finish(){ lsSet(OB_KEY,"1"); $("sheet").onclick=null; closeSheet(); }
   openSheet(""); draw();
   $("sheet").onclick=function(e){
-    var g=e.target.closest("[data-g]"); if(g){ setGender(g.dataset.g); $("obGen").innerHTML=genBtns(gender); return; }
     var a=e.target.closest("[data-a]"); if(!a) return;
     var t=a.dataset.a;
     if(t==="next"){ i++; draw(); }
@@ -1579,8 +1574,8 @@ $("cupChips").onclick=function(e){ var b=e.target.closest("[data-c]"); if(b) set
 $("cupSet").onclick=function(){ setCup($("cupInput").value); };
 
 /* ================= 性別造型（男生戴藍色帽子、女生戴粉紅蝴蝶結） ================= */
-var GEN_KEY="poodiary.gender", gender=lsGet(GEN_KEY);
-if(gender!=="boy" && gender!=="girl") gender=null;
+/* 男女生造型功能暫緩：先不開放選擇，一律用預設吉祥物（程式保留，之後確定風格再開） */
+var GEN_KEY="poodiary.gender", gender=null;
 var ACC={
   girl:'<g transform="translate(23.5 31.5) rotate(-16)"><path d="M0 0C-4-7-11-3-8.5 3-6.5 6-2 4 0 0zM0 0C4-7 11-3 8.5 3 6.5 6 2 4 0 0z" fill="#FF8FB1"/><circle r="2.4" fill="#F0628D"/></g>',
   boy:'<path d="M29 28.5C28 20 33 14.5 40 15.5c6 1 9 6 9 13z" fill="#5B9BE0"/><path d="M29 28.5h20" stroke="#3F7DC0" stroke-width="2.2" stroke-linecap="round"/><path d="M27.5 28.5C22 28.5 21 31.5 22 33c5-.5 14-1.5 27-1.5v-3z" fill="#3F7DC0"/><circle cx="39" cy="14.8" r="1.5" fill="#3F7DC0"/>'
@@ -1609,8 +1604,7 @@ function genBtns(cur){
   return '<button data-g="boy" class="'+(cur==="boy"?"on":"")+'"><img src="'+DEFAULT_ICONS.mascotBoy+'" alt="">男生</button>'+
          '<button data-g="girl" class="'+(cur==="girl"?"on":"")+'"><img src="'+DEFAULT_ICONS.mascotGirl+'" alt="">女生</button>';
 }
-function drawGenSel(){ $("genSel").innerHTML=genBtns(gender); }
-$("genSel").onclick=function(e){ var g=e.target.closest("[data-g]"); if(g){ setGender(g.dataset.g); toast("已換成"+(g.dataset.g==="boy"?"男生":"女生")+"造型",true); renderLog(); } };
+function drawGenSel(){}
 
 /* ================= 啟動 ================= */
 /* ================= 標題列的小吉祥物 ================= */
