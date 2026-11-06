@@ -494,8 +494,8 @@ h1.pg{font-size:22px;margin:4px 0 0}
       <div class="cal" id="cal"></div>
       <div class="legend" id="legend"></div>
     </div>
-    <div class="card" id="c-period" style="display:none"></div>
     <div class="card" id="calDetail"></div>
+    <div class="card" id="c-period" style="display:none"></div>
     <div class="card" id="noteCard">
       <div class="card-h"><h2>所有小筆記</h2><small id="noteCount"></small></div>
       <input type="search" id="noteQ" placeholder="搜尋筆記，例如「藥」" aria-label="搜尋筆記" style="width:100%;border:2px solid var(--line);border-radius:12px;padding:9px 12px;background:#FFFCF8;font-size:14px;margin-bottom:6px">
@@ -1690,8 +1690,9 @@ function makeDemo(){
 }
 
 /* ================= 版本 ================= */
-var APP_VERSION="1.24.0";
+var APP_VERSION="1.24.1";
 var CHANGELOG=[
+  ["1.24.1","日曆頁的生理期卡片移到「某天詳情」下面，點日期就能直接看到當天內容"],
   ["1.24.0","生理期卡片搬到「日曆」頁；心情的「生理期」標籤拿掉（避免和生理期功能重複）"],
   ["1.23.2","日曆用淡色框標出預計的生理期日子（依平均週期與平均經期天數推算）"],
   ["1.23.1","日曆的生理期改成淡紅色底（不再有愛心）；生理期卡片的「下次預計」改成顯眼的一列，並說明需要兩次開始日"],

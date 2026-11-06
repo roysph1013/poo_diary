@@ -42,6 +42,7 @@ Settings → Pages → Build and deployment → Source 選 **Deploy from a branc
 
 版本號寫在 `index.html` 的 `APP_VERSION`，以及 `sw.js` 的 `CACHE`，改版時兩個要一起改。App 裡在「設定」最下方點版本號，可以看到更新紀錄。
 
+- **v1.24.1**：日曆頁生理期卡片移到某天詳情下面
 - **v1.24.0**：生理期卡片搬到日曆頁；拿掉心情的「生理期」標籤
 - **v1.23.2**：日曆標出預計生理期
 - **v1.23.1**：日曆生理期改淡紅底；下次預計顯眼
