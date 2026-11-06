@@ -1242,10 +1242,11 @@ $("calPrev").onclick=function(){ calM--; if(calM<0){calM=11;calY--;} renderCal()
 $("calNext").onclick=function(){ calM++; if(calM>11){calM=0;calY++;} renderCal(); };
 
 /* ================= 分析 ================= */
-var range=30;
+var RANGE_KEY="poodiary.range", range=30;
+(function(){ var r=lsGet(RANGE_KEY); if(r!==null && ["14","30","90","0"].indexOf(r)>=0) range=+r; })();
 function syncRange(){ ["rangeSeg","advRangeSeg"].forEach(function(id){ Array.prototype.forEach.call($(id).children,function(x){ x.classList.toggle("on",+x.dataset.r===range); }); }); }
-$("rangeSeg").onclick=function(e){ var b=e.target.closest("button"); if(!b) return; range=+b.dataset.r; syncRange(); renderAna(); };
-$("advRangeSeg").onclick=function(e){ var b=e.target.closest("button"); if(!b) return; range=+b.dataset.r; syncRange(); renderAdv(); };
+$("rangeSeg").onclick=function(e){ var b=e.target.closest("button"); if(!b) return; range=+b.dataset.r; lsSet(RANGE_KEY,String(range)); syncRange(); renderAna(); };
+$("advRangeSeg").onclick=function(e){ var b=e.target.closest("button"); if(!b) return; range=+b.dataset.r; lsSet(RANGE_KEY,String(range)); syncRange(); renderAdv(); };
 function outcome(list){
   var c={hard:0,normal:0,loose:0}, n=0;
   list.forEach(function(s){ if(!s) return; n++; c[s==="none"||s==="pain"?"hard":(s==="soft"||s==="ok"?"normal":s)]++; });
@@ -1617,8 +1618,9 @@ function makeDemo(){
 }
 
 /* ================= 版本 ================= */
-var APP_VERSION="1.18.0";
+var APP_VERSION="1.18.1";
 var CHANGELOG=[
+  ["1.18.1","分析與建議頁選的天數會記住，重開 App 也不會變回 30 天"],
   ["1.18.0","建議頁新增天數按鈕（14／30／90 天／全部），並標明建議是根據近幾天的紀錄；和分析頁的天數同步"],
   ["1.17.3","拿掉喝水設定卡片標題右邊重複的小字"],
   ["1.17.2","喝水設定與個人資料按「確定」後會收折成一行摘要，需要時按「修改」再展開"],
@@ -2094,7 +2096,7 @@ function initPet(){
   /*PETAPI*/
 }
 
-load(); buildLog(); initFx(); applyGender(); drawGenSel(); drawCupSet(); drawProf(); applyStickers(); renderLog(); initPet();
+syncRange(); load(); buildLog(); initFx(); applyGender(); drawGenSel(); drawCupSet(); drawProf(); applyStickers(); renderLog(); initPet();
 updateInstallUI();
 if(!lsGet(OB_KEY)) setTimeout(guide, 400);
 if(!storageOK) toast("這個瀏覽器無法自動儲存，請記得匯出備份");

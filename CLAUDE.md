@@ -38,7 +38,7 @@
     water: 杯數, cup: 當時一杯幾 ml（沒填視為 250）, note: "" } },
   customFoods: { 食物名: [大類 key] } }
 ```
-其他 key：`poodiary.profile`（選填：age=u18|a18|a45|a65、sex=m|f、preg）、`poodiary.cup`（一杯幾 ml）、`poodiary.gender`、`poodiary.stickers.v1`（自訂貼圖，dataURL）、`poodiary.onboarded`、`poodiary.fx`（音效/震動開關）。
+其他 key：`poodiary.profile`（選填：age=u18|a18|a45|a65、sex=m|f、preg）、`poodiary.cup`（一杯幾 ml）、`poodiary.range`（分析與建議頁的天數：14|30|90|0=全部）、`poodiary.gender`、`poodiary.stickers.v1`（自訂貼圖，dataURL）、`poodiary.onboarded`、`poodiary.fx`（音效/震動開關）。
 
 ## 重要設計決定（使用者確認過的）
 - **視覺風格**：奶茶色底 `#FFF6EC`、白色圓角卡片、三層柔和懸浮陰影、柔和配色。吉祥物是左上角那坨原創便便。
