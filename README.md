@@ -42,6 +42,7 @@ Settings → Pages → Build and deployment → Source 選 **Deploy from a branc
 
 版本號寫在 `index.html` 的 `APP_VERSION`，以及 `sw.js` 的 `CACHE`，改版時兩個要一起改。App 裡在「設定」最下方點版本號，可以看到更新紀錄。
 
+- **v1.13.0**：分析新增腸道狀況評分；形態改用名稱不顯示第幾型；詳細數據按鈕修正
 - **v1.12.2**：語音輸入自動過濾語氣詞與贅詞
 - **v1.12.1**：語音輸入自動加標點
 - **v1.12.0**：第一次開啟先設定水杯大小；語音輸入改簡潔圖示

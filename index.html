@@ -212,6 +212,9 @@ h1.pg{font-size:22px;margin:4px 0 0}
 .mic{display:inline-flex;align-items:center;gap:5px;border:0;border-radius:999px;background:var(--pink-l);color:var(--ink);font-size:13px;font-weight:700;padding:7px 12px}
 .mic.rec{background:#E8607A;color:#fff;animation:micPulse 1.1s ease-in-out infinite}
 @keyframes micPulse{0%,100%{box-shadow:0 0 0 0 rgba(232,96,122,.5)}50%{box-shadow:0 0 0 8px rgba(232,96,122,0)}}
+.item .stg{font-size:11px;font-weight:700;margin-left:6px}
+.gauge{position:relative;height:10px;border-radius:999px;margin-top:14px;background:linear-gradient(90deg,#D9607C 0%,#D9A03C 40%,#6BB08A 60%,#3E9A6A 100%)}
+.gauge i{position:absolute;top:50%;width:18px;height:18px;border-radius:50%;background:#fff;border:3px solid #7a5238;transform:translate(-50%,-50%);box-shadow:0 1px 4px rgba(0,0,0,.25)}
 .empty{text-align:center;color:var(--sub);font-size:14px;padding:18px 6px;line-height:1.8}
 .empty img{width:72px;height:72px}
 .tbl{width:100%;border-collapse:collapse;font-size:13px}
@@ -503,7 +506,7 @@ h1.pg{font-size:22px;margin:4px 0 0}
     <div class="card">
       <div class="card-h"><h2>小提醒</h2></div>
       <p class="tip" style="margin:0">這個 App 是生活紀錄工具，不能取代醫療診斷。如果出現血便、黑色柏油便、腹瀉或便祕超過兩週、體重莫名下降、劇烈腹痛，請盡快就醫。</p>
-      <p class="tip">嗯嗯形態依據「布里斯托大便分類法」（Lewis &amp; Heaton, 1997），分類方式採 Rome 標準：第 1–2 型偏便祕、第 3–5 型正常（第 4 型最理想）、第 6–7 型偏腹瀉。</p>
+      <p class="tip">嗯嗯形態依據國際通用的「布里斯托大便分類法」（Lewis &amp; Heaton, 1997），分類採 Rome 標準：硬球、結塊偏便祕；裂紋、香蕉、軟塊正常（香蕉最理想）；糊狀、水狀偏腹瀉。</p>
     </div>
     <button class="ver" id="verText"></button>
   </section>
@@ -575,14 +578,15 @@ var STK_SLOTS = [
 ];
 
 /* ================= 常數 ================= */
+var SLABEL={hard:"偏便祕",normal:"正常",loose:"偏腹瀉"};
 var BRISTOL = [null,
-  {n:"硬球", d:"第 1 型：一顆一顆的硬球，很難排出（便祕）", s:"hard"},
-  {n:"結塊", d:"第 2 型：香腸狀但凹凸結塊（輕度便祕）", s:"hard"},
-  {n:"裂紋", d:"第 3 型：香腸狀、表面有裂紋（正常）", s:"normal"},
-  {n:"香蕉", d:"第 4 型：像香蕉一樣滑順柔軟（最理想）", s:"normal"},
-  {n:"軟塊", d:"第 5 型：邊緣清楚的軟塊（偏軟，但仍在正常範圍）", s:"normal"},
-  {n:"糊狀", d:"第 6 型：邊緣模糊的糊狀、黏黏的（輕度腹瀉）", s:"loose"},
-  {n:"水狀", d:"第 7 型：完全是水狀（拉肚子）", s:"loose"}
+  {n:"硬球", d:"一顆一顆的硬球，很難排出（偏便祕）", s:"hard"},
+  {n:"結塊", d:"香腸狀但凹凸結塊（輕度便祕）", s:"hard"},
+  {n:"裂紋", d:"香腸狀、表面有裂紋（正常）", s:"normal"},
+  {n:"香蕉", d:"像香蕉一樣滑順柔軟（最理想）", s:"normal"},
+  {n:"軟塊", d:"邊緣清楚的軟塊（偏軟，但仍在正常範圍）", s:"normal"},
+  {n:"糊狀", d:"邊緣模糊的糊狀、黏黏的（輕度腹瀉）", s:"loose"},
+  {n:"水狀", d:"完全是水狀（拉肚子）", s:"loose"}
 ];
 var STATUS = {
   normal:{t:"正常", c:"var(--normal)"},
@@ -798,8 +802,8 @@ function buildLog(){
   var br=$("bristol");
   for(var i=1;i<=7;i++){
     var b=document.createElement("button"); b.className="bt"; b.dataset.t=i;
-    b.innerHTML='<img data-stk="b'+i+'" alt=""><span>'+i+' '+BRISTOL[i].n+'</span>';
-    b.setAttribute("aria-label","第 "+i+" 型 "+BRISTOL[i].n);
+    b.innerHTML='<img data-stk="b'+i+'" alt=""><span>'+BRISTOL[i].n+'</span>';
+    b.setAttribute("aria-label",BRISTOL[i].n);
     br.appendChild(b);
   }
   br.onclick=function(e){ var b=e.target.closest(".bt"); if(!b) return; var t=+b.dataset.t; selType = selType===t?null:t; renderBristol(); };
@@ -812,7 +816,7 @@ function buildLog(){
     d.stools.sort(function(a,b){ return (a.time||"99").localeCompare(b.time||"99"); });
     d.noPoop=false; save(); selType=null; selTags=[];
     renderBristol(); renderStools();
-    okToast("已記錄第 "+t+" 型"+(t===4?"，完美的香蕉！":t<=2?"，記得多喝水":t>=6?"，肚子要保重":""));
+    okToast("已記錄：「"+BRISTOL[t].n+"」"+(t===4?"，完美的香蕉！":t<=2?"，記得多喝水":t>=6?"，肚子要保重":""));
   };
   $("stoolList").onclick=function(e){ var b=e.target.closest("[data-del]"); if(!b) return; var d=getDay(cur); d.stools.splice(+b.dataset.del,1); save(); tidy(cur); renderStools(); };
   $("noPoop").onchange=function(){ var d=getDay(cur,true); d.noPoop=this.checked; save(); tidy(cur); renderProgress(); if(this.checked) okToast("已記錄：今天沒有嗯嗯"); };
@@ -1033,7 +1037,7 @@ function renderBristol(){
 function renderStools(){
   var d=getDay(cur);
   $("stoolList").innerHTML=(d?d.stools:[]).map(function(s,i){
-    return '<div class="item"><img src="'+icon("b"+s.type)+'" alt=""><div class="t">第 '+s.type+' 型・'+BRISTOL[s.type].n+
+    return '<div class="item"><img src="'+icon("b"+s.type)+'" alt=""><div class="t">'+BRISTOL[s.type].n+'<span class="stg" style="color:'+STATUS[BRISTOL[s.type].s].c+'">'+SLABEL[BRISTOL[s.type].s]+'</span>'+
       '<small>'+(s.time?esc(s.time):"沒填時間")+(s.tags.length?"・"+s.tags.map(esc).join("、"):"")+'</small></div>'+
       '<button data-del="'+i+'" aria-label="刪除">✕</button></div>';
   }).join("");
@@ -1238,7 +1242,22 @@ function renderAna(){
   rec.forEach(function(k){ var d=getDay(k), s=dayStatus(d); cnt[s==="soft"?"normal":s]++; d.stools.forEach(function(x){ types[x.type]++; total++; }); if(d.stools.some(function(x){ return x.tags.indexOf("黏馬桶")>=0; })) sticky++; });
   var span = range || Math.min(90, Math.round((parseK(tk)-parseK(keys[0]))/864e5)+1);
   var strip=""; for(var i=span-1;i>=0;i--){ var st=dayStatus(getDay(addDays(tk,-i))); strip+='<i style="'+(st?"background:"+STATUS[st].c:"")+'"></i>'; }
-  var h='<div class="card"><div class="card-h"><h2>總覽</h2><small>'+(range?"近 "+range+" 天・":"")+'記錄 '+rec.length+' 天</small></div>'+
+  /* 腸道狀況評分：嗯嗯正常的日子佔比為主（70%），有填肚子感覺的話再加上肚子舒服的日子佔比（30%） */
+  var bkeys=keys.filter(function(k){ return bellyStatus(getDay(k)); }), bbad=bkeys.filter(function(k){ return bellyStatus(getDay(k))==="pain"; }).length;
+  var nPct=pct(cnt.normal,rec.length), score=bkeys.length? Math.round(nPct*0.7+(100-pct(bbad,bkeys.length))*0.3) : nPct;
+  var lv= score>=80? ["良好","#3E9A6A","嗯嗯大多正常，腸道狀況不錯，繼續保持。"]
+        : score>=60? ["還不錯","#6BB08A","大致正常，偶爾有不穩的日子。"]
+        : score>=40? ["需要留意","#D9A03C","不正常的日子偏多，建議留意飲食、作息和壓力。"]
+        : ["不太理想","#D9607C","不正常的日子很多，建議多觀察並考慮諮詢醫師。"];
+  var dir = (cnt.hard+cnt.none)>cnt.loose? "偏便祕或沒嗯嗯" : "偏拉肚子";
+  var sh='<div class="card"><div class="card-h"><h2>腸道狀況評分</h2><small>'+(range?"近 "+range+" 天":"全部紀錄")+'</small></div>'+
+    '<div style="display:flex;align-items:center;gap:16px"><div style="text-align:center;flex:none"><b class="num" style="font-size:46px;line-height:1;color:'+lv[1]+'">'+score+'</b><div style="font-size:12px;color:var(--sub)">滿分 100</div></div>'+
+    '<div style="flex:1"><div style="font-size:18px;font-weight:700;color:'+lv[1]+'">'+lv[0]+'</div><div style="font-size:13px;color:#6E5442;margin-top:2px">'+lv[2]+'</div></div></div>'+
+    '<div class="gauge"><i style="left:'+Math.max(2,Math.min(98,score))+'%"></i></div>'+
+    '<p class="tip" style="margin-top:10px">記錄的 '+rec.length+' 天裡：正常 '+cnt.normal+' 天'+((cnt.hard+cnt.none)?'、偏便祕或沒嗯嗯 '+(cnt.hard+cnt.none)+' 天':'')+(cnt.loose?'、偏拉肚子 '+cnt.loose+' 天':'')+'。'+(score<80 && (cnt.hard+cnt.none+cnt.loose)? '不正常的日子主要是'+dir+'。':'')+(bkeys.length?'肚子明顯不舒服 '+bbad+' 天（共 '+bkeys.length+' 天有填）。':'')+'</p>'+
+    (rec.length<7?'<p class="tip">目前只記了 '+rec.length+' 天，資料還少，分數僅供參考。</p>':'')+
+    '<p class="tip">這是依你的紀錄算出的參考分數，不是醫療診斷。若持續不正常，或出現血便、黑便、劇烈腹痛，請盡快就醫。</p></div>';
+  var h=sh+'<div class="card"><div class="card-h"><h2>總覽</h2><small>'+(range?"近 "+range+" 天・":"")+'記錄 '+rec.length+' 天</small></div>'+
     '<div class="stats">'+
       '<div class="stat"><b class="num" style="color:#3E9A6A">'+pct(cnt.normal,rec.length)+'%</b><span>正常</span></div>'+
       '<div class="stat"><b class="num" style="color:#A8683A">'+pct(cnt.hard+cnt.none,rec.length)+'%</b><span>便祕／沒嗯嗯</span></div>'+
@@ -1272,11 +1291,6 @@ function renderAna(){
   h+='<p class="tip">這只是統計上的關聯，不等於因果，也不能用來診斷。有疑慮請諮詢醫師。</p>'+
     '<button class="btn ghost sm" id="detBtn" style="margin-top:4px">'+(anaDetail?"收起詳細數據 ▲":"看詳細數據 ▼")+'</button></div>';
 
-  var mx=Math.max.apply(null,types)||1;
-  h+='<div class="card"><div class="card-h"><h2>形態分佈</h2><small>共 '+total+' 次</small></div>';
-  for(var t=1;t<=7;t++) h+='<div class="bar-row"><span class="lb">第 '+t+' 型</span><span class="bar"><i style="width:'+(types[t]*100/mx)+'%;background:'+STATUS[BRISTOL[t].s].c+'"></i></span><span class="v num">'+types[t]+'</span></div>';
-  h+='<p class="tip">依 Rome 標準：第 1–2 型偏便祕、第 3–5 型正常、第 6–7 型偏腹瀉。</p></div>';
-
   if(anaDetail){
     var rows=F.filter(function(f){ return f.w.n>0; });
     h+='<div class="card"><div class="card-h"><h2>詳細數據</h2><small>'+(BELLY?"肚子不舒服比例":"嗯嗯不正常比例")+'</small></div>'+
@@ -1287,6 +1301,10 @@ function renderAna(){
       '</table>'+
       '<p class="tip">方法：比較「有這個因素的日子」和「其他日子」的不舒服比例，用 Fisher 精確檢定排除比較像巧合的結果（只列出 p &lt; 0.1，且兩邊各至少 '+MIN_N+' 天）。'+(BELLY?'「肚子明顯不舒服」指肚子痛或脹氣 2 分以上。':'')+'飲食看吃完當天或隔天，睡眠看睡醒那天，心情看同一天。</p></div>';
   }
+  h+='<div class="card"><div class="card-h"><h2>嗯嗯形態分佈</h2><small>共 '+total+' 次</small></div>';
+  for(var t=1;t<=7;t++){ var sp=BRISTOL[t].s;
+    h+='<div class="bar-row"><span class="lb" style="width:104px">'+BRISTOL[t].n+'<span class="stg" style="color:'+STATUS[sp].c+';font-size:11px;font-weight:700;margin-left:4px">'+SLABEL[sp]+'</span></span><span class="bar"><i style="width:'+(total?types[t]*100/total:0)+'%;background:'+STATUS[sp].c+'"></i></span><span class="v num" style="width:74px;text-align:right">'+types[t]+' 次・'+pct(types[t],total)+'%</span></div>'; }
+  h+='<p class="tip">綠色是正常的嗯嗯；棕色偏便祕；藍色偏腹瀉。</p></div>';
   body.innerHTML=h;
   $("detBtn").onclick=function(){ anaDetail=!anaDetail; var y=window.scrollY; renderAna(); window.scrollTo(0,y); };
   $("modeSeg").onclick=function(e){ var b=e.target.closest("[data-m]"); if(!b || b.dataset.m===anaMode) return; anaMode=b.dataset.m; var y=window.scrollY; renderAna(); window.scrollTo(0,y); };
@@ -1405,8 +1423,9 @@ function makeDemo(){
 }
 
 /* ================= 版本 ================= */
-var APP_VERSION="1.12.2";
+var APP_VERSION="1.13.0";
 var CHANGELOG=[
+  ["1.13.0","分析最上方新增「腸道狀況評分」（良好／還不錯／需要留意／不太理想）；嗯嗯形態直接寫名稱（硬球、香蕉…）與正常／異常，不再出現「第幾型」；詳細數據改放在按鈕正下方"],
   ["1.12.2","語音輸入會自動過濾語氣詞與贅詞（呃、欸、喔、哦、句尾的啦／啊／耶…）"],
   ["1.12.1","語音輸入會自動加標點：停頓加逗號、轉折詞前加逗號、疑問句加問號、結束加句號"],
   ["1.12.0","第一次開啟時先設定水杯大小；語音輸入改用簡潔圖示、不再使用表情符號"],
@@ -1482,7 +1501,7 @@ function guide(){
   var P=[
     {h:"歡迎來到嗯嗯日記！", b:'<img class="hero" src="'+icon("mascot")+'" alt=""><p>每天花 30 秒，記下嗯嗯、吃了什麼、肚子感覺、睡眠和心情。</p><p>記錄幾週後，就能看出哪些事情可能讓肚子不舒服。</p><p class="tip">所有內容點了就會自動儲存，不用另外按儲存。</p>'},
     {h:"先設定你的水杯", cup:true, b:'<p>選你平常喝水用的杯子大小，記錄喝水時就會幫你換算成 ml。</p><div class="chips" id="obCup" style="justify-content:center"></div><div class="chips" style="justify-content:center;margin-top:10px;align-items:center"><input type="number" id="obCupIn" inputmode="numeric" min="50" max="2000" placeholder="自訂 ml" style="width:110px;border:1.5px solid var(--line);border-radius:12px;padding:8px 10px;background:#fff"><button class="btn ghost sm" data-a="cupset">設定</button></div><p class="tip">不確定的話先用 250 ml，之後可以到「設定」修改。</p>'},
-    {h:"① 記錄嗯嗯", b:'<div class="icons">'+icons+'</div><p>每次上完廁所，點最像的形態，再按「<b>記下這次</b>」。</p><p>第 3～5 型是正常的，第 4 型最理想。一天可以記很多次；沒有嗯嗯的話，勾「今天沒有嗯嗯」。</p>'},
+    {h:"① 記錄嗯嗯", b:'<div class="icons">'+icons+'</div><p>每次上完廁所，點最像的形態，再按「<b>記下這次</b>」。</p><p>「裂紋、香蕉、軟塊」都算正常，香蕉最理想。一天可以記很多次；沒有嗯嗯的話，勾「今天沒有嗯嗯」。</p>'},
     {h:"② 肚子感覺與飲食", b:'<p>肚子痛、脹氣是<b>一天記一次</b>，用 0～3 分記整天的感覺，以最不舒服的時候為準。整天都沒事也請點 0，分析才知道哪天是舒服的。</p><p>吃了什麼：打開一餐，點「你常吃的」或打字搜尋就好，不用每樣都記。</p>'},
     {h:"③ 睡眠、心情、喝水", b:'<div class="icons">'+faces+'</div><p>拉一下睡眠時數、點一個心情表情。想多記一點，可以按「加一些細節」。</p><p>每一項都是選填，有空就記，越完整分析越準。</p>'},
     {h:"④ 看分析", b:'<p>持續記錄 <b>3～4 週</b>後，到「分析」看看哪些食物、作息或心情可能跟拉肚子、便祕、肚子痛有關。</p><p>這只是統計上的參考，不能取代醫生的診斷。有血便、黑便或劇烈腹痛請盡快就醫。</p>'},
