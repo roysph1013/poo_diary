@@ -133,7 +133,8 @@ header p{margin:0;font-size:12px;color:var(--sub)}
 .search{position:relative}
 .search input{width:100%;border:2px solid var(--line);border-radius:12px;padding:9px 12px;background:#FFFCF8;font-size:14px}
 .search input:focus,.note:focus,.meal-note:focus{outline:none;border-color:#F3B3C2}
-.sugg{position:absolute;left:0;right:0;top:calc(100% + 4px);background:#fff;border-radius:14px;box-shadow:0 10px 24px rgba(91,70,54,.18);z-index:15;overflow:hidden;display:none}
+.sugg{position:absolute;left:0;right:0;top:calc(100% + 4px);background:#fff;border-radius:14px;box-shadow:0 10px 24px rgba(91,70,54,.18);z-index:15;overflow-y:auto;-webkit-overflow-scrolling:touch;max-height:min(55vh,420px);display:none}
+.sugg .sg-h{position:sticky;top:0;background:#FFF8EE;font-size:12px;color:var(--sub);padding:7px 14px;z-index:1}
 .sugg.on{display:block}
 .sugg button{display:flex;justify-content:space-between;width:100%;border:0;background:none;padding:11px 14px;font-size:14px;text-align:left;border-top:1px solid var(--soft)}
 .sugg button:first-child{border-top:0}
@@ -1050,9 +1051,10 @@ function renderSugg(box){
   // 也比對大類名稱
   CATS.forEach(function(c){ if(c.t.indexOf(q)>=0) names.forEach(function(n){ if(foodCats(n).indexOf(c.k)>=0 && hit.indexOf(n)<0) hit.push(n); }); });
   hit.sort(function(a,b){ return a.indexOf(q)-b.indexOf(q) || a.length-b.length; });
-  var h=hit.slice(0,7).map(function(n){ return '<button data-food="'+esc(n)+'">'+esc(n)+'<small>'+foodCats(n).map(function(c){ return CAT_NAME[c]; }).join("・")+'</small></button>'; }).join("");
-  if(hit.indexOf(q)<0) h+='<button data-new="'+esc(q)+'">新增「'+esc(q)+'」<small>自己選類別</small></button>';
-  sg.innerHTML=h; sg.classList.add("on");
+  var newBtn = hit.indexOf(q)<0? '<button data-new="'+esc(q)+'">新增「'+esc(q)+'」<small>自己選類別</small></button>' : '';
+  var h=(hit.length>7? '<div class="sg-h">找到 '+hit.length+' 種，往下滑看更多</div>' : '')+hit.map(function(n){ return '<button data-food="'+esc(n)+'">'+esc(n)+'<small>'+foodCats(n).map(function(c){ return CAT_NAME[c]; }).join("・")+'</small></button>'; }).join("");
+  h+=newBtn;
+  sg.innerHTML=h; sg.scrollTop=0; sg.classList.add("on");
 }
 function renderMealSum(box){
   var d=getDay(cur), x=d?d.meals[box.dataset.k]:null, s=box.querySelector(".sum");
@@ -1721,8 +1723,9 @@ function makeDemo(){
 }
 
 /* ================= 版本 ================= */
-var APP_VERSION="1.27.0";
+var APP_VERSION="1.27.1";
 var CHANGELOG=[
+  ["1.27.1","搜尋食物會列出所有符合的結果（以前最多只顯示 7 個），清單可以往下滑"],
   ["1.27.0","修正「更多食物」的食物按鈕全部擠成一個的問題；重新檢查內建食物的分類，修正約 400 種不準的歸類；之後有新版本時，第一次開啟會跳出更新重點"],
   ["1.26.0","內建食物從約 170 種擴充到 2200 多種：新增早餐店、便當飯類、麵食、台菜熱炒、鍋物燒烤、日韓東南亞料理、西餐速食、港式川湘、素食、湯品、烘焙、手搖飲咖啡、零食超商、蔬果肉蛋等分類，都會自動歸到對應的腸道因素"],
   ["1.25.1","修正分享連結的預覽圖還是舊圖示：加入專用分享圖與預覽資訊，分享網址加參數讓 LINE 重新抓圖"],
