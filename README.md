@@ -42,6 +42,7 @@ Settings → Pages → Build and deployment → Source 選 **Deploy from a branc
 
 版本號寫在 `index.html` 的 `APP_VERSION`，以及 `sw.js` 的 `CACHE`，改版時兩個要一起改。App 裡在「設定」最下方點版本號，可以看到更新紀錄。
 
+- **v1.27.4**：「很糟」表情簡化
 - **v1.27.3**：「很糟」哭哭臉重畫
 - **v1.27.2**：心情「很糟」改哭哭臉、「低落」改難過臉
 - **v1.27.1**：搜尋食物列出所有符合的結果
