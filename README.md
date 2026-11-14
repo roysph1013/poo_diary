@@ -42,6 +42,7 @@ Settings → Pages → Build and deployment → Source 選 **Deploy from a branc
 
 版本號寫在 `index.html` 的 `APP_VERSION`，以及 `sw.js` 的 `CACHE`，改版時兩個要一起改。App 裡在「設定」最下方點版本號，可以看到更新紀錄。
 
+- **v1.27.0**：修正更多食物按鈕擠在一起；修正約 400 種食物分類；新版本會跳出更新重點
 - **v1.26.0**：內建食物擴充到 2200 多種（依臺灣常見餐廳與小吃整理）
 - **v1.25.1**：分享預覽圖改成新圖（og-image-v1.png）
 - **v1.25.0**：使用說明第 2 頁教安裝成 App

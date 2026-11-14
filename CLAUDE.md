@@ -39,7 +39,7 @@
   customFoods: { 食物名: [大類 key] },
   periods: [{ s:"YYYY-MM-DD" 開始日, e:"YYYY-MM-DD"|null 結束日 }] }   // 生理期，只有性別選女生時才顯示
 ```
-其他 key：`poodiary.profile`（選填：age=u18|a18|a45|a65、sex=m|f、preg）、`poodiary.cup`（一杯幾 ml）、`poodiary.range`（分析與建議頁的天數：14|30|90|0=全部）、`poodiary.gender`、`poodiary.stickers.v1`（自訂貼圖，dataURL）、`poodiary.onboarded`、`poodiary.fx`（音效/震動開關）。
+其他 key：`poodiary.profile`（選填：age=u18|a18|a45|a65、sex=m|f、preg）、`poodiary.cup`（一杯幾 ml）、`poodiary.range`（分析與建議頁的天數：14|30|90|0=全部）、`poodiary.gender`、`poodiary.stickers.v1`（自訂貼圖，dataURL）、`poodiary.onboarded`、`poodiary.seenVersion`（上次看過更新說明的版本，用來在新版第一次開啟時跳出 CHANGELOG 重點）、`poodiary.fx`（音效/震動開關）。
 
 ## 重要設計決定（使用者確認過的）
 - **視覺風格**：奶茶色底 `#FFF6EC`、白色圓角卡片、三層柔和懸浮陰影、柔和配色。吉祥物是左上角那坨原創便便。
@@ -80,3 +80,8 @@
 - 判斷標準：週期 21～35 天算一般正常（青少年到 45 天）；最短與最長差 ≤7 天規律、8～19 略有變動、≥20 天建議就醫；經期 >7 天、距上次開始 ≥90 天（排除懷孕）建議就醫。依據：臺大醫院健康電子報（青少女月經不規則）、ACOG CO 651、FIGO 2018（Merck 手冊表）、healthdirect、HSE、TVBS 報導（前列腺素與腹瀉，僅作說明）。**這些來源只依搜尋摘要核對，沒有打開全文**；ACOG 成人 21～35 天的條文、FIGO 規律度 7～9 天的確切定義未能確認。
 - 明確標示「不能當作避孕或受孕依據」；沒有做排卵／易孕期預測（沒有可靠且安全的依據）。
 - **分享預覽圖**：`index.html` 的 `og:image` 指向 `og-image-v1.png`（1200×630，奶茶底＋便便＋標題）。LINE 等聊天軟體會依網址快取預覽，所以設定頁「分享 App」用的 `APP_URL` 帶 `?s=2` 參數；之後換分享圖要同時改檔名（v2）和把 `s` 加 1。已經傳出去的訊息預覽不會變。
+
+## 踩過的雷（改程式時注意）
+- **CSS class 撞名**：吉祥物的特效元素曾用 `.note`、`.food`，和小筆記輸入框、食物按鈕撞名，導致無法輸入、食物按鈕全部疊在一起。吉祥物相關一律用 `p` 開頭（`.pnote`、`.pfood`、`.pet-*`）。新增 class 前先 grep 有沒有重名。
+- **重寫函式時漏掉收尾**：重寫 `renderWater()` 曾漏掉 `renderProgress()`；改寫語音輸入曾刪掉 `put()`／`reset()`。改完要測「勾勾與進度」和完整操作流程。
+- **改版流程補充**：`CHANGELOG` 第一行要寫給使用者看的白話重點，因為新版本第一次開啟會跳出最近 5 則。
